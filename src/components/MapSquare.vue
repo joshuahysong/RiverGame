@@ -1,5 +1,7 @@
 <template>
-    <div :class="getMapSquareClass()" class="map-square">
+    <div class="map-square"
+        :class="getMapSquareClass()"
+        @click="doMapSquareClick">
         <civilization-tile v-if="hasTile" class="tile" :tile="tile" />
         <div v-if="showCoordinates" class="coordinates small" :class="{'text-white': hasTile}">{{coordinates}}</div>
     </div>
@@ -19,7 +21,7 @@ export default {
         showCoordinates: Boolean,
         tile: Number
     },
-    computed:{
+    computed: {
         coordinates() {
             var row = Math.floor(this.index / 16) + 10
             return `${row.toString(36).toUpperCase()}-${(this.index % 16 + 1)}`;
@@ -35,22 +37,9 @@ export default {
             }
             return 'ground'
         },
-        getTileClass() {
-            switch(this.tile){
-                case 1:
-                case 2:
-                    return 'temple'
-                case 3:
-                    return 'market'
-                case 4:
-                    return 'settlement'
-                case 5:
-                    return 'farm'
-                case 6:
-                    return 'catastrophe'
-            }
-        },
-
+        doMapSquareClick() {
+            this.$store.commit('board/addTile', { tile: 2, index: this.index })
+        }
     }
 }
 </script>

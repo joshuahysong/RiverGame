@@ -5,7 +5,7 @@
                 <div class="map-container">
                     <div class="grid">
                         <map-square class="cell"
-                            v-for="(mapSquare, index) in mapSquares"
+                            v-for="(mapSquare, index) in map"
                             :key="index"
                             :map-square-type="mapSquare"
                             :index="index"
@@ -28,7 +28,7 @@
                                     class="tile"
                                     :class="{'selected-tile': isSelectedHandTile(index) }"
                                     :tile="tile"
-                                    @click.native="selectedHandTile = index" />
+                                    @click.native="selectHandTile(index)" />
                             </div>
                         </div>
                     </div>
@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import CivilizationTile from './components/CivilizationTile.vue'
 import MapSquare from './components/MapSquare.vue'
 
@@ -58,33 +59,6 @@ export default {
     data() {
         return {
             showCoordinates: false,
-            mapSquares: [
-                0,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,
-                0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,
-                0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,
-                1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-                1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,
-                0,0,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
-                0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-            ],
-            tiles: [
-                0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-                0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-                0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
-                0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-                0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-                //2,3,4,5,6,0,0,0,0,0,1,0,0,0,0,0
-            ],
             bag: {
                 'temple': 47,
                 'market': 30,
@@ -94,8 +68,14 @@ export default {
             hands: {
                 player: [2,2,3,4,5,6]
             },
-            selectedHandTile: 10
+            selectedHandTile: null
         }
+    },
+    computed: {
+        ...mapGetters('board', {
+            map: 'map',
+            tiles: 'tiles'
+        })
     },
     methods: {
         getTile(index) {
@@ -106,6 +86,12 @@ export default {
         },
         isSelectedHandTile(index) {
             return this.selectedHandTile === index
+        },
+        selectHandTile(index) {
+            this.selectedHandTile = index
+            // assume player for now
+            let selectedTile = this.hands.player.length - 1 >= index ? this.hands.player[index] : null
+            this.$store.commit('setSelectedTile', selectedTile)
         }
     }
 }
