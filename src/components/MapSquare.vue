@@ -38,7 +38,7 @@ export default {
             return 'ground'
         },
         doMapSquareClick() {
-            this.$store.commit('board/addTile', { tile: 2, index: this.index })
+            this.$store.commit('board/addTile', { index: this.index })
         }
     }
 }

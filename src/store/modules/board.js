@@ -1,8 +1,3 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
-
 const state = () => ({
     map: [
         0,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,
@@ -48,7 +43,7 @@ const mutations = {
     },
     addTile (state, payload) {
         if (payload && state.tiles.length - 1 >= payload.index) {
-            state.tiles.splice(payload.index, 1, payload.tile)
+            state.tiles.splice(payload.index, 1, 2 /* Needs to be selected tile in hand (for now)*/ )
         }
     }
 }

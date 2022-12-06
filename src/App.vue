@@ -21,7 +21,7 @@
                 <div class="card mx-5">
                     <div class="card-body">
                         <div class="row align-items-center justify-content-center hand">
-                            <div v-for="(tile, index) in getHand('player')"
+                            <div v-for="(tile, index) in playerHand"
                                 :key="index"
                                 class="col-auto">
                                 <civilization-tile                                
@@ -71,18 +71,22 @@ export default {
             selectedHandTile: null
         }
     },
+    mounted() {
+        // TODO Add AI Players
+        this.$store.commit('players/createNewPlayer', { isHuman: true })
+    },
     computed: {
         ...mapGetters('board', {
             map: 'map',
             tiles: 'tiles'
+        }),
+        ...mapGetters('players', {
+            playerHand: 'playerHand'
         })
     },
     methods: {
         getTile(index) {
             return this.tiles[index];
-        },
-        getHand(playerName){
-            return this.hands[playerName]; 
         },
         isSelectedHandTile(index) {
             return this.selectedHandTile === index
