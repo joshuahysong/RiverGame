@@ -65,9 +65,6 @@ export default {
                 'settlement': 30,
                 'farm': 36
             },
-            hands: {
-                player: [2,2,3,4,5,6]
-            },
             selectedHandTile: null
         }
     },
@@ -93,9 +90,7 @@ export default {
         },
         selectHandTile(index) {
             this.selectedHandTile = index
-            // assume player for now
-            let selectedTile = this.hands.player.length - 1 >= index ? this.hands.player[index] : null
-            this.$store.commit('setSelectedTile', selectedTile)
+            this.$store.dispatch('players/selectTile', { index: index })
         }
     }
 }

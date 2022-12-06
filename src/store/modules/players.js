@@ -1,8 +1,6 @@
-//import Vue from 'vue'
-
 const state = () => ({
     players: [],
-    currentPlayer: 1
+    currentPlayerId: 1
 })
 
 const getters = {    
@@ -13,10 +11,18 @@ const getters = {
         return []
     },
     currentPlayer: (state) => {
-        if (state.players.filter(x => x.id === state.currentPlayer).length > 0){
-            return state.players.filter(x => x.id === state.currentPlayer)[0]
+        if (state.players.filter(x => x.id === state.currentPlayerId).length > 0){
+            return state.players.filter(x => x.id === state.currentPlayerId)[0]
         }
         return null;
+    }
+}
+
+const actions = {
+    selectTile({ commit, state, getters }, payload) {
+        let currentPlayer = getters.currentPlayer
+        payload = {...payload, id: state.currentPlayerId, tile: currentPlayer.hand[payload.index]}
+        commit('selectTile', payload)
     }
 }
 
@@ -26,6 +32,7 @@ const mutations = {
             id: state.players.length + 1,
             hand: [2,2,3,4,5,6], // TODO Populate initial hand 
             // TODO Leaders
+            selectedTile: null,
             score: {
                 red: 0,
                 green: 0,
@@ -38,9 +45,14 @@ const mutations = {
         state.players.push(newPlayer)
     },
     setNextPlayer (state) {
-        state.currentPlayer++
-        if (state.currentPlayer > state.players.length){
-            state.currentPlayer = 1
+        state.currentPlayerId++
+        if (state.currentPlayerId > state.players.length){
+            state.currentPlayerId = 1
+        }
+    },
+    selectTile (state, payload) {
+        state.players.filter(x => x.id == payload.id)[0].selectedTile = {
+            index: payload.index, tile: payload.tile
         }
     }
 }
@@ -49,5 +61,6 @@ export default {
     namespaced: true,
     state,
     getters,
+    actions,
     mutations
 }
