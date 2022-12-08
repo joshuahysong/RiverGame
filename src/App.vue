@@ -70,7 +70,7 @@ export default {
     },
     mounted() {
         // TODO Add AI Players
-        this.$store.commit('players/createNewPlayer', { isHuman: true })
+        this.$store.dispatch('players/createNewPlayer', { isHuman: true })
     },
     computed: {
         ...mapGetters('board', {

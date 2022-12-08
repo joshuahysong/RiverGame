@@ -23,26 +23,33 @@ const actions = {
         let currentPlayer = getters.currentPlayer
         payload = {...payload, id: state.currentPlayerId, tile: currentPlayer.hand[payload.index]}
         commit('selectTile', payload)
+    },
+    createNewPlayer({commit, state, dispatch}, payload) {
+        commit('bag/shuffleBag', null, { root: true })
+        dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
+            .then(hand => {
+                var newPlayer = {
+                    id: state.players.length + 1,
+                    hand: hand,
+                    // TODO Leaders
+                    selectedTile: null,
+                    score: {
+                        red: 0,
+                        green: 0,
+                        blue: 0,
+                        black: 0,
+                        wild: 0
+                    },
+                    isHuman: payload.isHuman
+                }
+                commit('createNewPlayer', newPlayer)
+            })
     }
 }
 
 const mutations = {
     createNewPlayer (state, payload) {
-        var newPlayer = {
-            id: state.players.length + 1,
-            hand: [2,2,3,4,5,6], // TODO Populate initial hand 
-            // TODO Leaders
-            selectedTile: null,
-            score: {
-                red: 0,
-                green: 0,
-                blue: 0,
-                black: 0,
-                wild: 0
-            },
-            isHuman: payload.isHuman
-        }
-        state.players.push(newPlayer)
+        state.players.push(payload)
     },
     setNextPlayer (state) {
         state.currentPlayerId++

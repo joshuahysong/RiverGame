@@ -1,3 +1,5 @@
+import { mapTypes, tileTypes } from '../../common/constants'
+
 const state = () => ({
     map: [
         0,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,
@@ -45,9 +47,9 @@ const actions = {
         let mapSquareTile = state.tiles[payload.index]
         if (payload &&
             currentPlayer.selectedTile &&
-            mapSquareTile === 0 && 
-            ((mapSquare === 1 && currentPlayer.selectedTile.tile === 5) ||
-                mapSquare === 0 && currentPlayer.selectedTile.tile !== 5)) {
+            mapSquareTile === mapTypes.ground &&
+            ((mapSquare === mapTypes.water && currentPlayer.selectedTile.tile === tileTypes.farm) ||
+                mapSquare === mapTypes.ground && currentPlayer.selectedTile.tile !== tileTypes.farm)) {
             commit('addTile', {...currentPlayer.selectedTile, ...payload})
         }
     }
