@@ -53,6 +53,7 @@ const actions = {
                 mapSquare === mapTypes.ground && currentPlayer.selectedTiles[0].tile !== tileTypes.farm)) {
             commit('addTile', {...currentPlayer.selectedTiles[0], ...payload})
             dispatch('players/removeSelectedTiles', null, { root: true })
+            commit('game/actionCompleted', null, {root: true})
         }
     }
 }

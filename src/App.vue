@@ -37,9 +37,32 @@
         </div>
         <div class="row mt-3">
             <div class="col">
+                <b-button
+                variant="primary"
+                :disabled="isEndTurnDisabled"
+                @click="doEndTurn">
+                End Turn
+            </b-button>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
                 <b-form-checkbox v-model="showCoordinates">
                     Show Coordinates
                 </b-form-checkbox>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Debug Info
+                    </div>
+                    <div class="card-body">
+                        Current Player: {{currentPlayer?.id}}
+                        Bag: {{debugBagStats}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -66,6 +89,9 @@ export default {
         this.$store.dispatch('players/createNewPlayer', { isHuman: true })
     },
     computed: {
+        ...mapGetters('bag', {
+            debugBagStats: 'debugBagStats'
+        }),
         ...mapGetters('board', {
             map: 'map',
             tiles: 'tiles'
@@ -73,7 +99,13 @@ export default {
         ...mapGetters('players', {
             playerHand: 'playerHand',
             currentPlayer: 'currentPlayer'
-        })
+        }),
+        ...mapGetters('game', {
+            remainingActions: 'remainingActions'
+        }),
+        isEndTurnDisabled() {
+            return this.remainingActions != 0
+        }
     },
     methods: {
         getTile(index) {
@@ -83,7 +115,15 @@ export default {
             return this.currentPlayer.selectedTiles.some(x => x.index === index)
         },
         selectHandTile(index) {
-            this.$store.dispatch('players/addTileSelection', { index: index })
+            if (this.remainingActions > 0) {
+                this.$store.dispatch('players/addTileSelection', { index: index })
+            }
+        },
+        doEndTurn() {
+            // TODO We need to get a promise here to know when "End Turn" actions are done.
+            // There is potential for a timing issue with refilling the player hands
+            this.$store.dispatch('players/refillPlayerHands')
+            this.$store.commit('game/nextActivePlayer')
         }
     }
 }

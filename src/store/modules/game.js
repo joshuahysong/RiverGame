@@ -13,15 +13,21 @@ const getters = {
     },
     currentPlayerId(state) {
         return state.currentPlayerId
+    },
+    remainingActions(state) {
+        return state.remainingActions
     }
 }
 
 const mutations = {
-    setActivePlayer(state) {
+    nextActivePlayer(state) {
         state.currentPlayerId = state.currentPlayerId >= state.numberOfPlayers
             ? 1 : state.currentPlayerId + 1            
         state.remainingActions = 2
         state.currentAction = actionTypes.playUnit
+    },
+    actionCompleted(state){
+        state.remainingActions--
     }
 }
 

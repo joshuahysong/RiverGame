@@ -8,12 +8,26 @@ const state = () => ({
     farms: 36
 })
 
+const getters = {
+    debugBagStats(state) {
+        return {
+            bagCount: state.bag.length,
+            temples: state.temples,
+            markets: state.markets,
+            settlements: state.settlements,
+            farms: state.farms
+        }
+    }
+}
+
 const actions = {
     drawTiles ({state, commit}, payload) {
-        commit('shuffleBag')
-        let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
-        commit('removeTiles', {...payload, drawnTiles})
-        return drawnTiles
+        if (payload) {
+            commit('shuffleBag')
+            let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
+            commit('removeTiles', {...payload, drawnTiles})
+            return drawnTiles
+        }
     }
 }
 
@@ -21,7 +35,7 @@ const mutations = {
     shuffleBag(state) {
         let unshuffled = [...state.bag];
         if (state.bag.length == 0){
-            state.bag.splice(0)    
+            state.bag.splice(0)
             unshuffled = [...unshuffled, ...Array(state.temples).fill(tileTypes.temple, 0)]
             unshuffled = [...unshuffled, ...Array(state.markets).fill(tileTypes.market, 0)]
             unshuffled = [...unshuffled, ...Array(state.settlements).fill(tileTypes.settlement, 0)]
@@ -52,6 +66,7 @@ const mutations = {
 export default {
     namespaced: true,
     state,
+    getters,
     actions,
     mutations
 }

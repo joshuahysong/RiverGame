@@ -42,6 +42,17 @@ const actions = {
                 commit('createNewPlayer', newPlayer)
             })
     },
+    refillPlayerHands({commit, state, dispatch}) {
+        state.players.forEach(player => {
+            if (player.hand.length < 6) {
+                let missingTiles = 6 - player.hand.length
+                dispatch('bag/drawTiles', {numberOfTiles: missingTiles}, { root: true })
+                    .then(drawnTiles => {
+                        commit('addTilesToPlayerHand', {id: player.id, tilesToAdd: drawnTiles})
+                    })
+            }
+        })
+    },
     addTileSelection({commit, getters, rootGetters}, payload) {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
@@ -80,6 +91,11 @@ const mutations = {
         if (currentPlayerHand && currentPlayerHand.length > payload.index) {
             currentPlayerHand.splice(payload.index, 1)
         }
+    },
+    addTilesToPlayerHand (state, payload) {
+        let currentPlayerHand = state.players.filter(x => x.id == payload.id)[0].hand
+        currentPlayerHand = [...currentPlayerHand, ...payload.tilesToAdd]
+        state.players.filter(x => x.id == payload.id)[0].hand = currentPlayerHand
     }
 }
 
