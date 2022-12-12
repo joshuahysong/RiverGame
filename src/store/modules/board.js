@@ -40,17 +40,19 @@ const getters = {
 }
 
 const actions = {
-    handleBoardClick ({ commit, state, rootGetters }, payload) {
+    handleBoardClick ({ commit, state, rootGetters, dispatch }, payload) {
         // TODO Logic to handle more than placing new tiles
         let currentPlayer = rootGetters['players/currentPlayer']
         let mapSquare = state.map[payload.index]
         let mapSquareTile = state.tiles[payload.index]
         if (payload &&
-            currentPlayer.selectedTile &&
+            currentPlayer.selectedTiles &&
+            currentPlayer.selectedTiles.length >= 1 &&
             mapSquareTile === mapTypes.ground &&
-            ((mapSquare === mapTypes.water && currentPlayer.selectedTile.tile === tileTypes.farm) ||
-                mapSquare === mapTypes.ground && currentPlayer.selectedTile.tile !== tileTypes.farm)) {
-            commit('addTile', {...currentPlayer.selectedTile, ...payload})
+            ((mapSquare === mapTypes.water && currentPlayer.selectedTiles[0].tile === tileTypes.farm) ||
+                mapSquare === mapTypes.ground && currentPlayer.selectedTiles[0].tile !== tileTypes.farm)) {
+            commit('addTile', {...currentPlayer.selectedTiles[0], ...payload})
+            dispatch('players/removeSelectedTiles', null, { root: true })
         }
     }
 }

@@ -11,3 +11,8 @@ export const mapTypes = {
     ground: 0,
     water: 1
 }
+
+export const actionTypes = {
+    playUnit: 0,
+    swapTiles: 1
+}

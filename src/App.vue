@@ -58,14 +58,7 @@ export default {
     },
     data() {
         return {
-            showCoordinates: false,
-            bag: {
-                'temple': 47,
-                'market': 30,
-                'settlement': 30,
-                'farm': 36
-            },
-            selectedHandTile: null
+            showCoordinates: false
         }
     },
     mounted() {
@@ -78,7 +71,8 @@ export default {
             tiles: 'tiles'
         }),
         ...mapGetters('players', {
-            playerHand: 'playerHand'
+            playerHand: 'playerHand',
+            currentPlayer: 'currentPlayer'
         })
     },
     methods: {
@@ -86,11 +80,10 @@ export default {
             return this.tiles[index];
         },
         isSelectedHandTile(index) {
-            return this.selectedHandTile === index
+            return this.currentPlayer.selectedTiles.some(x => x.index === index)
         },
         selectHandTile(index) {
-            this.selectedHandTile = index
-            this.$store.dispatch('players/selectTile', { index: index })
+            this.$store.dispatch('players/addTileSelection', { index: index })
         }
     }
 }

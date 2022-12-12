@@ -1,6 +1,7 @@
+import { actionTypes } from '../../common/constants'
+
 const state = () => ({
-    players: [],
-    currentPlayerId: 1
+    players: []
 })
 
 const getters = {    
@@ -10,20 +11,16 @@ const getters = {
         }
         return []
     },
-    currentPlayer: (state) => {
-        if (state.players.filter(x => x.id === state.currentPlayerId).length > 0){
-            return state.players.filter(x => x.id === state.currentPlayerId)[0]
+    currentPlayer: (state, getters, rootState, rootGetters) => {
+        let currentPlayerId = rootGetters['game/currentPlayerId']
+        if (state.players.filter(x => x.id === currentPlayerId).length > 0){
+            return state.players.filter(x => x.id === currentPlayerId)[0]
         }
         return null;
     }
 }
 
 const actions = {
-    selectTile({ commit, state, getters }, payload) {
-        let currentPlayer = getters.currentPlayer
-        payload = {...payload, id: state.currentPlayerId, tile: currentPlayer.hand[payload.index]}
-        commit('selectTile', payload)
-    },
     createNewPlayer({commit, state, dispatch}, payload) {
         commit('bag/shuffleBag', null, { root: true })
         dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
@@ -32,7 +29,7 @@ const actions = {
                     id: state.players.length + 1,
                     hand: hand,
                     // TODO Leaders
-                    selectedTile: null,
+                    selectedTiles: [],
                     score: {
                         red: 0,
                         green: 0,
@@ -44,6 +41,24 @@ const actions = {
                 }
                 commit('createNewPlayer', newPlayer)
             })
+    },
+    addTileSelection({commit, getters, rootGetters}, payload) {
+        if (payload) {
+            let currentActionType = rootGetters['game/currentActionType']
+            let currentPlayer = getters.currentPlayer
+            if (currentActionType === actionTypes.playUnit) {
+                commit('clearTileSelection', {id: currentPlayer.id})
+            }
+            payload = {...payload, id: currentPlayer.id, tile: currentPlayer.hand[payload.index]}
+            commit('addTileSelection', {id: currentPlayer.id, ...payload})
+        }
+    },
+    removeSelectedTiles({commit, getters}) {
+        let currentPlayer = getters.currentPlayer
+        currentPlayer.selectedTiles.forEach(selectedTile => {
+            commit('removeTileFromHand', {id: currentPlayer.id, index: selectedTile.index})
+        })
+        commit('clearTileSelection', {id: currentPlayer.id})
     }
 }
 
@@ -51,15 +66,19 @@ const mutations = {
     createNewPlayer (state, payload) {
         state.players.push(payload)
     },
-    setNextPlayer (state) {
-        state.currentPlayerId++
-        if (state.currentPlayerId > state.players.length){
-            state.currentPlayerId = 1
-        }
-    },
-    selectTile (state, payload) {
-        state.players.filter(x => x.id == payload.id)[0].selectedTile = {
+    addTileSelection (state, payload) {
+        state.players.filter(x => x.id == payload.id)[0].selectedTiles.push({
             index: payload.index, tile: payload.tile
+        })
+    },
+    clearTileSelection (state, payload) {
+        let currentSelectedTiles = state.players.filter(x => x.id == payload.id)[0].selectedTiles
+        currentSelectedTiles.splice(0, currentSelectedTiles.length)
+    },
+    removeTileFromHand (state, payload) {
+        let currentPlayerHand = state.players.filter(x => x.id == payload.id)[0].hand
+        if (currentPlayerHand && currentPlayerHand.length > payload.index) {
+            currentPlayerHand.splice(payload.index, 1)
         }
     }
 }
