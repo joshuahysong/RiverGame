@@ -1,12 +1,18 @@
 <template>
-    <div :class="getTileClass()"></div>
+    <div :class="getTileClass()"
+    :style="{
+        'height': `${size}px`,
+        'width':  `${size}px`
+     }"
+     ></div>
 </template>
 
 <script>
 export default {
     name: 'CivilizationTile',
     props: {
-        tile: Number
+        tile: Number,
+        size: Number
     },
     methods: {
         getTileClass() {

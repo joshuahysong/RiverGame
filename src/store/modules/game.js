@@ -2,7 +2,7 @@ import { actionTypes } from '../../common/constants'
 
 const state = () => ({
     currentPlayerId: 1,
-    numberOfPlayers: 1,
+    numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playUnit
 })
@@ -25,6 +25,9 @@ const mutations = {
             ? 1 : state.currentPlayerId + 1            
         state.remainingActions = 2
         state.currentAction = actionTypes.playUnit
+    },
+    incrementPlayerCount(state) {
+        state.numberOfPlayers++
     },
     actionCompleted(state){
         state.remainingActions--

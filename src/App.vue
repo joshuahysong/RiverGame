@@ -18,31 +18,17 @@
         </div>
         <div class="row mt-3">
             <div class="col">
-                <div class="card mx-5">
-                    <div class="card-body">
-                        <div class="row align-items-center justify-content-center hand">
-                            <div v-for="(tile, index) in playerHand"
-                                :key="index"
-                                class="col-auto">
-                                <civilization-tile                                
-                                    class="tile"
-                                    :class="{'selected-tile': isSelectedHandTile(index) }"
-                                    :tile="tile"
-                                    @click.native="selectHandTile(index)" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
             </div>
         </div>
         <div class="row mt-3">
             <div class="col">
                 <b-button
-                variant="primary"
-                :disabled="isEndTurnDisabled"
-                @click="doEndTurn">
-                End Turn
-            </b-button>
+                    variant="primary"
+                    :disabled="isEndTurnDisabled"
+                    @click="doEndTurn">
+                    End Turn
+                </b-button>
             </div>
         </div>
         <div class="row mt-3">
@@ -54,30 +40,41 @@
         </div>
         <div class="row mt-3">
             <div class="col">
-                <div class="card">
-                    <div class="card-header">
-                        Debug Info
-                    </div>
-                    <div class="card-body">
-                        Current Player: {{currentPlayer?.id}}
-                        Bag: {{debugBagStats}}
-                    </div>
-                </div>
+                <b-button
+                    variant="secondary"
+                    v-b-toggle.debug-sidebar>
+                    Show Debug Info
+                </b-button>
             </div>
         </div>
+        <b-sidebar
+            id="debug-sidebar"
+            right shadow
+            sidebar-class="border-left border-dark text-left">
+            <div class="px-3 py-2">
+                Current Player: {{currentPlayer?.id}}<br />
+                Bag: {{debugBagStats}}<br />
+                Hands: <br />
+                <player-hand v-for="(player, index) in allPlayers"
+                    :key="index"
+                    :player="getPlayer(player.id)" size="sm"
+                    :class="{'border-danger': player.id === currentPlayer.id}"
+                    class="mt-2"/>
+            </div>
+        </b-sidebar>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import CivilizationTile from './components/CivilizationTile.vue'
 import MapSquare from './components/MapSquare.vue'
+import PlayerHand from './components/PlayerHand.vue'
 
 export default {
     name: 'App',
     components: {
-        CivilizationTile,
-        MapSquare
+        MapSquare,
+        PlayerHand
     },
     data() {
         return {
@@ -85,8 +82,10 @@ export default {
         }
     },
     mounted() {
-        // TODO Add AI Players
         this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
+        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
+        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
     },
     computed: {
         ...mapGetters('bag', {
@@ -98,7 +97,8 @@ export default {
         }),
         ...mapGetters('players', {
             playerHand: 'playerHand',
-            currentPlayer: 'currentPlayer'
+            currentPlayer: 'currentPlayer',
+            allPlayers: 'all'
         }),
         ...mapGetters('game', {
             remainingActions: 'remainingActions'
@@ -111,25 +111,22 @@ export default {
         getTile(index) {
             return this.tiles[index];
         },
-        isSelectedHandTile(index) {
-            return this.currentPlayer.selectedTiles.some(x => x.index === index)
-        },
-        selectHandTile(index) {
-            if (this.remainingActions > 0) {
-                this.$store.dispatch('players/addTileSelection', { index: index })
-            }
-        },
-        doEndTurn() {
-            // TODO We need to get a promise here to know when "End Turn" actions are done.
-            // There is potential for a timing issue with refilling the player hands
-            this.$store.dispatch('players/refillPlayerHands')
+        async doEndTurn() {
+            await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
+        },
+        getPlayer(id) {
+            let matchingPlayers = this.allPlayers.filter(x => x.id == id)
+            if (matchingPlayers && matchingPlayers.length > 0) {
+                return matchingPlayers[0]
+            }
+            return null
         }
     }
 }
 </script>
 
-<style>
+<style scoped>
 .main-app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -155,19 +152,5 @@ export default {
   justify-content: center;
   align-items: center;
   display: flex;
-}
-
-.hand {
-    height: 80px;
-}
-
-.tile {
-    height: 60px;
-    width: 60px;
-}
-
-.selected-tile {
-    border: 5px solid black;
-    box-sizing: content-box;
 }
 </style>

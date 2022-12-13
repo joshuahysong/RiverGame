@@ -17,41 +17,41 @@ const getters = {
             return state.players.filter(x => x.id === currentPlayerId)[0]
         }
         return null;
+    },
+    all: (state) => {
+        return state.players
     }
 }
 
 const actions = {
-    createNewPlayer({commit, state, dispatch}, payload) {
+    async createNewPlayer({commit, state, dispatch}, payload) {
         commit('bag/shuffleBag', null, { root: true })
-        dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
-            .then(hand => {
-                var newPlayer = {
-                    id: state.players.length + 1,
-                    hand: hand,
-                    // TODO Leaders
-                    selectedTiles: [],
-                    score: {
-                        red: 0,
-                        green: 0,
-                        blue: 0,
-                        black: 0,
-                        wild: 0
-                    },
-                    isHuman: payload.isHuman
-                }
-                commit('createNewPlayer', newPlayer)
-            })
+        var hand = await dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
+        var newPlayer = {
+            id: state.players.length + 1,
+            hand: hand,
+            // TODO Leaders
+            selectedTiles: [],
+            score: {
+                red: 0,
+                green: 0,
+                blue: 0,
+                black: 0,
+                wild: 0
+            },
+            isHuman: payload.isHuman
+        }
+        commit('createNewPlayer', newPlayer)
+        commit('game/incrementPlayerCount', null, { root: true })
     },
-    refillPlayerHands({commit, state, dispatch}) {
-        state.players.forEach(player => {
+    async refillPlayerHands({commit, state, dispatch}) {
+        for (const player of state.players) {
             if (player.hand.length < 6) {
                 let missingTiles = 6 - player.hand.length
-                dispatch('bag/drawTiles', {numberOfTiles: missingTiles}, { root: true })
-                    .then(drawnTiles => {
-                        commit('addTilesToPlayerHand', {id: player.id, tilesToAdd: drawnTiles})
-                    })
+                let drawnTiles = await dispatch('bag/drawTiles', {numberOfTiles: missingTiles}, { root: true })
+                commit('addTilesToPlayerHand', {id: player.id, tilesToAdd: drawnTiles})
             }
-        })
+        }
     },
     addTileSelection({commit, getters, rootGetters}, payload) {
         if (payload) {
