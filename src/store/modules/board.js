@@ -36,24 +36,37 @@ const getters = {
     },
     tiles: (state) => {
         return state.tiles
+    },
+    availableTileLocations: (state) => (tile) => {
+        let eligibleTileLocations = []
+        for (let i = 0; i < state.tiles.length; i++) {
+            let mapSquare = state.map[i]
+            let mapSquareTile = state.tiles[i]
+            if (tile <= tileTypes.catastrophe) {
+                // Check if tile is able to be placed on map location first (water vs ground)
+                if (mapSquareTile == tileTypes.empty &&
+                    ((mapSquare === mapTypes.water && tile === tileTypes.farm) ||
+                     (mapSquare === mapTypes.ground && tile !== tileTypes.farm)))
+                    eligibleTileLocations.push(i)
+            }
+        }
+        return eligibleTileLocations
     }
 }
 
 const actions = {
-    handleBoardClick ({ commit, state, rootGetters, dispatch }, payload) {
+    handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
         // TODO Logic to handle more than placing new tiles
         let currentPlayer = rootGetters['players/currentPlayer']
-        let mapSquare = state.map[payload.index]
-        let mapSquareTile = state.tiles[payload.index]
         if (payload &&
             currentPlayer.selectedTiles &&
-            currentPlayer.selectedTiles.length >= 1 &&
-            mapSquareTile === mapTypes.ground &&
-            ((mapSquare === mapTypes.water && currentPlayer.selectedTiles[0].tile === tileTypes.farm) ||
-                mapSquare === mapTypes.ground && currentPlayer.selectedTiles[0].tile !== tileTypes.farm)) {
-            commit('addTile', {...currentPlayer.selectedTiles[0], ...payload})
-            dispatch('players/removeSelectedTiles', null, { root: true })
-            commit('game/actionCompleted', null, {root: true})
+            currentPlayer.selectedTiles.length >= 1) {
+            let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0].tile)
+            if (availableTileLocations && availableTileLocations.find(x => x === payload.index)) {
+                commit('addTile', {...currentPlayer.selectedTiles[0], ...payload})
+                dispatch('players/removeSelectedTiles', null, { root: true })
+                commit('game/actionCompleted', null, {root: true})
+            }
         }
     }
 }
