@@ -19,6 +19,13 @@
         <div class="row mt-3">
             <div class="col">
                 <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
+                <div v-else class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center justify-content-center hand-empty">
+                            Player {{ currentPlayer?.id }}'s turn
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row mt-3">
@@ -69,6 +76,7 @@
 import { mapGetters } from 'vuex'
 import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
+import helpers from './common/helpers'
 
 export default {
     name: 'App',
@@ -114,6 +122,21 @@ export default {
         async doEndTurn() {
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
+            if (this.currentPlayer && !this.currentPlayer.isHuman) {
+                // TODO Put this in a better spot
+                console.log('----------')
+                console.log(`AI Turn - ${this.currentPlayer.id}`)
+                for (let i = 1; i <= 2; i++) {
+                    let tileIndex = Math.floor(Math.random() * this.currentPlayer.hand.length)
+                    let availableTileLocations = this.$store.getters['board/availableTileLocations'](this.currentPlayer.hand[tileIndex])
+                    let mapIndex = availableTileLocations[Math.floor(Math.random() * availableTileLocations.length)]
+                    console.log(`Placing tile ${helpers.getTileNameByType(this.currentPlayer.hand[tileIndex])} at map location ${helpers.getCoordinatesByIndex(mapIndex)} (${mapIndex})`)
+                    this.$store.dispatch('players/addTileSelection', { index: tileIndex })
+                    this.$store.dispatch('board/handleBoardClick', { index: mapIndex })
+                    // TODO Add a slight delay so human player can "watch" the turn unfold
+                }
+                await this.doEndTurn()
+            }
         },
         getPlayer(id) {
             let matchingPlayers = this.allPlayers.filter(x => x.id == id)
@@ -152,5 +175,9 @@ export default {
   justify-content: center;
   align-items: center;
   display: flex;
+}
+
+.hand-empty {
+    height: 80px;
 }
 </style>

@@ -9,6 +9,7 @@
 
 <script>
 import CivilizationTile from './CivilizationTile.vue'
+import helpers from '../common/helpers'
 
 export default {
     name: 'MapSquare',
@@ -23,8 +24,7 @@ export default {
     },
     computed: {
         coordinates() {
-            var row = Math.floor(this.index / 16) + 10
-            return `${row.toString(36).toUpperCase()}-${(this.index % 16 + 1)}`;
+            return helpers.getCoordinatesByIndex(this.index)
         },
         hasTile() {
             return this.tile > 0
