@@ -59,7 +59,7 @@ export default {
         background: dodgerblue;
     }
     .catastrophe {
-        background: Yellow;
+        background: red;
     }
     .treasure-icon {
         height: 35%;

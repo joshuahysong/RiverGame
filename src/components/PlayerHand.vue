@@ -1,11 +1,11 @@
 <template>
     <div class="card">
         <div class="card-body p-1">
-            <div class="row align-items-center justify-content-center"
+            <div class="row no-gutters align-items-center justify-content-center"
                 :style="rowStyle">
                 <div v-for="(tileType, index) in player.leaders"
                     :key="index"
-                    class="col-auto"
+                    class="col-2"
                     :class="{'p-1': size === 'sm'}">
                     <leader-tile
                         :size="iconSize"
@@ -14,12 +14,22 @@
                         :selected="isSelectedTile(index, true)"
                         @click.native="selectLeader(index)" />
                 </div>
+                <div v-for="(n, index) in player.catastropheTiles"
+                    :key="'catastrophe-' + index"
+                    class="col-2"
+                    :class="{'p-1': size === 'sm'}">
+                    <civilization-tile
+                        :size="iconSize"
+                        :tile-type="catastropheTileType"
+                        :selected="isSelectedTile(n, false)"
+                        @click.native="selectHandTile(n)" />
+                </div>
             </div>
             <div class="row no-gutters align-items-center justify-content-center"
                 :style="rowStyle">
                 <div v-for="(tileType, index) in player.hand"
                     :key="index"
-                    class="col"
+                    class="col-2"
                     :class="{'p-1': size === 'sm'}">
                     <civilization-tile
                         :size="iconSize"
@@ -36,6 +46,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
+import { tileTypes } from '../common/constants'
 
 export default {
     name: 'PlayerHand',  
@@ -56,10 +67,13 @@ export default {
             remainingActions: 'remainingActions'
         }),
         iconSize() {
-            return this.size === 'lg' ? 50 : 25
+            return this.size === 'lg' ? 40 : 20
         },
         rowStyle() {
-            return `height: ${(this.size === 'lg' ? 70 : 35)}px`
+            return `height: ${(this.size === 'lg' ? 60 : 30)}px`
+        },
+        catastropheTileType(){
+            return tileTypes.catastrophe
         }
     },
     methods:{        

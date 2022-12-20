@@ -175,7 +175,7 @@ export default {
             display: grid;
             grid-template-columns: repeat(16, calc(60vw / 16));
             grid-template-rows: repeat(11, calc(60vw / 16));
-            grid-gap: 1px;
+            grid-gap: 2px;
         }
     }
 
