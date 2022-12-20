@@ -1,43 +1,43 @@
 <template>
-    <div :class="getTileClass()"
-    :style="{
-        'height': `${size}px`,
-        'width':  `${size}px`
-     }"
-     ></div>
+    <div class="tile d-flex" :class="tileClass"
+        :style="{
+            'height': `${size}px`,
+            'width':  `${size}px`
+        }"
+     >
+        <div v-if="isTreasure" class="treasure-icon mx-auto my-auto"></div>
+     </div>
 </template>
 
 <script>
+import { tileTypes } from '../common/constants'
+import helpers from '../common/helpers'
+
 export default {
     name: 'CivilizationTile',
     props: {
         tile: Number,
         size: Number
     },
-    methods: {
-        getTileClass() {
-            switch(this.tile){
-                case 1:
-                case 2:
-                    return 'temple'
-                case 3:
-                    return 'market'
-                case 4:
-                    return 'settlement'
-                case 5:
-                    return 'farm'
-                case 6:
-                    return 'catastrophe'
-            }
+    computed: {
+        tileClass() {
+            return helpers.getTileNameByType(this.tile)
         },
-
+        isTreasure() {
+            return this.tile === tileTypes.treasure
+        }
     }
 }
 </script>
 
 <style scoped>
-    .temple {
-        background: darkred
+    .tile {
+        height: 90%;
+        width: 90%;
+        border-radius: 4px;
+    }
+    .temple, .treasure {
+        background: darkred;
     }
     .market {
         background: green;
@@ -51,12 +51,11 @@ export default {
     .catastrophe {
         background: Yellow;
     }
-    
-    .treasure {
-        height: 25px;
-        width: 25px;
-        background-color: #bbb;
+    .treasure-icon {
+        height: 35%;
+        width: 35%;
+        background-color: gold;
         border-radius: 50%;
-        display: inline-block;
+        border: 2px solid goldenrod;
     }
 </style>

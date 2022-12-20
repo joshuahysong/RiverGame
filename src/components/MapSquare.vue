@@ -2,7 +2,7 @@
     <div class="map-square"
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
-        <civilization-tile v-if="hasTile" class="tile" :tile="tile" />
+        <civilization-tile v-if="hasTile" :tile="tile" />
         <div v-if="showCoordinates" class="coordinates small" :class="{'text-white': hasTile}">{{coordinates}}</div>
     </div>
 </template>
@@ -59,34 +59,5 @@ export default {
         width: 100%;
         position: absolute;
         display: block;
-    }
-    .tile {
-        height: 90%;
-        width: 90%;
-        position: absolute;
-        display: block;
-    }
-    .temple {
-        background: darkred
-    }
-    .market {
-        background: green;
-    }
-    .settlement {
-        background: black;
-    }
-    .farm {
-        background: dodgerblue;
-    }
-    .catastrophe {
-        background: Yellow;
-    }
-    
-    .treasure {
-        height: 25px;
-        width: 25px;
-        background-color: #bbb;
-        border-radius: 50%;
-        display: inline-block;
     }
 </style>
