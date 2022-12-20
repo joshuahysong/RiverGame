@@ -150,34 +150,34 @@ export default {
 </script>
 
 <style scoped>
-.main-app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  margin-top: 50px;
-}
+    .main-app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    margin-top: 50px;
+    }
 
-.map-container {
-  background: black;
-  display: inline-block;
-  border: 5px solid black;
-}
+    .map-container {
+    background: black;
+    display: inline-block;
+    border: 5px solid black;
+    }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(16, 60px);
-  grid-template-rows: repeat(11, 60px);
-  grid-gap: 2px;
-}
+    .grid {
+    display: grid;
+    grid-template-columns: repeat(16, 60px);
+    grid-template-rows: repeat(11, 60px);
+    grid-gap: 2px;
+    }
 
-.cell {
-  justify-content: center;
-  align-items: center;
-  display: flex;
-}
+    .cell {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    }
 
-.hand-empty {
-    height: 80px;
-}
+    .hand-empty {
+        height: 80px;
+    }
 </style>

@@ -1,4 +1,4 @@
-import { actionTypes } from '../../common/constants'
+import { actionTypes, tileTypes } from '../../common/constants'
 
 const state = () => ({
     players: []
@@ -30,6 +30,7 @@ const actions = {
         var newPlayer = {
             id: state.players.length + 1,
             hand: hand,
+            leaders: [tileTypes.king, tileTypes.priest, tileTypes.farmer, tileTypes.trader],
             // TODO Leaders
             selectedTiles: [],
             score: {
@@ -60,7 +61,11 @@ const actions = {
             if (currentActionType === actionTypes.playUnit) {
                 commit('clearTileSelection', {id: currentPlayer.id})
             }
-            payload = {...payload, id: currentPlayer.id, tile: currentPlayer.hand[payload.index]}
+            if (payload.isLeaderTile) {
+                payload = {...payload, id: currentPlayer.id, tile: currentPlayer.leaders[payload.index]}
+            } else {
+                payload = {...payload, id: currentPlayer.id, tile: currentPlayer.hand[payload.index]}
+            }
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
         }
     },
@@ -79,7 +84,7 @@ const mutations = {
     },
     addTileSelection (state, payload) {
         state.players.filter(x => x.id == payload.id)[0].selectedTiles.push({
-            index: payload.index, tile: payload.tile
+            index: payload.index, tile: payload.tile, isLeaderTile: payload.isLeaderTile
         })
     },
     clearTileSelection (state, payload) {

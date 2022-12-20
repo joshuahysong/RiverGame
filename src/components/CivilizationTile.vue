@@ -4,9 +4,9 @@
             'height': `${size}px`,
             'width':  `${size}px`
         }"
-     >
+    >
         <div v-if="isTreasure" class="treasure-icon mx-auto my-auto"></div>
-     </div>
+    </div>
 </template>
 
 <script>
@@ -17,11 +17,17 @@ export default {
     name: 'CivilizationTile',
     props: {
         tile: Number,
-        size: Number
+        size: Number,
+        selected: Boolean
     },
     computed: {
         tileClass() {
-            return helpers.getTileNameByType(this.tile)
+            let cssClass = ''
+            cssClass += helpers.getTileNameByType(this.tile)
+            if (this.selected){
+                cssClass += ' selected'
+            }
+            return cssClass
         },
         isTreasure() {
             return this.tile === tileTypes.treasure
@@ -35,6 +41,10 @@ export default {
         height: 90%;
         width: 90%;
         border-radius: 4px;
+    }
+    .selected {
+        border: 5px solid black;
+        box-sizing: content-box;
     }
     .temple, .treasure {
         background: darkred;

@@ -6,7 +6,10 @@ export const tileTypes = {
     settlement: 4,
     farm: 5,
     catastrophe: 6,
-    // TODO leaders here for single bit storage of types?
+    king: 7,
+    priest: 8,
+    farmer: 9,
+    trader: 10
 }
 
 export const mapTypes = {
@@ -17,4 +20,11 @@ export const mapTypes = {
 export const actionTypes = {
     playUnit: 0,
     swapTiles: 1
+}
+
+export const playerIcons = {
+    diamond: 1,
+    club: 2,
+    heart: 3,
+    spade: 4
 }
