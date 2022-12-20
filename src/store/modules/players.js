@@ -62,9 +62,9 @@ const actions = {
                 commit('clearTileSelection', {id: currentPlayer.id})
             }
             if (payload.isLeaderTile) {
-                payload = {...payload, id: currentPlayer.id, tile: currentPlayer.leaders[payload.index]}
+                payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.leaders[payload.index]}
             } else {
-                payload = {...payload, id: currentPlayer.id, tile: currentPlayer.hand[payload.index]}
+                payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.hand[payload.index]}
             }
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
         }
@@ -84,7 +84,7 @@ const mutations = {
     },
     addTileSelection (state, payload) {
         state.players.filter(x => x.id == payload.id)[0].selectedTiles.push({
-            index: payload.index, tile: payload.tile, isLeaderTile: payload.isLeaderTile
+            index: payload.index, tileType: payload.tileType, isLeaderTile: payload.isLeaderTile
         })
     },
     clearTileSelection (state, payload) {

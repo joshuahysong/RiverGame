@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="d-flex justify-content-center align-content-center">
         <b-icon class="tile" :icon="icon" :class="tileClass" :style="style" />
     </div>
 </template>
@@ -10,7 +10,7 @@ import helpers from '../common/helpers'
 export default {
     name: 'LeaderTile',
     props: {
-        tile: Number,
+        tileType: Number,
         size: Number,
         playerId: Number,
         selected: Boolean
@@ -18,7 +18,7 @@ export default {
     computed: {
         tileClass() {
             let cssClass = ''
-            cssClass += helpers.getTileNameByType(this.tile)
+            cssClass += helpers.getTileNameByType(this.tileType)
             if (this.selected){
                 cssClass += ' selected'
             }

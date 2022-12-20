@@ -1,4 +1,5 @@
 import { mapTypes, tileTypes } from '../../common/constants'
+import Vue from 'vue';
 
 const state = () => ({
     map: [
@@ -14,21 +15,23 @@ const state = () => ({
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ],
-    tiles: [
-        0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-        0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
-        0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-        0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
-    ],
+    tiles: [],
     phase: null
 })
+
+const initialTiles = [
+    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
+    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+]
 
 const getters = {
     map: (state) => {
@@ -37,20 +40,27 @@ const getters = {
     tiles: (state) => {
         return state.tiles
     },
-    availableTileLocations: (state) => (tile) => {
+    availableTileLocations: (state) => (selectedTile) => {
         let eligibleTileLocations = []
+        let tileType = selectedTile.tileType
         for (let i = 0; i < state.tiles.length; i++) {
             let mapSquare = state.map[i]
             let mapSquareTile = state.tiles[i]
-            // non-leader tile validations
-            if (tile <= tileTypes.catastrophe) {
-                // Check if square is empty and tile is able to be placed on map location (water vs ground)
-                if (mapSquareTile == tileTypes.empty &&
-                    ((mapSquare === mapTypes.water && tile === tileTypes.farm) ||
-                     (mapSquare === mapTypes.ground && tile !== tileTypes.farm)))
-                    eligibleTileLocations.push(i)
+            if (mapSquareTile) {
+                if (selectedTile.isLeaderTile) {
+                    // TODO Validate has temple neighbor
+                    if (mapSquareTile.tileType == tileTypes.empty
+                        && mapSquare === mapTypes.ground) {
+                            eligibleTileLocations.push(i)
+                        }
+                } else {
+                    // Check if square is empty and tile is able to be placed on map location (water vs ground)
+                    if (mapSquareTile.tileType == tileTypes.empty &&
+                        ((mapSquare === mapTypes.water && tileType  === tileTypes.farm) ||
+                         (mapSquare === mapTypes.ground && tileType  !== tileTypes.farm)))
+                        eligibleTileLocations.push(i)
+                }
             }
-            // TODO leader tile validations
         }
         return eligibleTileLocations
     }
@@ -63,12 +73,22 @@ const actions = {
         if (payload &&
             currentPlayer.selectedTiles &&
             currentPlayer.selectedTiles.length >= 1) {
-            let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0].tile)
+            let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
             if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                commit('addTile', {...currentPlayer.selectedTiles[0], ...payload})
+                commit('addTile', {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id})
                 dispatch('players/removeSelectedTiles', null, { root: true })
                 commit('game/actionCompleted', null, {root: true})
             }
+        }
+    },
+    init ({commit, getters}) {
+        if (getters.tiles.length === 0) {
+            let newTiles = []
+            // populate empty tiles array
+            for (let i = 0; i < initialTiles.length; i++) {
+                newTiles.push({tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
+            }
+            commit('setTiles', newTiles)
         }
     }
 }
@@ -76,7 +96,17 @@ const actions = {
 const mutations = {
     addTile (state, payload) {
         if (payload && state.tiles.length - 1 >= payload.index) {
-            state.tiles.splice(payload.index, 1, payload.tile)
+            let tile = {
+                tileType: payload.tileType,
+                isLeaderTile: payload.isLeaderTile,
+                playerId: payload?.playerId ?? 0
+            }
+            state.tiles.splice(payload.index, 1, tile)
+        }
+    },
+    setTiles(state, payload) {
+        if (payload) {
+            Vue.set(state, 'tiles', [...payload]);
         }
     }
 }

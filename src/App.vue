@@ -90,6 +90,7 @@ export default {
         }
     },
     mounted() {
+        this.$store.dispatch('board/init')
         this.$store.dispatch('players/createNewPlayer', { isHuman: true })
         this.$store.dispatch('players/createNewPlayer', { isHuman: false })
         this.$store.dispatch('players/createNewPlayer', { isHuman: false })
@@ -128,10 +129,10 @@ export default {
                 console.log(`AI Turn - ${this.currentPlayer.id}`)
                 for (let i = 1; i <= 2; i++) {
                     let tileIndex = Math.floor(Math.random() * this.currentPlayer.hand.length)
-                    let availableTileLocations = this.$store.getters['board/availableTileLocations'](this.currentPlayer.hand[tileIndex])
+                    this.$store.dispatch('players/addTileSelection', { index: tileIndex })
+                    let availableTileLocations = this.$store.getters['board/availableTileLocations'](this.currentPlayer.selectedTiles[0])
                     let mapIndex = availableTileLocations[Math.floor(Math.random() * availableTileLocations.length)]
                     console.log(`Placing tile ${helpers.getTileNameByType(this.currentPlayer.hand[tileIndex])} at map location ${helpers.getCoordinatesByIndex(mapIndex)} (${mapIndex})`)
-                    this.$store.dispatch('players/addTileSelection', { index: tileIndex })
                     this.$store.dispatch('board/handleBoardClick', { index: mapIndex })
                     // TODO Add a slight delay so human player can "watch" the turn unfold
                 }
@@ -151,30 +152,30 @@ export default {
 
 <style scoped>
     .main-app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    margin-top: 50px;
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-align: center;
+        margin-top: 50px;
     }
 
     .map-container {
-    background: black;
-    display: inline-block;
-    border: 5px solid black;
+        background: black;
+        display: inline-block;
+        border: 5px solid black;
     }
 
     .grid {
-    display: grid;
-    grid-template-columns: repeat(16, 60px);
-    grid-template-rows: repeat(11, 60px);
-    grid-gap: 2px;
+        display: grid;
+        grid-template-columns: repeat(16, 50px);
+        grid-template-rows: repeat(11, 50px);
+        grid-gap: 2px;
     }
 
     .cell {
-    justify-content: center;
-    align-items: center;
-    display: flex;
+        justify-content: center;
+        align-items: center;
+        display: flex;
     }
 
     .hand-empty {

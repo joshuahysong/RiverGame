@@ -1,15 +1,15 @@
 <template>
     <div class="card">
-        <div class="card-body" :class="{'p-1': size === 'sm'}">
+        <div class="card-body p-1">
             <div class="row align-items-center justify-content-center"
                 :style="rowStyle">
-                <div v-for="(leader, index) in player.leaders"
+                <div v-for="(tileType, index) in player.leaders"
                     :key="index"
                     class="col-auto"
                     :class="{'p-1': size === 'sm'}">
                     <leader-tile
                         :size="iconSize"
-                        :tile="leader"
+                        :tile-type="tileType"
                         :player-id="player.id"
                         :selected="isSelectedTile(index, true)"
                         @click.native="selectLeader(index)" />
@@ -17,13 +17,13 @@
             </div>
             <div class="row align-items-center justify-content-center"
                 :style="rowStyle">
-                <div v-for="(tile, index) in player.hand"
+                <div v-for="(tileType, index) in player.hand"
                     :key="index"
                     class="col-auto"
                     :class="{'p-1': size === 'sm'}">
                     <civilization-tile
                         :size="iconSize"
-                        :tile="tile"
+                        :tile-type="tileType"
                         :selected="isSelectedTile(index, false)"
                         @click.native="selectHandTile(index)" />
                 </div>
@@ -56,10 +56,10 @@ export default {
             remainingActions: 'remainingActions'
         }),
         iconSize() {
-            return this.size === 'lg' ? 60 : 30
+            return this.size === 'lg' ? 50 : 25
         },
         rowStyle() {
-            return `height: ${(this.size === 'lg' ? 80 : 40)}px`
+            return `height: ${(this.size === 'lg' ? 70 : 35)}px`
         }
     },
     methods:{        

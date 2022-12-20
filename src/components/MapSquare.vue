@@ -2,32 +2,35 @@
     <div class="map-square"
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
-        <civilization-tile v-if="hasTile" :tile="tile" />
+        <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" />
+        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :player-id="tile.playerId" :size="40" />
         <div v-if="showCoordinates" class="coordinates small" :class="{'text-white': hasTile}">{{coordinates}}</div>
     </div>
 </template>
 
 <script>
 import CivilizationTile from './CivilizationTile.vue'
+import LeaderTile from './LeaderTile.vue'
 import helpers from '../common/helpers'
 
 export default {
     name: 'MapSquare',
     components: {
-        CivilizationTile
+        CivilizationTile,
+        LeaderTile
     },
     props: {
         mapSquareType: Number,
         index: Number,
         showCoordinates: Boolean,
-        tile: Number
+        tile: Object
     },
     computed: {
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
         },
         hasTile() {
-            return this.tile > 0
+            return this.tile && this.tile.tileType > 0
         }
     }, 
     methods: {
@@ -55,6 +58,7 @@ export default {
         position: relative;
     }
     .coordinates {
+        font-size: 0.75em;
         height: 90%;
         width: 100%;
         position: absolute;

@@ -16,21 +16,21 @@ import helpers from '../common/helpers'
 export default {
     name: 'CivilizationTile',
     props: {
-        tile: Number,
+        tileType: Number,
         size: Number,
         selected: Boolean
     },
     computed: {
         tileClass() {
             let cssClass = ''
-            cssClass += helpers.getTileNameByType(this.tile)
+            cssClass += helpers.getTileNameByType(this.tileType)
             if (this.selected){
                 cssClass += ' selected'
             }
             return cssClass
         },
         isTreasure() {
-            return this.tile === tileTypes.treasure
+            return this.tileType === tileTypes.treasure
         }
     }
 }
