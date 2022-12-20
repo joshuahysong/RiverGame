@@ -72,7 +72,11 @@ const actions = {
     removeSelectedTiles({commit, getters}) {
         let currentPlayer = getters.currentPlayer
         currentPlayer.selectedTiles.forEach(selectedTile => {
-            commit('removeTileFromHand', {id: currentPlayer.id, index: selectedTile.index})
+            if (selectedTile.isLeaderTile) {
+                commit('removeLeaderFromHand', {id: currentPlayer.id, index: selectedTile.index})
+            } else {
+                commit('removeTileFromHand', {id: currentPlayer.id, index: selectedTile.index})
+            }
         })
         commit('clearTileSelection', {id: currentPlayer.id})
     }
@@ -95,6 +99,12 @@ const mutations = {
         let currentPlayerHand = state.players.filter(x => x.id == payload.id)[0].hand
         if (currentPlayerHand && currentPlayerHand.length > payload.index) {
             currentPlayerHand.splice(payload.index, 1)
+        }
+    },
+    removeLeaderFromHand (state, payload) {
+        let currentPlayerLeaders = state.players.filter(x => x.id == payload.id)[0].leaders
+        if (currentPlayerLeaders && currentPlayerLeaders.length > payload.index) {
+            currentPlayerLeaders.splice(payload.index, 1)
         }
     },
     addTilesToPlayerHand (state, payload) {
