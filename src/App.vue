@@ -1,74 +1,72 @@
 <template>
-    <div class="main-app container">
-        <div class="row">
-            <div class="col">
-                <div class="map-container">
-                    <div class="grid">
-                        <map-square class="cell"
-                            v-for="(mapSquare, index) in map"
-                            :key="index"
-                            :map-square-type="mapSquare"
-                            :index="index"
-                            :show-coordinates="showCoordinates"
-                            :tile="getTile(index)"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
-                <div v-else class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center justify-content-center hand-empty">
-                            Player {{ currentPlayer?.id }}'s turn
+    <div>
+        <b-navbar toggleable="sm" type="dark" variant="dark">
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+                    <b-form-checkbox v-model="showCoordinates" class="text-white small mr-3">
+                        Show Coordinates
+                    </b-form-checkbox>
+                    <b-button size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
+        <div class="main-app container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="map-container">
+                        <div class="grid">
+                            <map-square class="cell"
+                                v-for="(mapSquare, index) in map"
+                                :key="index"
+                                :map-square-type="mapSquare"
+                                :index="index"
+                                :show-coordinates="showCoordinates"
+                                :tile="getTile(index)"
+                            />
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <b-button
-                    variant="primary"
-                    :disabled="isEndTurnDisabled"
-                    @click="doEndTurn">
-                    End Turn
-                </b-button>
+            <div class="row mt-3">
+                <div class="col-12 col-md-6 offset-md-3">
+                    <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
+                    <div v-else class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center justify-content-center hand-empty">
+                                Player {{ currentPlayer?.id }}'s turn
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <b-form-checkbox v-model="showCoordinates">
-                    Show Coordinates
-                </b-form-checkbox>
+            <div class="row mt-3">
+                <div class="col">
+                    <b-button
+                        variant="primary"
+                        :disabled="isEndTurnDisabled"
+                        @click="doEndTurn">
+                        End Turn
+                    </b-button>
+                </div>
             </div>
+            <b-sidebar
+                id="debug-sidebar"
+                right shadow no-header
+                sidebar-class="border-left border-dark text-left mt-5">
+                <div class="px-3 py-2">
+                    Current Player: {{currentPlayer?.id}}<br />
+                    Bag: {{debugBagStats}}<br />
+                    Hands: <br />
+                    <player-hand v-for="(player, index) in allPlayers"
+                        :key="index"
+                        :player="getPlayer(player.id)" size="sm"
+                        :class="{'border-danger': player.id === currentPlayer.id}"
+                        class="mt-2"/>
+                </div>
+            </b-sidebar>
         </div>
-        <div class="row mt-3">
-            <div class="col">
-                <b-button
-                    variant="secondary"
-                    v-b-toggle.debug-sidebar>
-                    Show Debug Info
-                </b-button>
-            </div>
-        </div>
-        <b-sidebar
-            id="debug-sidebar"
-            right shadow
-            sidebar-class="border-left border-dark text-left">
-            <div class="px-3 py-2">
-                Current Player: {{currentPlayer?.id}}<br />
-                Bag: {{debugBagStats}}<br />
-                Hands: <br />
-                <player-hand v-for="(player, index) in allPlayers"
-                    :key="index"
-                    :player="getPlayer(player.id)" size="sm"
-                    :class="{'border-danger': player.id === currentPlayer.id}"
-                    class="mt-2"/>
-            </div>
-        </b-sidebar>
     </div>
 </template>
 
@@ -167,9 +165,27 @@ export default {
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(16, 50px);
-        grid-template-rows: repeat(11, 50px);
+        grid-template-columns: repeat(16, calc(40vw / 16));
+        grid-template-rows: repeat(11, calc(40vw / 16));
         grid-gap: 2px;
+    }
+
+    @media (max-width: 1199.98px) {
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, calc(60vw / 16));
+            grid-template-rows: repeat(11, calc(60vw / 16));
+            grid-gap: 1px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, calc(90vw / 16));
+            grid-template-rows: repeat(11, calc(90vw / 16));
+            grid-gap: 1px;
+        }
     }
 
     .cell {

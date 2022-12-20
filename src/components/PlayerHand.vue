@@ -15,11 +15,11 @@
                         @click.native="selectLeader(index)" />
                 </div>
             </div>
-            <div class="row align-items-center justify-content-center"
+            <div class="row no-gutters align-items-center justify-content-center"
                 :style="rowStyle">
                 <div v-for="(tileType, index) in player.hand"
                     :key="index"
-                    class="col-auto"
+                    class="col"
                     :class="{'p-1': size === 'sm'}">
                     <civilization-tile
                         :size="iconSize"

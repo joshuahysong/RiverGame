@@ -1,5 +1,5 @@
 <template>
-    <div class="tile d-flex" :class="tileClass"
+    <div class="tile d-flex mx-auto" :class="tileClass"
         :style="{
             'height': `${size}px`,
             'width':  `${size}px`
