@@ -33,6 +33,7 @@ const actions = {
             leaders: [tileTypes.king, tileTypes.priest, tileTypes.farmer, tileTypes.trader],
             // TODO Leaders
             selectedTiles: [],
+            catastropheTiles: 2,
             score: {
                 red: 0,
                 green: 0,

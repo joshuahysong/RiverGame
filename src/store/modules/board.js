@@ -1,4 +1,4 @@
-import { mapTypes, tileTypes } from '../../common/constants'
+import { mapTypes, tileTypes, boardStats } from '../../common/constants'
 import Vue from 'vue';
 
 const state = () => ({
@@ -40,7 +40,72 @@ const getters = {
     tiles: (state) => {
         return state.tiles
     },
-    availableTileLocations: (state) => (selectedTile) => {
+    getNeighborTiles: (state) => (index) => {
+        if (state.tiles.length > 0) {
+            // top left
+            if (index === 0) {
+                return {
+                    right: state.tiles[1],
+                    bottom: state.tiles[index + boardStats.columns]
+                }
+            // top
+            } else if (index < boardStats.columns - 1) {
+                return {
+                    right: state.tiles[index + 1],
+                    bottom: state.tiles[index + boardStats.columns],
+                    left: state.tiles[index - 1]
+                }
+            // top right
+            } else if (index === boardStats.columns - 1) {
+                return {
+                    bottom: state.tiles[index + boardStats.columns],
+                    left: state.tiles[index - 1]
+                }
+            // bottom left
+            } else if (index === boardStats.columns * (boardStats.rows - 1)) {
+                return {
+                    right: state.tiles[index + 1],
+                    top: state.tiles[index - boardStats.columns]
+                }
+            // left side
+            } else if (index > boardStats.columns - 1 && index % boardStats.columns === 0) {
+                return {
+                    right: state.tiles[index + 1],
+                    bottom: state.tiles[index + boardStats.columns],
+                    top: state.tiles[index - boardStats.columns]
+                }
+            // bottom right
+            } else if (index === boardStats.columns * boardStats.rows - 1) {
+                return {
+                    top: state.tiles[index - boardStats.columns],
+                    left: state.tiles[index - 1]
+                }
+            // right side
+            } else if (index % boardStats.columns === boardStats.columns - 1) {
+                return {
+                    left: state.tiles[index - 1],
+                    bottom: state.tiles[index + boardStats.columns],
+                    top: state.tiles[index - boardStats.columns]
+                }
+            // bottom
+            } else if (index > boardStats.columns * (boardStats.rows - 1)) {
+                return {
+                    right: state.tiles[index + 1],
+                    top: state.tiles[index - boardStats.columns],
+                    left: state.tiles[index - 1]
+                }
+            // middle
+            } else {
+                return {
+                    right: state.tiles[index + 1],
+                    top: state.tiles[index - boardStats.columns],
+                    left: state.tiles[index - 1],
+                    bottom: state.tiles[index + boardStats.columns]
+                }
+            }
+        }
+    },
+    availableTileLocations: (state, getters) => (selectedTile) => {
         let eligibleTileLocations = []
         let tileType = selectedTile.tileType
         for (let i = 0; i < state.tiles.length; i++) {
@@ -48,8 +113,13 @@ const getters = {
             let mapSquareTile = state.tiles[i]
             if (mapSquareTile) {
                 if (selectedTile.isLeaderTile) {
+                    let neighbors = getters.getNeighborTiles(i)
+                    let hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
+                        (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
+                        (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
+                        (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
                     // TODO Validate has temple neighbor
-                    if (mapSquareTile.tileType == tileTypes.empty
+                    if (hasTempleNeighbor && mapSquareTile.tileType == tileTypes.empty
                         && mapSquare === mapTypes.ground) {
                             eligibleTileLocations.push(i)
                         }

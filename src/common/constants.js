@@ -28,3 +28,8 @@ export const playerIcons = {
     heart: 3,
     spade: 4
 }
+
+export const boardStats = {
+    columns: 16,
+    rows: 11
+}
