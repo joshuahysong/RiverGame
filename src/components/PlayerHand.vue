@@ -1,41 +1,34 @@
 <template>
     <div class="card">
-        <div class="card-body p-1">
-            <div class="row no-gutters align-items-center justify-content-center"
-                :style="rowStyle">
-                <div v-for="(tileType, index) in player.leaders"
-                    :key="index"
-                    class="col-2"
-                    :class="{'p-1': size === 'sm'}">
-                    <leader-tile
-                        :size="iconSize"
-                        :tile-type="tileType"
-                        :player-id="player.id"
-                        :selected="isSelectedTile(index, true)"
-                        @click.native="selectLeader(index)" />
-                </div>
-                <div v-for="(n, index) in player.catastropheTiles"
-                    :key="'catastrophe-' + index"
-                    class="col-2"
-                    :class="{'p-1': size === 'sm'}">
-                    <civilization-tile
-                        :size="iconSize"
-                        :tile-type="catastropheTileType"
-                        :selected="isSelectedTile(n, false)"
-                        @click.native="selectHandTile(n)" />
+        <div class="card-body p-2">
+            <div class="row no-gutters">
+                <div class="col d-flex h-100">
+                    <div class="mx-auto my-auto align-items-center"
+                        :style="gridStyle">
+                        <leader-tile
+                        v-for="(tileType, index) in player.leaders"
+                            :key="index"
+                            :size="iconSize"
+                            :tile-type="tileType"
+                            :player-id="player.id"
+                            :selected="isSelectedTile(index, true)"
+                            @click.native="selectLeader(index)" />
+                    </div>
                 </div>
             </div>
-            <div class="row no-gutters align-items-center justify-content-center"
+            <div class="row no-gutters"
                 :style="rowStyle">
-                <div v-for="(tileType, index) in player.hand"
-                    :key="index"
-                    class="col-2"
-                    :class="{'p-1': size === 'sm'}">
-                    <civilization-tile
-                        :size="iconSize"
-                        :tile-type="tileType"
-                        :selected="isSelectedTile(index, false)"
-                        @click.native="selectHandTile(index)" />
+                <div class="col d-flex h-100">
+                    <div class="mx-auto my-auto align-items-center"
+                        :style="gridStyle">
+                        <civilization-tile
+                            v-for="(tileType, index) in player.hand"
+                            :key="index"
+                            :size="iconSize"
+                            :tile-type="tileType"
+                            :selected="isSelectedTile(index, false)"
+                            @click.native="selectHandTile(index)" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,6 +65,13 @@ export default {
         rowStyle() {
             return `height: ${(this.size === 'lg' ? 60 : 30)}px`
         },
+        gridStyle() {
+            let gridSize = this.size === 'lg' ? 40 : 20
+            return `display: grid;
+                grid-template-columns: repeat(6, ${gridSize}px);
+                grid-template-rows: repeat(1, ${gridSize}px);
+                grid-gap: ${gridSize / 4}px;`
+        },
         catastropheTileType(){
             return tileTypes.catastrophe
         }
@@ -93,10 +93,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.selected-tile {
-    border: 5px solid black;
-    box-sizing: content-box;
-}
-</style>

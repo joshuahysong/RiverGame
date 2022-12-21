@@ -1,6 +1,6 @@
 <template>
-    <div class="d-flex justify-content-center align-content-center">
-        <b-icon class="tile" :icon="icon" :class="tileClass" :style="style" />
+    <div class="tile" :class="{'selected': selected}">
+        <b-icon class="h-100 w-100" :icon="icon" :class="tileClass" />
     </div>
 </template>
 
@@ -11,21 +11,12 @@ export default {
     name: 'LeaderTile',
     props: {
         tileType: Number,
-        size: Number,
         playerId: Number,
         selected: Boolean
     },
     computed: {
         tileClass() {
-            let cssClass = ''
-            cssClass += helpers.getTileNameByType(this.tileType)
-            if (this.selected){
-                cssClass += ' selected'
-            }
-            return cssClass
-        },
-        style() {
-            return `height: ${this.size}px; width: ${this.size}px`
+            return helpers.getTileNameByType(this.tileType)
         },
         icon() {
             return `suit-${helpers.getPlayerIconNameById(this.playerId)}-fill`

@@ -1,10 +1,5 @@
 <template>
-    <div class="tile d-flex mx-auto" :class="tileClass"
-        :style="{
-            'height': `${size}px`,
-            'width':  `${size}px`
-        }"
-    >
+    <div class="tile d-flex mx-auto" :class="tileClass">
         <div v-if="isTreasure" class="treasure-icon mx-auto my-auto"></div>
     </div>
 </template>
@@ -17,16 +12,12 @@ export default {
     name: 'CivilizationTile',
     props: {
         tileType: Number,
-        size: Number,
         selected: Boolean
     },
     computed: {
         tileClass() {
-            let cssClass = ''
-            cssClass += helpers.getTileNameByType(this.tileType)
-            if (this.selected){
-                cssClass += ' selected'
-            }
+            let cssClass = helpers.getTileNameByType(this.tileType)
+            cssClass += this.selected ? ' selected' : ''
             return cssClass
         },
         isTreasure() {

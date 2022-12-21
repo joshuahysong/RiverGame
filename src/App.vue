@@ -14,7 +14,7 @@
         </b-navbar>
         <div class="main-app container-fluid">
             <div class="row">
-                <div class="col">
+                <div class="col p-0">
                     <div class="map-container">
                         <div class="grid">
                             <map-square class="cell"
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="row mt-3">
-                <div class="col-12 col-md-6 offset-md-3">
+                <div class="col-12 col-md-6 col-lg-4 offset-md-3 offset-lg-4">
                     <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
                     <div v-else class="card">
                         <div class="card-body">
@@ -165,16 +165,16 @@ export default {
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(16, calc(40vw / 16));
-        grid-template-rows: repeat(11, calc(40vw / 16));
+        grid-template-columns: repeat(16, calc(50vw / 16));
+        grid-template-rows: repeat(11, calc(50vw / 16));
         grid-gap: 2px;
     }
 
     @media (max-width: 1199.98px) {
         .grid {
             display: grid;
-            grid-template-columns: repeat(16, calc(60vw / 16));
-            grid-template-rows: repeat(11, calc(60vw / 16));
+            grid-template-columns: repeat(16, calc(70vw / 16));
+            grid-template-rows: repeat(11, calc(70vw / 16));
             grid-gap: 2px;
         }
     }
