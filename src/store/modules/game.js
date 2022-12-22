@@ -19,6 +19,18 @@ const getters = {
     }
 }
 
+const actions = {
+    saveGame({rootGetters}) {
+        let gameState = {}
+        gameState.players = rootGetters['players/all']
+        localStorage.gameState = JSON.stringify(gameState);
+    },
+    loadGame({commit}) {
+        let gameState = JSON.parse(localStorage.gameState);
+        commit('players/loadPlayers', gameState.players, {root: true})
+    }
+}
+
 const mutations = {
     nextActivePlayer(state) {
         state.currentPlayerId = state.currentPlayerId >= state.numberOfPlayers
@@ -38,5 +50,6 @@ export default {
     namespaced: true,
     state,
     getters,
+    actions,
     mutations
 }

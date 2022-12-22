@@ -3,7 +3,7 @@
         <b-navbar toggleable="sm" type="dark" variant="dark">
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
-                <!-- Right aligned nav items -->
+                <b-button size="sm" class="my-2 my-sm-0 mx-2" @click="startNewGame">New Game</b-button>
                 <b-navbar-nav class="ml-auto">
                     <b-form-checkbox v-model="showCoordinates" class="text-white small mr-3">
                         Show Coordinates
@@ -87,12 +87,13 @@ export default {
             showCoordinates: false
         }
     },
-    mounted() {
+    async mounted() {
         this.$store.dispatch('board/init')
-        this.$store.dispatch('players/createNewPlayer', { isHuman: true })
-        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
-        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
-        this.$store.dispatch('players/createNewPlayer', { isHuman: false })
+        if (localStorage.gameState) {
+            this.$store.dispatch('game/loadGame')
+        } else {
+            await this.startNewGame()
+        }
     },
     computed: {
         ...mapGetters('bag', {
@@ -120,6 +121,7 @@ export default {
         },
         async doEndTurn() {
             await this.$store.dispatch('players/refillPlayerHands')
+            this.$store.dispatch('game/saveGame')
             this.$store.commit('game/nextActivePlayer')
             if (this.currentPlayer && !this.currentPlayer.isHuman) {
                 // TODO Put this in a better spot
@@ -143,6 +145,16 @@ export default {
                 return matchingPlayers[0]
             }
             return null
+        },
+        async startNewGame() {
+            localStorage.removeItem('gameState')
+            this.$store.commit('players/clearPlayers')
+            this.$store.dispatch('board/init')
+            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+            this.$store.dispatch('game/saveGame')
         }
     }
 }
