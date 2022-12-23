@@ -37,21 +37,21 @@
                     <div class="row">
                         <div class="col-auto col-sm pl-3 text-left small">
                             <div class="d-inline d-sm-block pr-3 pr-sm-0">
-                                <span class="settlement-score">{{player.score.black}}</span>
+                                <span class="settlement-score">{{player.score.settlement}}</span>
                                 <span class="treasure-score"> +{{ getTreasureCount(tileTypes.settlement) }}</span>
                             </div>
                             <div class="d-inline d-sm-block">
-                                <span class="temple-score">{{player.score.red}}</span>
+                                <span class="temple-score">{{player.score.temple}}</span>
                                 <span class="treasure-score"> +{{ getTreasureCount(tileTypes.temple) }}</span>
                             </div>
                         </div>
                         <div class="col-6 col-sm pl-2 text-left small">
                             <div class="d-inline d-sm-block pr-3 pr-sm-0">
-                                <span class="farm-score">{{player.score.blue}}</span>
+                                <span class="farm-score">{{player.score.farm}}</span>
                                 <span class="treasure-score"> +{{ getTreasureCount(tileTypes.farm) }}</span>
                             </div>
                             <div class="d-inline d-sm-block">
-                                <span class="market-score">{{player.score.green}}</span>
+                                <span class="market-score">{{player.score.market}}</span>
                                 <span class="treasure-score"> +{{ getTreasureCount(tileTypes.market) }}</span>
                             </div>
                         </div>
@@ -74,6 +74,7 @@ import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import { tileTypes } from '../common/constants'
+import helpers from '../common/helpers'
 
 export default {
     name: 'PlayerHand',  
@@ -122,8 +123,10 @@ export default {
             }
         },
         getTreasureCount(tileType) {
-            // TODO Return count of treasures when passed in tileType has the lowest score
-            return tileType
+            let score = this.player.score[helpers.getTileNameByType(tileType)]
+            let values = Object.values(this.player.score)
+            let lowestScore = Math.min(...values)
+            return score === lowestScore ? this.player.score.treasure : 0
         }
     }
 }

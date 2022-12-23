@@ -44,7 +44,6 @@ export default {
         },
         doMapSquareClick() {
             this.$store.dispatch('board/handleBoardClick', { index: this.index })
-            this.$store.dispatch('board/setKingdoms')
         }
     }
 }

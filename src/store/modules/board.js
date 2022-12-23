@@ -163,7 +163,10 @@ const actions = {
             currentPlayer.selectedTiles.length >= 1) {
             let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
             if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                commit('addTile', {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id})
+                const newPayload = {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id}
+                commit('addTile', newPayload)
+                dispatch('setKingdoms')
+                dispatch('checkForScoring', newPayload)
                 dispatch('players/removeSelectedTiles', null, { root: true })
                 commit('game/actionCompleted', null, {root: true})
             }
@@ -213,6 +216,34 @@ const actions = {
         }
         return state.kingdoms
     },
+    checkForScoring({state, getters, commit}, payload) {
+        if (payload && !payload.isLeaderTile) {
+            let kingdom = getters.getKingdom(payload.index)
+            if (kingdom) {
+                let matchingLeader = null
+                let matchingKing = null
+                // check if kingdom has any matching leaders to score
+                for (let i = 0; i < kingdom.tileIndexes.length; i++) {
+                    var matchingTile = state.tiles[kingdom.tileIndexes[i]]
+                    if (matchingTile && matchingTile.isLeaderTile) {
+                        if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
+                            (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
+                            (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
+                            (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
+                            matchingLeader = matchingTile
+                        } else if (matchingTile.tileType === tileTypes.king) {
+                            matchingKing = matchingTile
+                        }
+                    }
+                }
+                if (matchingLeader !== null) {
+                    commit('players/incrementScore', {playerId: matchingLeader.playerId, tileType: payload.tileType}, {root: true})
+                } else if (matchingKing !== null) {
+                    commit('players/incrementScore', {playerId: matchingKing.playerId, tileType: payload.tileType}, {root: true})
+                }
+            }
+        }
+    }
 }
 
 const mutations = {

@@ -1,4 +1,5 @@
 import { actionTypes, tileTypes } from '../../common/constants'
+import helpers from '../../common/helpers'
 
 const state = () => ({
     players: []
@@ -35,11 +36,11 @@ const actions = {
             selectedTiles: [],
             catastropheTiles: 2,
             score: {
-                red: 0,
-                green: 0,
-                blue: 0,
-                black: 0,
-                wild: 0
+                temple: 0,
+                market: 0,
+                farm: 0,
+                settlement: 0,
+                treasure: 0
             },
             isHuman: payload.isHuman
         }
@@ -94,30 +95,33 @@ const mutations = {
         state.players.push(payload)
     },
     addTileSelection(state, payload) {
-        state.players.filter(x => x.id == payload.id)[0].selectedTiles.push({
+        state.players.filter(x => x.id === payload.id)[0].selectedTiles.push({
             index: payload.index, tileType: payload.tileType, isLeaderTile: payload.isLeaderTile
         })
     },
     clearTileSelection(state, payload) {
-        let currentSelectedTiles = state.players.filter(x => x.id == payload.id)[0].selectedTiles
+        let currentSelectedTiles = state.players.filter(x => x.id === payload.id)[0].selectedTiles
         currentSelectedTiles.splice(0, currentSelectedTiles.length)
     },
     removeTileFromHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id == payload.id)[0].hand
+        let currentPlayerHand = state.players.filter(x => x.id === payload.id)[0].hand
         if (currentPlayerHand && currentPlayerHand.length > payload.index) {
             currentPlayerHand.splice(payload.index, 1)
         }
     },
     removeLeaderFromHand(state, payload) {
-        let currentPlayerLeaders = state.players.filter(x => x.id == payload.id)[0].leaders
+        let currentPlayerLeaders = state.players.filter(x => x.id === payload.id)[0].leaders
         if (currentPlayerLeaders && currentPlayerLeaders.length > payload.index) {
             currentPlayerLeaders.splice(payload.index, 1)
         }
     },
     addTilesToPlayerHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id == payload.id)[0].hand
+        let currentPlayerHand = state.players.filter(x => x.id === payload.id)[0].hand
         currentPlayerHand = [...currentPlayerHand, ...payload.tilesToAdd]
-        state.players.filter(x => x.id == payload.id)[0].hand = currentPlayerHand
+        state.players.filter(x => x.id === payload.id)[0].hand = currentPlayerHand
+    },
+    incrementScore(state, payload) {
+        state.players.filter(x => x.id === payload.playerId)[0].score[helpers.getTileNameByType(payload.tileType)]++
     }
 }
 
