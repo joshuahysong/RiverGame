@@ -1,11 +1,18 @@
 import { actionTypes } from '../../common/constants'
 
 const state = () => ({
+    currentPlayerId: 0,
+    numberOfPlayers: 0,
+    remainingActions: 0,
+    currentActionType: 0
+})
+
+const defaultState = {
     currentPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playUnit
-})
+}
 
 const getters = {
     currentActionType(state) {
@@ -16,18 +23,32 @@ const getters = {
     },
     remainingActions(state) {
         return state.remainingActions
+    },
+    numberOfPlayers(state) {
+        return state.numberOfPlayers
     }
 }
 
 const actions = {
-    saveGame({rootGetters}) {
+    init({commit}) {
+        commit('setState', defaultState)
+    },
+    saveGame({state, rootGetters}) {
         let gameState = {}
         gameState.players = rootGetters['players/all']
+        gameState.tiles = rootGetters['board/tiles']
+        gameState.bag = rootGetters['bag/all']
+        gameState.game = state
         localStorage.gameState = JSON.stringify(gameState);
     },
     loadGame({commit}) {
-        let gameState = JSON.parse(localStorage.gameState);
-        commit('players/loadPlayers', gameState.players, {root: true})
+        if (localStorage.gameState) {
+            let gameState = JSON.parse(localStorage.gameState);
+            commit('players/loadPlayers', gameState.players, {root: true})
+            commit('board/setTiles', gameState.tiles, {root: true})
+            commit('bag/setState', gameState.bag, {root: true})
+            commit('setState', gameState.game)
+        }
     }
 }
 
@@ -41,8 +62,11 @@ const mutations = {
     incrementPlayerCount(state) {
         state.numberOfPlayers++
     },
-    actionCompleted(state){
+    actionCompleted(state) {
         state.remainingActions--
+    },
+    setState(state, payload) {
+        Object.assign(state, payload)
     }
 }
 

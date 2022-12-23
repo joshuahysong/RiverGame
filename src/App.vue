@@ -57,12 +57,13 @@
                 sidebar-class="border-left border-dark text-left mt-5">
                 <div class="px-3 py-2">
                     Current Player: {{currentPlayer?.id}}<br />
+                    Number of Players: {{ numberOfPlayers }}<br />
                     Bag: {{debugBagStats}}<br />
                     Hands: <br />
                     <player-hand v-for="(player, index) in allPlayers"
                         :key="index"
-                        :player="getPlayer(player.id)" size="sm"
-                        :class="{'border-danger': player.id === currentPlayer.id}"
+                        :player="getPlayer(player?.id)" size="sm"
+                        :class="{'border-danger': player?.id === currentPlayer.id}"
                         class="mt-2"/>
                 </div>
             </b-sidebar>
@@ -88,7 +89,6 @@ export default {
         }
     },
     async mounted() {
-        this.$store.dispatch('board/init')
         if (localStorage.gameState) {
             this.$store.dispatch('game/loadGame')
         } else {
@@ -109,7 +109,8 @@ export default {
             allPlayers: 'all'
         }),
         ...mapGetters('game', {
-            remainingActions: 'remainingActions'
+            remainingActions: 'remainingActions',
+            numberOfPlayers: 'numberOfPlayers'
         }),
         isEndTurnDisabled() {
             return this.remainingActions != 0
@@ -121,8 +122,8 @@ export default {
         },
         async doEndTurn() {
             await this.$store.dispatch('players/refillPlayerHands')
-            this.$store.dispatch('game/saveGame')
             this.$store.commit('game/nextActivePlayer')
+            this.$store.dispatch('game/saveGame')
             if (this.currentPlayer && !this.currentPlayer.isHuman) {
                 // TODO Put this in a better spot
                 console.log('----------')
@@ -148,8 +149,10 @@ export default {
         },
         async startNewGame() {
             localStorage.removeItem('gameState')
-            this.$store.commit('players/clearPlayers')
+            this.$store.dispatch('game/init')
             this.$store.dispatch('board/init')
+            this.$store.dispatch('bag/init')
+            this.$store.commit('players/clearPlayers')
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })

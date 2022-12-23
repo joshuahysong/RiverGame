@@ -15,8 +15,7 @@ const state = () => ({
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ],
-    tiles: [],
-    phase: null
+    tiles: []
 })
 
 const initialTiles = [
@@ -137,6 +136,13 @@ const getters = {
 }
 
 const actions = {
+    init ({commit}) {
+        let newTiles = []
+        for (let i = 0; i < initialTiles.length; i++) {
+            newTiles.push({tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
+        }
+        commit('setTiles', newTiles)
+    },
     handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
         // TODO Leader selection
         let currentPlayer = rootGetters['players/currentPlayer']
@@ -149,16 +155,6 @@ const actions = {
                 dispatch('players/removeSelectedTiles', null, { root: true })
                 commit('game/actionCompleted', null, {root: true})
             }
-        }
-    },
-    init ({commit, getters}) {
-        if (getters.tiles.length === 0) {
-            let newTiles = []
-            // populate empty tiles array
-            for (let i = 0; i < initialTiles.length; i++) {
-                newTiles.push({tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
-            }
-            commit('setTiles', newTiles)
         }
     }
 }

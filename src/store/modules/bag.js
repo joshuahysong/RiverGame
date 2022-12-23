@@ -2,11 +2,19 @@ import { tileTypes } from '../../common/constants'
 
 const state = () => ({
     bag: [],
+    temples: 0,
+    markets: 0,
+    settlements: 0,
+    farms: 0
+})
+
+const defaultState = {
+    bag: [],
     temples: 47,
     markets: 30,
     settlements: 30,
     farms: 36
-})
+}
 
 const getters = {
     debugBagStats(state) {
@@ -17,10 +25,18 @@ const getters = {
             settlements: state.settlements,
             farms: state.farms
         }
+    },
+    all(state) {
+        return state
     }
 }
 
 const actions = {
+    init({commit}) {
+        commit('setState', defaultState)
+        commit('fillBag')
+        commit('shuffleBag')
+    },
     drawTiles ({state, commit}, payload) {
         if (payload) {
             commit('shuffleBag')
@@ -32,16 +48,17 @@ const actions = {
 }
 
 const mutations = {
+    fillBag(state) {
+        let unshuffled = [];
+        state.bag.splice(0)
+        unshuffled = [...unshuffled, ...Array(state.temples).fill(tileTypes.temple, 0)]
+        unshuffled = [...unshuffled, ...Array(state.markets).fill(tileTypes.market, 0)]
+        unshuffled = [...unshuffled, ...Array(state.settlements).fill(tileTypes.settlement, 0)]
+        unshuffled = [...unshuffled, ...Array(state.farms).fill(tileTypes.farm, 0)]
+        state.bag = [...unshuffled]
+    },
     shuffleBag(state) {
         let unshuffled = [...state.bag];
-        if (state.bag.length == 0){
-            state.bag.splice(0)
-            unshuffled = [...unshuffled, ...Array(state.temples).fill(tileTypes.temple, 0)]
-            unshuffled = [...unshuffled, ...Array(state.markets).fill(tileTypes.market, 0)]
-            unshuffled = [...unshuffled, ...Array(state.settlements).fill(tileTypes.settlement, 0)]
-            unshuffled = [...unshuffled, ...Array(state.farms).fill(tileTypes.farm, 0)]
-        }
-
         let shuffled = unshuffled
             .map(value => ({ value, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
@@ -60,6 +77,9 @@ const mutations = {
             if (tile === tileTypes.farm)
                 state.farms--;
         });
+    },
+    setState(state, payload) {
+        Object.assign(state, payload)
     }
 }
 
