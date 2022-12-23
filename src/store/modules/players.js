@@ -71,6 +71,10 @@ const actions = {
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
         }
     },
+    removeTileSelection({commit, getters}, payload) {
+        let currentPlayer = getters.currentPlayer
+        commit('removeTileSelection', {id: currentPlayer.id, ...payload})
+    },
     removeSelectedTiles({commit, getters}) {
         let currentPlayer = getters.currentPlayer
         currentPlayer.selectedTiles.forEach(selectedTile => {
@@ -98,6 +102,11 @@ const mutations = {
         state.players.filter(x => x.id === payload.id)[0].selectedTiles.push({
             index: payload.index, tileType: payload.tileType, isLeaderTile: payload.isLeaderTile
         })
+    },
+    removeTileSelection(state, payload) {
+        let currentSelectedTiles = state.players.filter(x => x.id === payload.id)[0].selectedTiles
+        let selectedTileIndex = currentSelectedTiles.findIndex(x => x.index === payload.index && x.isLeaderTile === payload.isLeaderTile)
+        currentSelectedTiles.splice(selectedTileIndex, 1)
     },
     clearTileSelection(state, payload) {
         let currentSelectedTiles = state.players.filter(x => x.id === payload.id)[0].selectedTiles

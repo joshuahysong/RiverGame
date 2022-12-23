@@ -14,7 +14,7 @@
                                     :tile-type="tileType"
                                     :player-id="player.id"
                                     :selected="isSelectedTile(index, true)"
-                                    @click.native="selectLeader(index)" />
+                                    @click.native="selectTile(index, true)" />
                             </div>
                         </div>
                     </div>
@@ -28,7 +28,7 @@
                                     :size="iconSize"
                                     :tile-type="tileType"
                                     :selected="isSelectedTile(index, false)"
-                                    @click.native="selectHandTile(index)" />
+                                    @click.native="selectTile(index, false)" />
                             </div>
                         </div>
                     </div>
@@ -38,25 +38,25 @@
                         <div class="col-auto col-sm pl-3 text-left small">
                             <div class="d-inline d-sm-block pr-3 pr-sm-0">
                                 <span class="settlement-score">{{player.score.settlement}}</span>
-                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.settlement) }}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.settlement)}}</span>
                             </div>
                             <div class="d-inline d-sm-block">
                                 <span class="temple-score">{{player.score.temple}}</span>
-                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.temple) }}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.temple)}}</span>
                             </div>
                         </div>
                         <div class="col-6 col-sm pl-2 text-left small">
                             <div class="d-inline d-sm-block pr-3 pr-sm-0">
                                 <span class="farm-score">{{player.score.farm}}</span>
-                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.farm) }}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.farm)}}</span>
                             </div>
                             <div class="d-inline d-sm-block">
                                 <span class="market-score">{{player.score.market}}</span>
-                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.market) }}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.market)}}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="row h-50">
+                    <div v-if="size === 'lg'" class="row h-50">
                         <div class="col pl-3 d-flex">
                             <div class="my-auto small">
                                 Actions: {{ remainingActions }}
@@ -112,14 +112,13 @@ export default {
         isSelectedTile(index, isLeaderTile) {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.isLeaderTile === isLeaderTile)
         },
-        selectHandTile(index) {
+        selectTile(index, isLeaderTile) {
             if (this.selectable && this.remainingActions > 0) {
-                this.$store.dispatch('players/addTileSelection', { index: index, isLeaderTile: false })
-            }
-        },
-        selectLeader(index) {
-            if (this.selectable && this.remainingActions > 0) {
-                this.$store.dispatch('players/addTileSelection', { index: index, isLeaderTile: true })
+                if (this.isSelectedTile(index, isLeaderTile)) {
+                    this.$store.dispatch('players/removeTileSelection', { index: index, isLeaderTile: isLeaderTile })
+                } else {
+                    this.$store.dispatch('players/addTileSelection', { index: index, isLeaderTile: isLeaderTile })
+                }
             }
         },
         getTreasureCount(tileType) {
