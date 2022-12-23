@@ -3,7 +3,7 @@
         <div class="card-body p-2">
             <div class="row no-gutters">
                 <div class="col d-flex h-100">
-                    <div class="mx-auto my-auto align-items-center"
+                    <div class="my-auto align-items-center"
                         :style="gridStyle">
                         <leader-tile
                         v-for="(tileType, index) in player.leaders"
@@ -15,11 +15,30 @@
                             @click.native="selectLeader(index)" />
                     </div>
                 </div>
+                <div class="col pl-3 text-left small">
+                    <div>
+                        <span class="settlement-score">{{player.score.black}}</span>
+                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.settlement) }}</span>
+                    </div>
+                    <div>
+                        <span class="temple-score">{{player.score.red}}</span>
+                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.temple) }}</span>
+                    </div>
+                </div>
+                <div class="col pl-2 text-left small">
+                    <div>
+                        <span class="farm-score">{{player.score.blue}}</span>
+                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.farm) }}</span>
+                    </div>
+                    <div>
+                        <span class="market-score">{{player.score.green}}</span>
+                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.market) }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="row no-gutters"
-                :style="rowStyle">
+            <div class="row no-gutters mt-2">
                 <div class="col d-flex h-100">
-                    <div class="mx-auto my-auto align-items-center"
+                    <div class="my-auto align-items-center"
                         :style="gridStyle">
                         <civilization-tile
                             v-for="(tileType, index) in player.hand"
@@ -28,6 +47,11 @@
                             :tile-type="tileType"
                             :selected="isSelectedTile(index, false)"
                             @click.native="selectHandTile(index)" />
+                    </div>
+                </div>
+                <div class="col pl-3 d-flex">
+                    <div class="my-auto small">
+                        Actions: {{ remainingActions }}
                     </div>
                 </div>
             </div>
@@ -62,9 +86,6 @@ export default {
         iconSize() {
             return this.size === 'lg' ? 40 : 20
         },
-        rowStyle() {
-            return `height: ${(this.size === 'lg' ? 60 : 30)}px`
-        },
         gridStyle() {
             let gridSize = this.size === 'lg' ? 40 : 20
             return `display: grid;
@@ -72,8 +93,8 @@ export default {
                 grid-template-rows: repeat(1, ${gridSize}px);
                 grid-gap: ${gridSize / 4}px;`
         },
-        catastropheTileType(){
-            return tileTypes.catastrophe
+        tileTypes() {
+            return tileTypes
         }
     },
     methods:{        
@@ -89,7 +110,32 @@ export default {
             if (this.selectable && this.remainingActions > 0) {
                 this.$store.dispatch('players/addTileSelection', { index: index, isLeaderTile: true })
             }
+        },
+        getTreasureCount(tileType) {
+            // TODO Return count of treasures when passed in tileType has the lowest score
+            return tileType
         }
     }
 }
 </script>
+
+<style scoped>
+    .card {
+        max-width: 450px;
+    }
+    .temple-score {
+        color: darkred;
+    }
+    .market-score  {
+        color: green;
+    }
+    .settlement-score  {
+        color: DimGray;
+    }
+    .farm-score  {
+        color: dodgerblue;
+    }
+    .treasure-score  {
+        color: goldenrod;
+    }
+</style>

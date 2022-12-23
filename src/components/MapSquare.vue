@@ -4,7 +4,7 @@
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :player-id="tile.playerId" :size="40" />
-        <div v-if="showCoordinates" class="coordinates small" :class="{'text-white': hasTile}">{{coordinates}}</div>
+        <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
     </div>
 </template>
 
@@ -58,7 +58,7 @@ export default {
         position: relative;
     }
     .coordinates {
-        font-size: 0.75em;
+        font-size: 0.65em;
         height: 90%;
         width: 100%;
         position: absolute;

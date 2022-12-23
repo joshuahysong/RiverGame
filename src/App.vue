@@ -29,8 +29,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-12 col-md-6 col-lg-4 offset-md-3 offset-lg-4">
+            <div class="row justify-content-center mt-3">
+                <div class="col-auto">
                     <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
                     <div v-else class="card">
                         <div class="card-body">
