@@ -5,6 +5,7 @@
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :player-id="tile.playerId" :size="40" />
         <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
+        <div v-if="showIndexes" class="coordinates" :class="{'text-white': hasTile}">{{index}}</div>
     </div>
 </template>
 
@@ -23,6 +24,7 @@ export default {
         mapSquareType: Number,
         index: Number,
         showCoordinates: Boolean,
+        showIndexes: Boolean,
         tile: Object
     },
     computed: {
@@ -42,6 +44,7 @@ export default {
         },
         doMapSquareClick() {
             this.$store.dispatch('board/handleBoardClick', { index: this.index })
+            this.$store.dispatch('board/setKingdoms')
         }
     }
 }

@@ -15,7 +15,8 @@ const state = () => ({
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ],
-    tiles: []
+    tiles: [],
+    kingdoms: []
 })
 
 const initialTiles = [
@@ -104,6 +105,16 @@ const getters = {
             }
         }
     },
+    getKingdom: (state) => (index) => {
+        let kingdomIndex = null
+        for (let i = 0; i < state.kingdoms.length; i++) {
+            if (state.kingdoms[i].tileIndexes.includes(index)){
+                kingdomIndex = i
+                break;
+            }
+        }
+        return kingdomIndex !== null ? state.kingdoms[kingdomIndex] : null
+    },
     availableTileLocations: (state, getters) => (selectedTile) => {
         let eligibleTileLocations = []
         let tileType = selectedTile.tileType
@@ -117,7 +128,6 @@ const getters = {
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
                         (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
                         (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
-                    // TODO Validate has temple neighbor
                     if (hasTempleNeighbor && mapSquareTile.tileType == tileTypes.empty
                         && mapSquare === mapTypes.ground) {
                             eligibleTileLocations.push(i)
@@ -136,12 +146,14 @@ const getters = {
 }
 
 const actions = {
-    init ({commit}) {
+    init ({commit, dispatch}) {
         let newTiles = []
         for (let i = 0; i < initialTiles.length; i++) {
-            newTiles.push({tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
+            newTiles.push({index: i, tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
         }
         commit('setTiles', newTiles)
+        commit('resetKingdoms')
+        dispatch('setKingdoms')
     },
     handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
         // TODO Leader selection
@@ -156,13 +168,58 @@ const actions = {
                 commit('game/actionCompleted', null, {root: true})
             }
         }
-    }
+    },
+    setKingdoms ({state, getters, commit}) {
+        for (let i = 0; i < state.tiles.length; i++) {
+            if (state.tiles[i].tileType === tileTypes.empty)
+                continue;
+
+            const neighbors = getters.getNeighborTiles(i)
+            //const isInKingdom = kingdoms.getKingdom(i).length > 0
+            if (neighbors) {
+                let foundKingdom = false;
+                if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
+                    var leftKingdom = getters.getKingdom(neighbors.left.index)
+                    if (leftKingdom && !leftKingdom.tileIndexes.includes(i)) {
+                        foundKingdom = true;
+                        commit('updateKingdom', { kingdomIndex: leftKingdom.kingdomIndex, newTileIndex: i })
+                    }
+                }
+                if (neighbors.top && neighbors.top.tileType !== tileTypes.empty) {
+                    var topKingdom = getters.getKingdom(neighbors.top.index)
+                    if (topKingdom && !topKingdom.tileIndexes.includes(i)) {
+                        foundKingdom = true;
+                        commit('updateKingdom', { kingdomIndex: topKingdom.kingdomIndex, newTileIndex: i })
+                    }
+                }
+                if (neighbors.right && neighbors.right.tileType !== tileTypes.empty) {
+                    var rightKingdom = getters.getKingdom(neighbors.right.index)
+                    if (rightKingdom && !rightKingdom.tileIndexes.includes(i)) {
+                        foundKingdom = true;
+                        commit('updateKingdom', { kingdomIndex: rightKingdom.kingdomIndex, newTileIndex: i })
+                    }
+                }
+                if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty) {
+                    var bottomKingdom = getters.getKingdom(neighbors.bottom.index)
+                    if (bottomKingdom && !bottomKingdom.tileIndexes.includes(i)) {
+                        foundKingdom = true;
+                        commit('updateKingdom', { kingdomIndex: bottomKingdom.kingdomIndex, newTileIndex: i })
+                    }
+                }
+                if (!foundKingdom && !getters.getKingdom(i)) {
+                    commit('addKingdom', { newTileIndex: i })
+                }
+            }
+        }
+        return state.kingdoms
+    },
 }
 
 const mutations = {
-    addTile (state, payload) {
+    addTile(state, payload) {
         if (payload && state.tiles.length - 1 >= payload.index) {
             let tile = {
+                index: payload.index,
                 tileType: payload.tileType,
                 isLeaderTile: payload.isLeaderTile,
                 playerId: payload?.playerId ?? 0
@@ -173,6 +230,17 @@ const mutations = {
     setTiles(state, payload) {
         if (payload) {
             Vue.set(state, 'tiles', [...payload]);
+        }
+    },
+    resetKingdoms(state) {
+        state.kingdoms.splice(0)
+    },
+    addKingdom(state, payload) {
+        state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [payload.newTileIndex]})
+    },
+    updateKingdom(state, payload) {
+        if (payload && state.kingdoms[payload.kingdomIndex] !== undefined) {
+            state.kingdoms[payload.kingdomIndex].tileIndexes.push(payload.newTileIndex)
         }
     }
 }

@@ -1,57 +1,67 @@
 <template>
     <div class="card">
         <div class="card-body p-2">
-            <div class="row no-gutters">
-                <div class="col d-flex h-100">
-                    <div class="my-auto align-items-center"
-                        :style="gridStyle">
-                        <leader-tile
-                        v-for="(tileType, index) in player.leaders"
-                            :key="index"
-                            :size="iconSize"
-                            :tile-type="tileType"
-                            :player-id="player.id"
-                            :selected="isSelectedTile(index, true)"
-                            @click.native="selectLeader(index)" />
+            <div class="row">
+                <div class="col-12 col-sm">
+                    <div class="row no-gutters">
+                        <div class="col-12 col-sm d-flex h-100">
+                            <div class="my-auto align-items-center"
+                                :style="gridStyle">
+                                <leader-tile
+                                v-for="(tileType, index) in player.leaders"
+                                    :key="index"
+                                    :size="iconSize"
+                                    :tile-type="tileType"
+                                    :player-id="player.id"
+                                    :selected="isSelectedTile(index, true)"
+                                    @click.native="selectLeader(index)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row no-gutters mt-2">
+                        <div class="col d-flex h-100">
+                            <div class="my-auto align-items-center"
+                                :style="gridStyle">
+                                <civilization-tile
+                                    v-for="(tileType, index) in player.hand"
+                                    :key="index"
+                                    :size="iconSize"
+                                    :tile-type="tileType"
+                                    :selected="isSelectedTile(index, false)"
+                                    @click.native="selectHandTile(index)" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col pl-3 text-left small">
-                    <div>
-                        <span class="settlement-score">{{player.score.black}}</span>
-                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.settlement) }}</span>
+                <div class="col-12 col-sm mt-2 mt-sm-0">
+                    <div class="row">
+                        <div class="col-auto col-sm pl-3 text-left small">
+                            <div class="d-inline d-sm-block pr-3 pr-sm-0">
+                                <span class="settlement-score">{{player.score.black}}</span>
+                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.settlement) }}</span>
+                            </div>
+                            <div class="d-inline d-sm-block">
+                                <span class="temple-score">{{player.score.red}}</span>
+                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.temple) }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm pl-2 text-left small">
+                            <div class="d-inline d-sm-block pr-3 pr-sm-0">
+                                <span class="farm-score">{{player.score.blue}}</span>
+                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.farm) }}</span>
+                            </div>
+                            <div class="d-inline d-sm-block">
+                                <span class="market-score">{{player.score.green}}</span>
+                                <span class="treasure-score"> +{{ getTreasureCount(tileTypes.market) }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <span class="temple-score">{{player.score.red}}</span>
-                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.temple) }}</span>
-                    </div>
-                </div>
-                <div class="col pl-2 text-left small">
-                    <div>
-                        <span class="farm-score">{{player.score.blue}}</span>
-                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.farm) }}</span>
-                    </div>
-                    <div>
-                        <span class="market-score">{{player.score.green}}</span>
-                        <span class="treasure-score"> +{{ getTreasureCount(tileTypes.market) }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row no-gutters mt-2">
-                <div class="col d-flex h-100">
-                    <div class="my-auto align-items-center"
-                        :style="gridStyle">
-                        <civilization-tile
-                            v-for="(tileType, index) in player.hand"
-                            :key="index"
-                            :size="iconSize"
-                            :tile-type="tileType"
-                            :selected="isSelectedTile(index, false)"
-                            @click.native="selectHandTile(index)" />
-                    </div>
-                </div>
-                <div class="col pl-3 d-flex">
-                    <div class="my-auto small">
-                        Actions: {{ remainingActions }}
+                    <div class="row h-50">
+                        <div class="col pl-3 d-flex">
+                            <div class="my-auto small">
+                                Actions: {{ remainingActions }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -137,5 +147,8 @@ export default {
     }
     .treasure-score  {
         color: goldenrod;
+    }
+    .h-50 {
+        height: 50% !important;
     }
 </style>

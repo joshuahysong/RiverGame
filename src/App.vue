@@ -8,11 +8,14 @@
                     <b-form-checkbox v-model="showCoordinates" class="text-white small mr-3">
                         Show Coordinates
                     </b-form-checkbox>
+                    <b-form-checkbox v-model="showIndexes" class="text-white small mr-3">
+                        Show Indexes
+                    </b-form-checkbox>
                     <b-button size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
-        <div class="main-app container-fluid">
+        <div class="main-app container-fluid text-center mt-3">
             <div class="row">
                 <div class="col p-0">
                     <div class="map-container">
@@ -23,6 +26,7 @@
                                 :map-square-type="mapSquare"
                                 :index="index"
                                 :show-coordinates="showCoordinates"
+                                :show-indexes="showIndexes"
                                 :tile="getTile(index)"
                             />
                         </div>
@@ -85,7 +89,8 @@ export default {
     },
     data() {
         return {
-            showCoordinates: false
+            showCoordinates: false,
+            showIndexes: false
         }
     },
     async mounted() {
@@ -168,8 +173,6 @@ export default {
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        text-align: center;
-        margin-top: 50px;
     }
 
     .map-container {
