@@ -5,7 +5,7 @@
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :player-id="tile.playerId" :size="40" />
         <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
-        <div v-if="showIndexes" class="coordinates" :class="{'text-white': hasTile}">{{index}}</div>
+        <div v-if="showIndexes" class="coordinates d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
     </div>
 </template>
 
@@ -61,9 +61,8 @@ export default {
     }
     .coordinates {
         font-size: 0.65em;
-        height: 90%;
+        height: 95%;
         width: 100%;
         position: absolute;
-        display: block;
     }
 </style>

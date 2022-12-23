@@ -5,12 +5,19 @@
             <b-collapse id="nav-collapse" is-nav>
                 <b-button size="sm" class="my-2 my-sm-0 mx-2" @click="startNewGame">New Game</b-button>
                 <b-navbar-nav class="ml-auto">
-                    <b-form-checkbox v-model="showCoordinates" class="text-white small mr-3">
-                        Show Coordinates
-                    </b-form-checkbox>
-                    <b-form-checkbox v-model="showIndexes" class="text-white small mr-3">
-                        Show Indexes
-                    </b-form-checkbox>
+                    <b-dropdown right>
+                        <template #button-content>
+                            <b-icon-gear-fill />
+                        </template>
+                        <b-dropdown-form form-class="px-3" style="width: 170px">
+                            <b-form-checkbox v-model="showCoordinates" class="small">
+                                Show Coordinates
+                            </b-form-checkbox>
+                            <b-form-checkbox v-model="showIndexes" class="small">
+                                Show Indexes
+                            </b-form-checkbox>
+                        </b-dropdown-form>
+                    </b-dropdown>
                     <b-button size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
                 </b-navbar-nav>
             </b-collapse>
