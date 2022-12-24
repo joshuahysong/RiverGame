@@ -9,7 +9,8 @@ const helpers = {
         return `${row.toString(36).toUpperCase()}-${(index % boardStats.columns + 1)}`;
     },
     getPlayerIconNameById(id) {
-        return Object.keys(playerIcons).find(key => playerIcons[key] === id);
+        const iconName = Object.keys(playerIcons).find(key => playerIcons[key] === id);
+        return `suit-${iconName}-fill`
     },
 }
 

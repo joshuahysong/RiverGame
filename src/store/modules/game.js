@@ -66,6 +66,9 @@ const mutations = {
     actionCompleted(state) {
         state.remainingActions--
     },
+    setActionType(state, payload) {
+        state.currentActionType = payload.actionType
+    },
     setState(state, payload) {
         Object.assign(state, payload)
     }

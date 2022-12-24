@@ -1,4 +1,4 @@
-import { mapTypes, tileTypes, boardStats } from '../../common/constants'
+import { mapTypes, tileTypes, boardStats, actionTypes } from '../../common/constants'
 import Vue from 'vue';
 
 const state = () => ({
@@ -16,7 +16,8 @@ const state = () => ({
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ],
     tiles: [],
-    kingdoms: []
+    kingdoms: [],
+    boardSelectionPlayerId: 0
 })
 
 const initialTiles = [
@@ -40,8 +41,12 @@ const getters = {
     tiles: (state) => {
         return state.tiles
     },
+    tile: (state) => (index) => {
+        return state.tiles[index]
+    },
     getNeighborTiles: (state) => (index) => {
         if (state.tiles.length > 0) {
+            // TODO Cleanup
             // top left
             if (index === 0) {
                 return {
@@ -115,6 +120,9 @@ const getters = {
         }
         return kingdomIndex !== null ? state.kingdoms[kingdomIndex] : null
     },
+    boardSelectionPlayerId: (state) => {
+        return state.boardSelectionPlayerId
+    },
     availableTileLocations: (state, getters) => (selectedTile) => {
         let eligibleTileLocations = []
         let tileType = selectedTile.tileType
@@ -158,17 +166,33 @@ const actions = {
     handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
         // TODO Leader selection
         let currentPlayer = rootGetters['players/currentPlayer']
-        if (payload &&
-            currentPlayer.selectedTiles &&
-            currentPlayer.selectedTiles.length >= 1) {
-            let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
-            if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                const newPayload = {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id}
-                commit('addTile', newPayload)
-                dispatch('setKingdoms')
-                dispatch('checkForScoring', newPayload)
-                dispatch('players/removeSelectedTiles', null, { root: true })
-                commit('game/actionCompleted', null, {root: true})
+        let currentActionType = rootGetters['game/currentActionType']
+        if (payload) {
+            if (currentActionType === actionTypes.playUnit &&
+                currentPlayer.selectedTiles &&
+                currentPlayer.selectedTiles.length >= 1) {
+                let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
+                if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
+                    const newPayload = {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id}
+                    commit('addTile', newPayload)
+                    dispatch('setKingdoms')
+                    dispatch('checkForScoring', newPayload)
+                    dispatch('players/removeSelectedTiles', null, { root: true })
+                    commit('game/actionCompleted', null, {root: true})
+                }
+            }
+            if (currentActionType === actionTypes.takeTreasure) {
+                const tile = getters.tile(payload.index)
+                if (tile.isHighlighted) {
+                    commit('players/incrementScore', {playerId: getters.boardSelectionPlayerId, tileType: tileTypes.treasure}, {root: true})
+                    commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
+                    let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
+                    for (let i = 0; i < highlightedTiles.length; i++) {
+                        commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
+                    }
+                    commit('setBoardSelectionPlayerId', {playerId: 0})
+                    commit('game/setActionType', {actionType: actionTypes.playUnit}, {root: true})
+                }
             }
         }
     },
@@ -222,17 +246,25 @@ const actions = {
             if (kingdom) {
                 let matchingLeader = null
                 let matchingKing = null
+                let matchingTrader = null
+                let foundTreasureTiles = []
                 // check if kingdom has any matching leaders to score
                 for (let i = 0; i < kingdom.tileIndexes.length; i++) {
                     var matchingTile = state.tiles[kingdom.tileIndexes[i]]
-                    if (matchingTile && matchingTile.isLeaderTile) {
-                        if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
-                            (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
-                            (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
-                            (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
-                            matchingLeader = matchingTile
-                        } else if (matchingTile.tileType === tileTypes.king) {
-                            matchingKing = matchingTile
+                    if (matchingTile) {
+                        if (matchingTile.tileType === tileTypes.treasure)
+                            foundTreasureTiles.push(matchingTile)
+                        if (matchingTile.isLeaderTile) {
+                            if (matchingTile.tileType === tileTypes.trader)
+                                matchingTrader = matchingTile
+                            if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
+                                (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
+                                (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
+                                (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
+                                matchingLeader = matchingTile
+                            } else if (matchingTile.tileType === tileTypes.king) {
+                                matchingKing = matchingTile
+                            }
                         }
                     }
                 }
@@ -240,6 +272,14 @@ const actions = {
                     commit('players/incrementScore', {playerId: matchingLeader.playerId, tileType: payload.tileType}, {root: true})
                 } else if (matchingKing !== null) {
                     commit('players/incrementScore', {playerId: matchingKing.playerId, tileType: payload.tileType}, {root: true})
+                }
+                // If more than one treasure exists score extras
+                if (foundTreasureTiles.length > 1 && matchingTrader !== null) {
+                    for (let i = 0; i < foundTreasureTiles.length; i++) {
+                        commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
+                    }
+                    commit('setBoardSelectionPlayerId', {playerId: matchingTrader.playerId})
+                    commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
                 }
             }
         }
@@ -258,6 +298,22 @@ const mutations = {
             state.tiles.splice(payload.index, 1, tile)
         }
     },
+    removeTile(state, payload) {
+        let newTile = {
+            index: payload.index,
+            tileType: tileTypes.empty,
+            isLeaderTile: false,
+            playerId: 0
+        }
+        state.tiles.splice(payload.indes, 1, newTile)
+    },
+    updateTile(state, payload) {
+        let matchingTile = state.tiles[payload.index]
+        if (matchingTile) {
+            matchingTile = {...payload}
+            state.tiles.splice(payload.index, 1, matchingTile)
+        }
+    },
     setTiles(state, payload) {
         if (payload) {
             Vue.set(state, 'tiles', [...payload]);
@@ -272,6 +328,11 @@ const mutations = {
     updateKingdom(state, payload) {
         if (payload && state.kingdoms[payload.kingdomIndex] !== undefined) {
             state.kingdoms[payload.kingdomIndex].tileIndexes.push(payload.newTileIndex)
+        }
+    },
+    setBoardSelectionPlayerId(state, payload) {
+        if (payload) {
+            Vue.set(state, 'boardSelectionPlayerId', payload.playerId);
         }
     }
 }

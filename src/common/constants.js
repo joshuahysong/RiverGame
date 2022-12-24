@@ -19,7 +19,8 @@ export const mapTypes = {
 
 export const actionTypes = {
     playUnit: 0,
-    swapTiles: 1
+    swapTiles: 1,
+    takeTreasure: 2
 }
 
 export const playerIcons = {

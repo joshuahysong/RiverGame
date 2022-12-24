@@ -8,7 +8,7 @@
                             <div class="my-auto align-items-center"
                                 :style="gridStyle">
                                 <leader-tile
-                                v-for="(tileType, index) in player.leaders"
+                                    v-for="(tileType, index) in player.leaders"
                                     :key="index"
                                     :size="iconSize"
                                     :tile-type="tileType"
@@ -73,7 +73,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes } from '../common/constants'
+import { tileTypes, actionTypes } from '../common/constants'
 import helpers from '../common/helpers'
 
 export default {
@@ -92,7 +92,8 @@ export default {
     },
     computed: {
         ...mapGetters('game', {
-            remainingActions: 'remainingActions'
+            remainingActions: 'remainingActions',
+            currentActionType: 'currentActionType'
         }),
         iconSize() {
             return this.size === 'lg' ? 40 : 20
@@ -113,7 +114,7 @@ export default {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.isLeaderTile === isLeaderTile)
         },
         selectTile(index, isLeaderTile) {
-            if (this.selectable && this.remainingActions > 0) {
+            if (this.selectable && this.remainingActions > 0 && this.currentActionType === actionTypes.playUnit) {
                 if (this.isSelectedTile(index, isLeaderTile)) {
                     this.$store.dispatch('players/removeTileSelection', { index: index, isLeaderTile: isLeaderTile })
                 } else {

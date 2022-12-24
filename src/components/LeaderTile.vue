@@ -19,7 +19,7 @@ export default {
             return helpers.getTileNameByType(this.tileType)
         },
         icon() {
-            return `suit-${helpers.getPlayerIconNameById(this.playerId)}-fill`
+            return helpers.getPlayerIconNameById(this.playerId)
         }
     }
 }

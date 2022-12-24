@@ -40,6 +40,11 @@
                     </div>
                 </div>
             </div>
+            <div v-if="showPlayerMessage" class="row mt-3">
+                <div class="col">
+                    <b-icon v-if="playerMessageId" :icon="leaderIcon" /> {{playerMessage}}
+                </div>
+            </div>
             <div class="row justify-content-center mt-3">
                 <div class="col-auto">
                     <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
@@ -87,6 +92,7 @@ import { mapGetters } from 'vuex'
 import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import helpers from './common/helpers'
+import { actionTypes } from './common/constants'
 
 export default {
     name: 'App',
@@ -97,7 +103,10 @@ export default {
     data() {
         return {
             showCoordinates: false,
-            showIndexes: false
+            showIndexes: false,
+            showPlayerMessage: false,
+            playerMessage: '',
+            playerMessageId: 0
         }
     },
     async mounted() {
@@ -113,7 +122,8 @@ export default {
         }),
         ...mapGetters('board', {
             map: 'map',
-            tiles: 'tiles'
+            tiles: 'tiles',
+            boardSelectionPlayerId: 'boardSelectionPlayerId'
         }),
         ...mapGetters('players', {
             playerHand: 'playerHand',
@@ -122,10 +132,23 @@ export default {
         }),
         ...mapGetters('game', {
             remainingActions: 'remainingActions',
-            numberOfPlayers: 'numberOfPlayers'
+            numberOfPlayers: 'numberOfPlayers',
+            currentActionType: 'currentActionType'
         }),
         isEndTurnDisabled() {
             return this.remainingActions != 0
+        },
+        leaderIcon() {
+            return helpers.getPlayerIconNameById(this.playerMessageId)
+        }
+    },
+    watch: {
+        currentActionType(newActionType) {
+            if (newActionType == actionTypes.takeTreasure) {
+                this.showPlayerMessage = true
+                this.playerMessage = 'Select which treasure to take'
+                this.playerMessageId = this.boardSelectionPlayerId
+            }
         }
     },
     methods: {

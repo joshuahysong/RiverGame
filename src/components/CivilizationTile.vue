@@ -12,12 +12,14 @@ export default {
     name: 'CivilizationTile',
     props: {
         tileType: Number,
-        selected: Boolean
+        selected: Boolean,
+        highlight: Boolean
     },
     computed: {
         tileClass() {
             let cssClass = helpers.getTileNameByType(this.tileType)
             cssClass += this.selected ? ' selected' : ''
+            cssClass += this.highlight ? ' highlight' : ''
             return cssClass
         },
         isTreasure() {
@@ -36,6 +38,9 @@ export default {
     .selected {
         border: 5px solid black;
         box-sizing: content-box;
+    }
+    .highlight {
+        box-shadow: 0 0 5px 5px yellow;
     }
     .temple, .treasure {
         background: darkred;
