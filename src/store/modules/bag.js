@@ -17,6 +17,9 @@ const defaultState = {
 }
 
 const getters = {
+    all(state) {
+        return state
+    },
     debugBagStats(state) {
         return {
             bagCount: state.bag.length,
@@ -26,8 +29,12 @@ const getters = {
             farms: state.farms
         }
     },
-    all(state) {
-        return state
+    bagSpaceRemaining(state) {
+        return Math.round(state.bag.length /
+            (defaultState.temples +
+            defaultState.markets +
+            defaultState.settlements +
+            defaultState.farms) * 100)
     }
 }
 

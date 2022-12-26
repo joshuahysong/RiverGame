@@ -45,8 +45,11 @@
                     <b-icon v-if="playerMessageId" :icon="leaderIcon" /> {{playerMessage}}
                 </div>
             </div>
-            <div class="row justify-content-center mt-3">
-                <div class="col-auto">
+            <div class="row justify-content-center align-items-center mt-3">
+                <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1">
+                    Bag {{ bagSpaceRemaining }}%
+                </div>
+                <div class="col-auto order-1 order-sm-1 order-md-2">
                     <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
                     <div v-else class="card">
                         <div class="card-body">
@@ -56,9 +59,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col">
+                <div class="col-12 col-sm-6 col-md-2 py-3 order-2 order-sm-3 order-md-3">
                     <b-button
                         variant="primary"
                         :disabled="isEndTurnDisabled"
@@ -117,24 +118,25 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('bag', {
-            debugBagStats: 'debugBagStats'
-        }),
-        ...mapGetters('board', {
-            map: 'map',
-            tiles: 'tiles',
-            boardSelectionPlayerId: 'boardSelectionPlayerId'
-        }),
+        ...mapGetters('bag', [
+            'debugBagStats',
+            'bagSpaceRemaining'
+        ]),
+        ...mapGetters('board', [
+            'map',
+            'tiles',
+            'boardSelectionPlayerId'
+        ]),
         ...mapGetters('players', {
             playerHand: 'playerHand',
             currentPlayer: 'currentPlayer',
             allPlayers: 'all'
         }),
-        ...mapGetters('game', {
-            remainingActions: 'remainingActions',
-            numberOfPlayers: 'numberOfPlayers',
-            currentActionType: 'currentActionType'
-        }),
+        ...mapGetters('game', [
+            'remainingActions',
+            'numberOfPlayers',
+            'currentActionType'
+        ]),
         isEndTurnDisabled() {
             return this.remainingActions != 0
         },
