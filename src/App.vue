@@ -46,8 +46,11 @@
                 </div>
             </div>
             <div class="row justify-content-center align-items-center mt-3">
-                <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1">
-                    Bag {{ bagSpaceRemaining }}%
+                <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1 d-flex justify-content-center">
+                    <div class="bag-icon-container" >
+                        <b-icon-bag-fill class="bag-icon" />
+                        <div class="bag-text text-white">{{ bagSpaceRemaining }}%</div>
+                    </div>
                 </div>
                 <div class="col-auto order-1 order-sm-1 order-md-2">
                     <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
@@ -246,5 +249,17 @@ export default {
 
     .hand-empty {
         height: 80px;
+    }
+    .bag-icon-container {
+        position: relative;
+    }
+    .bag-icon {
+        width: 4em;
+        height: 4em;
+    }
+    .bag-text {
+        width: 100%;
+        position: absolute;
+        top: 1.5rem;
     }
 </style>
