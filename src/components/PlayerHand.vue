@@ -37,12 +37,12 @@
                     <div class="row">
                         <div class="col-auto col-sm pl-3 text-left small">
                             <div class="d-inline d-sm-block pr-3 pr-sm-0">
-                                <span class="settlement-score">{{player.score.settlement}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.settlement)}}</span>
-                            </div>
-                            <div class="d-inline d-sm-block">
                                 <span class="temple-score">{{player.score.temple}}</span>
                                 <span class="treasure-score"> +{{getTreasureCount(tileTypes.temple)}}</span>
+                            </div>
+                            <div class="d-inline d-sm-block">
+                                <span class="market-score">{{player.score.market}}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.market)}}</span>
                             </div>
                         </div>
                         <div class="col-6 col-sm pl-2 text-left small">
@@ -51,8 +51,8 @@
                                 <span class="treasure-score"> +{{getTreasureCount(tileTypes.farm)}}</span>
                             </div>
                             <div class="d-inline d-sm-block">
-                                <span class="market-score">{{player.score.market}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.market)}}</span>
+                                <span class="settlement-score">{{player.score.settlement}}</span>
+                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.settlement)}}</span>
                             </div>
                         </div>
                     </div>
@@ -123,10 +123,11 @@ export default {
             }
         },
         getTreasureCount(tileType) {
-            let score = this.player.score[helpers.getTileNameByType(tileType)]
-            let values = Object.values(this.player.score)
-            let lowestScore = Math.min(...values)
-            return score === lowestScore ? this.player.score.treasure : 0
+            const scoreEntries = Object.entries(this.player.score)
+            const lowestScore = Math.min(...scoreEntries.map(x => x[1]))
+            const lowestScoreFirstIndex = scoreEntries.findIndex(x => x[1] === lowestScore)
+            const matchingScoreIndex = scoreEntries.findIndex(x => x[0] === helpers.getTileNameByType(tileType))
+            return matchingScoreIndex === lowestScoreFirstIndex ? this.player.score.treasure : 0
         }
     }
 }
