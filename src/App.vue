@@ -149,6 +149,9 @@ export default {
     },
     watch: {
         currentActionType(newActionType) {
+            this.showPlayerMessage = false
+            this.playerMessage = ''
+            this.playerMessageId = 0
             if (newActionType == actionTypes.takeTreasure) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select which treasure to take'
