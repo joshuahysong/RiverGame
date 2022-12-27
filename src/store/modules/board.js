@@ -136,8 +136,9 @@ const getters = {
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
                         (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
                         (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
-                    if (hasTempleNeighbor && mapSquareTile.tileType == tileTypes.empty
-                        && mapSquare === mapTypes.ground) {
+                    if (hasTempleNeighbor &&
+                        mapSquareTile.tileType == tileTypes.empty &&
+                        mapSquare === mapTypes.ground) {
                             eligibleTileLocations.push(i)
                         }
                 } else {
@@ -160,7 +161,6 @@ const actions = {
             newTiles.push({index: i, tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
         }
         commit('setTiles', newTiles)
-        commit('resetKingdoms')
         dispatch('setKingdoms')
     },
     handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
@@ -196,45 +196,36 @@ const actions = {
             }
         }
     },
-    setKingdoms ({state, getters, commit}) {
-        for (let i = 0; i < state.tiles.length; i++) {
-            if (state.tiles[i].tileType === tileTypes.empty)
-                continue;
-
-            const neighbors = getters.getNeighborTiles(i)
-            //const isInKingdom = kingdoms.getKingdom(i).length > 0
-            if (neighbors) {
-                let foundKingdom = false;
-                if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
-                    var leftKingdom = getters.getKingdom(neighbors.left.index)
-                    if (leftKingdom && !leftKingdom.tileIndexes.includes(i)) {
-                        foundKingdom = true;
-                        commit('updateKingdom', { kingdomIndex: leftKingdom.kingdomIndex, newTileIndex: i })
+    setKingdoms({state, getters, commit}) {
+        commit('resetKingdoms')
+        let indexesToCheck = [...state.tiles.filter(x => x.tileType !== tileTypes.empty).map(x => x.index)]
+        let checkedIndexes = []
+        for (let i = 0; i < indexesToCheck.length; i++) {
+            if (!checkedIndexes.some(x => x === indexesToCheck[i])) {
+                let newKingdomIndexes = []
+                let queue = [indexesToCheck[i]]
+                while (queue.length > 0) {
+                    const queueIndex = queue.shift()
+                    if (!checkedIndexes.some(x => x === queueIndex)) {
+                        newKingdomIndexes.push(queueIndex)
+                        checkedIndexes.push(queueIndex)
+                        const neighbors = getters.getNeighborTiles(queueIndex)
+                        if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
+                            queue.push(neighbors.left.index)
+                        }
+                        if (neighbors.top && neighbors.top.tileType !== tileTypes.empty) {
+                            queue.push(neighbors.top.index)
+                        }
+                        if (neighbors.right && neighbors.right.tileType !== tileTypes.empty) {
+                            queue.push(neighbors.right.index)
+                        }
+                        if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty) {
+                            queue.push(neighbors.bottom.index)
+                        }
                     }
                 }
-                if (neighbors.top && neighbors.top.tileType !== tileTypes.empty) {
-                    var topKingdom = getters.getKingdom(neighbors.top.index)
-                    if (topKingdom && !topKingdom.tileIndexes.includes(i)) {
-                        foundKingdom = true;
-                        commit('updateKingdom', { kingdomIndex: topKingdom.kingdomIndex, newTileIndex: i })
-                    }
-                }
-                if (neighbors.right && neighbors.right.tileType !== tileTypes.empty) {
-                    var rightKingdom = getters.getKingdom(neighbors.right.index)
-                    if (rightKingdom && !rightKingdom.tileIndexes.includes(i)) {
-                        foundKingdom = true;
-                        commit('updateKingdom', { kingdomIndex: rightKingdom.kingdomIndex, newTileIndex: i })
-                    }
-                }
-                if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty) {
-                    var bottomKingdom = getters.getKingdom(neighbors.bottom.index)
-                    if (bottomKingdom && !bottomKingdom.tileIndexes.includes(i)) {
-                        foundKingdom = true;
-                        commit('updateKingdom', { kingdomIndex: bottomKingdom.kingdomIndex, newTileIndex: i })
-                    }
-                }
-                if (!foundKingdom && !getters.getKingdom(i)) {
-                    commit('addKingdom', { newTileIndex: i })
+                if (newKingdomIndexes.length > 0) {
+                    commit('addKingdom', { tileIndexes: newKingdomIndexes })
                 }
             }
         }
@@ -323,12 +314,7 @@ const mutations = {
         state.kingdoms.splice(0)
     },
     addKingdom(state, payload) {
-        state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [payload.newTileIndex]})
-    },
-    updateKingdom(state, payload) {
-        if (payload && state.kingdoms[payload.kingdomIndex] !== undefined) {
-            state.kingdoms[payload.kingdomIndex].tileIndexes.push(payload.newTileIndex)
-        }
+        state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [...payload.tileIndexes]})
     },
     setBoardSelectionPlayerId(state, payload) {
         if (payload) {
