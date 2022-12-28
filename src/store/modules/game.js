@@ -33,7 +33,7 @@ const actions = {
     init({commit}) {
         commit('setState', defaultState)
     },
-    saveGame({state, rootGetters}) {
+    save({state, rootGetters}) {
         let gameState = {}
         gameState.players = rootGetters['players/all']
         gameState.tiles = rootGetters['board/tiles']
@@ -41,7 +41,7 @@ const actions = {
         gameState.game = state
         localStorage.gameState = JSON.stringify(gameState);
     },
-    loadGame({commit, dispatch}) {
+    load({commit, dispatch}) {
         if (localStorage.gameState) {
             let gameState = JSON.parse(localStorage.gameState);
             commit('players/loadPlayers', gameState.players, {root: true})

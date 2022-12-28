@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import helpers from '../common/helpers'
@@ -24,12 +25,14 @@ export default {
     props: {
         mapSquareType: Number,
         index: Number,
-        showCoordinates: Boolean,
-        showIndexes: Boolean,
-        showKingdoms: Boolean,
         tile: Object
     },
     computed: {
+        ...mapGetters('settings', [
+            'showKingdoms',
+            'showCoordinates',
+            'showIndexes'
+        ]),
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
         },
@@ -97,6 +100,7 @@ export default {
         height: 95%;
         width: 100%;
         position: absolute;
+        z-index: 3;
     }
     .kingdom {
         height: 100%;

@@ -10,13 +10,13 @@
                             <b-icon-gear-fill />
                         </template>
                         <b-dropdown-form form-class="px-3" style="width: 170px">
-                            <b-form-checkbox v-model="showCoordinates" class="small">
+                            <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
                                 Show Coordinates
                             </b-form-checkbox>
-                            <b-form-checkbox v-model="showIndexes" class="small">
+                            <b-form-checkbox v-model="showIndexes" class="small" @change="saveSettings">
                                 Show Indexes
                             </b-form-checkbox>
-                            <b-form-checkbox v-model="showKingdoms" class="small">
+                            <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">
                                 Show Kingdoms
                             </b-form-checkbox>
                         </b-dropdown-form>
@@ -35,9 +35,6 @@
                                 :key="index"
                                 :map-square-type="mapSquare"
                                 :index="index"
-                                :show-coordinates="showCoordinates"
-                                :show-indexes="showIndexes"
-                                :show-kingdoms="showKingdoms"
                                 :tile="getTile(index)"
                             />
                         </div>
@@ -52,7 +49,7 @@
             <div class="row justify-content-center align-items-center mt-3">
                 <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1 d-flex justify-content-center">
                     <div class="bag-icon-container" >
-                        <b-icon-bag-fill class="bag-icon" />
+                        <b-icon-bag-fill class="bag-icon" variant="dark" />
                         <div class="bag-text text-white">{{ bagSpaceRemaining }}%</div>
                     </div>
                 </div>
@@ -110,9 +107,6 @@ export default {
     },
     data() {
         return {
-            showCoordinates: false,
-            showIndexes: false,
-            showKingdoms: false,
             showPlayerMessage: false,
             playerMessage: '',
             playerMessageId: 0
@@ -120,10 +114,11 @@ export default {
     },
     async mounted() {
         if (localStorage.gameState) {
-            this.$store.dispatch('game/loadGame')
+            this.$store.dispatch('game/load')
         } else {
             await this.startNewGame()
         }
+        this.$store.dispatch('settings/load')
     },
     computed: {
         ...mapGetters('bag', [
@@ -150,6 +145,30 @@ export default {
         },
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.playerMessageId)
+        },
+        showCoordinates: {
+            get () {
+                return this.$store.getters['settings/showCoordinates']
+            },
+            set (value) {
+                this.$store.commit('settings/setShowCoordinates', value)
+            }
+        },
+        showIndexes: {
+            get () {
+                return this.$store.getters['settings/showIndexes']
+            },
+            set (value) {
+                this.$store.commit('settings/setShowIndexes', value)
+            }
+        },
+        showKingdoms: {
+            get () {
+                return this.$store.getters['settings/showKingdoms']
+            },
+            set (value) {
+                this.$store.commit('settings/setShowKingdoms', value)
+            }
         }
     },
     watch: {
@@ -205,7 +224,10 @@ export default {
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
-            this.$store.dispatch('game/saveGame')
+            this.$store.dispatch('game/save')
+        },
+        saveSettings() {
+            this.$store.dispatch('settings/save')
         }
     }
 }
@@ -268,6 +290,6 @@ export default {
     .bag-text {
         width: 100%;
         position: absolute;
-        top: 1.5rem;
+        top: 1.7rem;
     }
 </style>
