@@ -34,6 +34,7 @@ export default {
         height: 90%;
         width: 90%;
         border-radius: 4px;
+        z-index: 2;
     }
     .selected {
         border: 5px solid black;

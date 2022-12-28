@@ -16,6 +16,9 @@
                             <b-form-checkbox v-model="showIndexes" class="small">
                                 Show Indexes
                             </b-form-checkbox>
+                            <b-form-checkbox v-model="showKingdoms" class="small">
+                                Show Kingdoms
+                            </b-form-checkbox>
                         </b-dropdown-form>
                     </b-dropdown>
                     <b-button size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
@@ -34,6 +37,7 @@
                                 :index="index"
                                 :show-coordinates="showCoordinates"
                                 :show-indexes="showIndexes"
+                                :show-kingdoms="showKingdoms"
                                 :tile="getTile(index)"
                             />
                         </div>
@@ -108,6 +112,7 @@ export default {
         return {
             showCoordinates: false,
             showIndexes: false,
+            showKingdoms: false,
             showPlayerMessage: false,
             playerMessage: '',
             playerMessageId: 0
