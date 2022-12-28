@@ -44,7 +44,7 @@ const getters = {
     tile: (state) => (index) => {
         return state.tiles[index]
     },
-    getNeighborTiles: (state) => (index) => {
+    getNeighbors: (state) => (index) => {
         if (state.tiles.length > 0) {
             // TODO Cleanup
             // top left
@@ -131,12 +131,14 @@ const getters = {
             let mapSquareTile = state.tiles[i]
             if (mapSquareTile) {
                 if (selectedTile.isLeaderTile) {
-                    let neighbors = getters.getNeighborTiles(i)
-                    let hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
+                    const isJoiningKingdoms = getters.isJoiningKingdoms(mapSquareTile)
+                    const neighbors = getters.getNeighbors(i)
+                    const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
                         (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
                         (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
-                    if (hasTempleNeighbor &&
+                    if (!isJoiningKingdoms &&
+                        hasTempleNeighbor &&
                         mapSquareTile.tileType == tileTypes.empty &&
                         mapSquare === mapTypes.ground) {
                             eligibleTileLocations.push(i)
@@ -151,6 +153,25 @@ const getters = {
             }
         }
         return eligibleTileLocations
+    },
+    isJoiningKingdoms: (state, getters) => (tile) => {
+        const neighbors = getters.getNeighbors(tile.index)
+        const hasLeftNeighbor = neighbors.left && neighbors.left.tileType !== tileTypes.empty
+        const hasTopNeighbor = neighbors.top && neighbors.top.tileType !== tileTypes.empty
+        const hasRightNeighbor = neighbors.right && neighbors.right.tileType !== tileTypes.empty
+        const hasBottomNeighbor = neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty
+        let isJoiningKingdoms = false;
+        if (hasLeftNeighbor && hasRightNeighbor) {
+            const leftKingdom = getters.getKingdom(neighbors.left.index)
+            const rightKingdom = getters.getKingdom(neighbors.right.index)
+            isJoiningKingdoms = leftKingdom.kingdomIndex !== rightKingdom.kingdomIndex
+        }
+        if (hasTopNeighbor && hasBottomNeighbor) {
+            const topKingdom = getters.getKingdom(neighbors.top.index)
+            const bottomKingdom = getters.getKingdom(neighbors.bottom.index)
+            isJoiningKingdoms = topKingdom.kingdomIndex !== bottomKingdom.kingdomIndex
+        }
+        return isJoiningKingdoms
     }
 }
 
@@ -209,7 +230,7 @@ const actions = {
                     if (!checkedIndexes.some(x => x === queueIndex)) {
                         newKingdomIndexes.push(queueIndex)
                         checkedIndexes.push(queueIndex)
-                        const neighbors = getters.getNeighborTiles(queueIndex)
+                        const neighbors = getters.getNeighbors(queueIndex)
                         if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
                             queue.push(neighbors.left.index)
                         }
@@ -229,7 +250,6 @@ const actions = {
                 }
             }
         }
-        return state.kingdoms
     },
     checkForScoring({state, getters, commit}, payload) {
         if (payload && !payload.isLeaderTile) {
