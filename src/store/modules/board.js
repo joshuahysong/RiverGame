@@ -17,7 +17,7 @@ const state = () => ({
     ],
     tiles: [],
     kingdoms: [],
-    boardSelectionPlayerId: 0
+    boardActionPlayerId: 0
 })
 
 const initialTiles = [
@@ -120,8 +120,8 @@ const getters = {
         }
         return kingdomIndex !== null ? state.kingdoms[kingdomIndex] : null
     },
-    boardSelectionPlayerId: (state) => {
-        return state.boardSelectionPlayerId
+    boardActionPlayerId: (state) => {
+        return state.boardActionPlayerId
     },
     availableTileLocations: (state, getters) => (selectedTile) => {
         let eligibleTileLocations = []
@@ -185,18 +185,19 @@ const actions = {
         dispatch('setKingdoms')
     },
     handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
-        // TODO Leader selection
         let currentPlayer = rootGetters['players/currentPlayer']
         let currentActionType = rootGetters['game/currentActionType']
         if (payload) {
-            if (currentActionType === actionTypes.playUnit &&
+            if (currentActionType === actionTypes.playTile &&
                 currentPlayer.selectedTiles &&
                 currentPlayer.selectedTiles.length >= 1) {
-                let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
+                const selectedTile = currentPlayer.selectedTiles[0]
+                let availableTileLocations = getters.availableTileLocations(selectedTile)
                 if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                    const newPayload = {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id}
+                    const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
                     commit('addTile', newPayload)
                     dispatch('setKingdoms')
+                    dispatch('checkForRebellion', newPayload)
                     dispatch('checkForScoring', newPayload)
                     dispatch('players/removeSelectedTiles', null, { root: true })
                     commit('game/actionCompleted', null, {root: true})
@@ -205,14 +206,14 @@ const actions = {
             if (currentActionType === actionTypes.takeTreasure) {
                 const tile = getters.tile(payload.index)
                 if (tile.isHighlighted) {
-                    commit('players/incrementScore', {playerId: getters.boardSelectionPlayerId, tileType: tileTypes.treasure}, {root: true})
+                    commit('players/incrementScore', {playerId: getters.boardActionPlayerId, tileType: tileTypes.treasure}, {root: true})
                     commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
                     let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
                     for (let i = 0; i < highlightedTiles.length; i++) {
                         commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
                     }
-                    commit('setBoardSelectionPlayerId', {playerId: 0})
-                    commit('game/setActionType', {actionType: actionTypes.playUnit}, {root: true})
+                    commit('setBoardActionPlayerId', {playerId: 0})
+                    commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
                 }
             }
         }
@@ -289,8 +290,31 @@ const actions = {
                     for (let i = 0; i < foundTreasureTiles.length; i++) {
                         commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
                     }
-                    commit('setBoardSelectionPlayerId', {playerId: matchingTrader.playerId})
+                    commit('setBoardActionPlayerId', {playerId: matchingTrader.playerId})
                     commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
+                }
+            }
+        }
+    },
+    checkForRebellion({state, getters, commit}, payload) {
+        if (payload && payload.isLeaderTile) {
+            const kingdom = getters.getKingdom(payload.index)
+            if (kingdom) {
+                let matchingLeader = null
+                for (let i = 0; i < kingdom.tileIndexes.length; i++) {
+                    var matchingTile = state.tiles[kingdom.tileIndexes[i]]
+                    if (matchingTile &&
+                        matchingTile.isLeaderTile &&
+                        matchingTile.tileType === payload.tileType &&
+                        matchingTile.playerId !== payload.playerId) {
+                        matchingLeader = {...matchingTile}
+                    }
+                }
+                if (matchingLeader) {
+                    commit('updateTile', {...payload, isHighlighted: true})
+                    commit('updateTile', {...matchingLeader, isHighlighted: true})
+                    commit('setBoardActionPlayerId', {playerId: matchingLeader.playerId})
+                    commit('game/setActionType', {actionType: actionTypes.rebellion}, {root: true})
                 }
             }
         }
@@ -336,9 +360,9 @@ const mutations = {
     addKingdom(state, payload) {
         state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [...payload.tileIndexes]})
     },
-    setBoardSelectionPlayerId(state, payload) {
+    setBoardActionPlayerId(state, payload) {
         if (payload) {
-            Vue.set(state, 'boardSelectionPlayerId', payload.playerId);
+            Vue.set(state, 'boardActionPlayerId', payload.playerId);
         }
     }
 }

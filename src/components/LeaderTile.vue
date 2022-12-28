@@ -1,6 +1,6 @@
 <template>
-    <div class="tile" :class="{'selected': selected}">
-        <b-icon class="h-100 w-100" :icon="icon" :class="tileClass" />
+    <div class="tile" :class="tileClass">
+        <b-icon class="h-100 w-100" :icon="icon" :class="iconClass" />
     </div>
 </template>
 
@@ -12,10 +12,16 @@ export default {
     props: {
         tileType: Number,
         playerId: Number,
-        selected: Boolean
+        selected: Boolean,
+        highlight: Boolean
     },
     computed: {
         tileClass() {
+            let cssClass = this.selected ? 'selected' : ''
+            cssClass += this.highlight ? ' highlight' : ''
+            return cssClass
+        },
+        iconClass() {
             return helpers.getTileNameByType(this.tileType)
         },
         icon() {
@@ -35,6 +41,9 @@ export default {
     .selected {
         border: 5px solid black;
         box-sizing: content-box;
+    }
+    .highlight {
+        box-shadow: 0 0 5px 5px yellow;
     }
     .king {
         color: DimGray;

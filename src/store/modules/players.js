@@ -60,7 +60,7 @@ const actions = {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
             let currentPlayer = getters.currentPlayer
-            if (currentActionType === actionTypes.playUnit) {
+            if (currentActionType === actionTypes.playTile) {
                 commit('clearTileSelection', {id: currentPlayer.id})
             }
             if (payload.isLeaderTile) {
