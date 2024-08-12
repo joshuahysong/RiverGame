@@ -32,7 +32,6 @@ const getters = {
     },
     getNeighbors: (state) => (index) => {
         if (state.tiles.length > 0) {
-            // TODO Cleanup
             // top left
             if (index === 0) {
                 return {
@@ -117,7 +116,7 @@ const getters = {
             let mapSquareTile = state.tiles[i]
             if (mapSquareTile) {
                 if (selectedTile.isLeaderTile) {
-                    const isJoiningKingdoms = getters.isJoiningKingdoms(mapSquareTile)
+                    const isJoiningKingdoms = getters.neighborKingdoms(mapSquareTile).length > 1
                     const neighbors = getters.getNeighbors(i)
                     const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
@@ -140,31 +139,24 @@ const getters = {
         }
         return eligibleTileLocations
     },
-    isJoiningKingdoms: (state, getters) => (tile) => {
+    neighborKingdoms: (state, getters) => (tile) => {
         const neighbors = getters.getNeighbors(tile.index)
-        const hasLeftNeighbor = neighbors.left && neighbors.left.tileType !== tileTypes.empty
-        const hasTopNeighbor = neighbors.top && neighbors.top.tileType !== tileTypes.empty
-        const hasRightNeighbor = neighbors.right && neighbors.right.tileType !== tileTypes.empty
-        const hasBottomNeighbor = neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty
-        let isJoiningKingdoms = false;
-        if (hasLeftNeighbor && hasRightNeighbor) {
-            const leftKingdom = getters.getKingdom(neighbors.left.index)
-            const rightKingdom = getters.getKingdom(neighbors.right.index)
-            isJoiningKingdoms = leftKingdom.kingdomIndex !== rightKingdom.kingdomIndex
-        }
-        if (hasTopNeighbor && hasBottomNeighbor) {
-            const topKingdom = getters.getKingdom(neighbors.top.index)
-            const bottomKingdom = getters.getKingdom(neighbors.bottom.index)
-            isJoiningKingdoms = topKingdom.kingdomIndex !== bottomKingdom.kingdomIndex
-        }
-        return isJoiningKingdoms
+        const neighborKingdoms = []
+        if (neighbors.left && neighbors.left.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.left.index))
+        if (neighbors.top && neighbors.top.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.top.index))
+        if (neighbors.right && neighbors.right.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.right.index))
+        if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.bottom.index))
+        return Array.from(new Set(neighborKingdoms));
     }
 }
 
 const actions = {
     init ({state, commit, dispatch}) {
         let newTiles = []
-        console.log(state.map)
         for (let i = 0; i < state.map.length; i++) {
             newTiles.push({
                 index: i,
@@ -187,10 +179,13 @@ const actions = {
                 let availableTileLocations = getters.availableTileLocations(selectedTile)
                 if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
                     const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
+                    const neighborKingdoms = getters.neighborKingdoms(newPayload)
+                    console.log(neighborKingdoms)
                     commit('addTile', newPayload)
                     dispatch('setKingdoms')
                     dispatch('checkForRebellion', newPayload)
-                    dispatch('checkForScoring', newPayload)
+                    if (neighborKingdoms.length <= 1)
+                        dispatch('checkForScoring', newPayload)
                     dispatch('players/removeSelectedTiles', null, { root: true })
                     commit('game/actionCompleted', null, {root: true})
                 }

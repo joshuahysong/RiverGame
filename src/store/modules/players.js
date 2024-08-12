@@ -26,13 +26,11 @@ const getters = {
 
 const actions = {
     async createNewPlayer({commit, state, dispatch}, payload) {
-        commit('bag/shuffleBag', null, { root: true })
         var hand = await dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
         var newPlayer = {
             id: state.players.length + 1,
             hand: hand,
             leaders: [tileTypes.king, tileTypes.priest, tileTypes.farmer, tileTypes.trader],
-            // TODO Leaders
             selectedTiles: [],
             catastropheTiles: 2,
             score: {
