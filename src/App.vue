@@ -46,7 +46,10 @@
                     <b-icon v-if="playerMessageId" :icon="leaderIcon" /> {{playerMessage}}
                 </div>
                 <div class="col-auto">
-                    <b-button variant="danger" size="sm">
+                    <b-button
+                        variant="danger"
+                        size="sm"
+                        @click="commitTilesToRebellion">
                         Commit {{ this.currentPlayer.selectedTiles.length }} tiles to Rebellion
                     </b-button>
                 </div>
@@ -247,6 +250,9 @@ export default {
         },
         saveSettings() {
             this.$store.dispatch('settings/save')
+        },
+        commitTilesToRebellion() {
+            //let defendingPlayer = this.$store.getters()
         }
     }
 }

@@ -14,7 +14,8 @@ export const tileTypes = {
 
 export const mapTypes = {
     ground: 0,
-    water: 1
+    water: 1,
+    treasure: 2
 }
 
 export const actionTypes = {
