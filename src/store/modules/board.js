@@ -155,7 +155,7 @@ const actions = {
                     const neighborKingdoms = getters.neighborKingdoms(newPayload)
                     commit('addTile', newPayload)
                     dispatch('setKingdoms')
-                    dispatch('checkForRebellion', newPayload)
+                    //dispatch('checkForRebellion', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
                     dispatch('players/removeSelectedTiles', null, { root: true })
