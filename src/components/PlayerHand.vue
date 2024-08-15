@@ -114,7 +114,9 @@ export default {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.isLeaderTile === isLeaderTile)
         },
         selectTile(index, isLeaderTile) {
-            if (this.selectable && this.remainingActions > 0 && this.currentActionType === actionTypes.playUnit) {
+            if (this.selectable &&
+                ((this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) ||
+                    this.currentActionType === actionTypes.rebellion && this.player.hand[index] === tileTypes.temple)) {
                 if (this.isSelectedTile(index, isLeaderTile)) {
                     this.$store.dispatch('players/removeTileSelection', { index: index, isLeaderTile: isLeaderTile })
                 } else {

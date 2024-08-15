@@ -14,13 +14,15 @@ export const tileTypes = {
 
 export const mapTypes = {
     ground: 0,
-    water: 1
+    water: 1,
+    treasure: 2
 }
 
 export const actionTypes = {
-    playUnit: 0,
+    playTile: 0,
     swapTiles: 1,
-    takeTreasure: 2
+    takeTreasure: 2,
+    rebellion: 3
 }
 
 export const playerIcons = {

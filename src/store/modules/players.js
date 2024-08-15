@@ -26,13 +26,11 @@ const getters = {
 
 const actions = {
     async createNewPlayer({commit, state, dispatch}, payload) {
-        commit('bag/shuffleBag', null, { root: true })
         var hand = await dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
         var newPlayer = {
             id: state.players.length + 1,
             hand: hand,
             leaders: [tileTypes.king, tileTypes.priest, tileTypes.farmer, tileTypes.trader],
-            // TODO Leaders
             selectedTiles: [],
             catastropheTiles: 2,
             score: {
@@ -56,24 +54,29 @@ const actions = {
             }
         }
     },
-    addTileSelection({commit, getters, rootGetters}, payload) {
+    addTileSelection({commit, getters, rootGetters, dispatch}, payload) {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
             let currentPlayer = getters.currentPlayer
-            if (currentActionType === actionTypes.playUnit) {
+            let isPlayTileActionType = currentActionType === actionTypes.playTile
+            if (isPlayTileActionType)
                 commit('clearTileSelection', {id: currentPlayer.id})
-            }
+
             if (payload.isLeaderTile) {
                 payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.leaders[payload.index]}
             } else {
                 payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.hand[payload.index]}
             }
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
+
+            if (isPlayTileActionType)
+                dispatch('board/calculateAvailableTileLocations', {...payload}, { root: true })
         }
     },
     removeTileSelection({commit, getters}, payload) {
         let currentPlayer = getters.currentPlayer
         commit('removeTileSelection', {id: currentPlayer.id, ...payload})
+        commit('board/resetAvailableTileLocations', null, { root: true })
     },
     removeSelectedTiles({commit, getters}) {
         let currentPlayer = getters.currentPlayer

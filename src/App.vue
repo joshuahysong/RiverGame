@@ -41,9 +41,17 @@
                     </div>
                 </div>
             </div>
-            <div v-if="showPlayerMessage" class="row mt-3">
-                <div class="col">
+            <div v-if="showPlayerMessage" class="row mt-3 justify-content-center align-items-center">
+                <div class="col-auto">
                     <b-icon v-if="playerMessageId" :icon="leaderIcon" /> {{playerMessage}}
+                </div>
+                <div class="col-auto">
+                    <b-button
+                        variant="danger"
+                        size="sm"
+                        @click="commitTilesToRebellion">
+                        Commit {{ this.currentPlayer.selectedTiles.length }} tiles to Rebellion
+                    </b-button>
                 </div>
             </div>
             <div class="row justify-content-center align-items-center mt-3">
@@ -63,13 +71,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-2 py-3 order-2 order-sm-3 order-md-3">
-                    <b-button
-                        variant="primary"
-                        :disabled="isEndTurnDisabled"
-                        @click="doEndTurn">
-                        End Turn
-                    </b-button>
+                <div class="col-12 col-sm-6 col-md-2 order-2 order-sm-3 order-md-3 py-3 py-sm-0">
+                    <div class="row">
+                        <div class="col">
+                            <b-button
+                                variant="primary"
+                                class="m-2"
+                                :disabled="isEndTurnDisabled"
+                                @click="doEndTurn">
+                                End Turn
+                            </b-button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <b-sidebar
@@ -89,6 +102,9 @@
                 </div>
             </b-sidebar>
         </div>
+        <b-modal id="bv-modal-example" title="Rebellion Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
+            Rebellion Results
+        </b-modal>
     </div>
 </template>
 
@@ -128,7 +144,7 @@ export default {
         ...mapGetters('board', [
             'map',
             'tiles',
-            'boardSelectionPlayerId'
+            'boardActionPlayerId'
         ]),
         ...mapGetters('players', {
             playerHand: 'playerHand',
@@ -179,7 +195,13 @@ export default {
             if (newActionType == actionTypes.takeTreasure) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select which treasure to take'
-                this.playerMessageId = this.boardSelectionPlayerId
+                this.playerMessageId = this.boardActionPlayerId
+            }
+            if (newActionType == actionTypes.rebellion) {
+                this.showPlayerMessage = true
+                this.playerMessage = 'Select supporting temples to add'
+                this.playerMessageId = this.currentPlayer.id
+                //this.$bvModal.show('bv-modal-example')
             }
         }
     },
@@ -190,22 +212,7 @@ export default {
         async doEndTurn() {
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
-            this.$store.dispatch('game/saveGame')
-            if (this.currentPlayer && !this.currentPlayer.isHuman) {
-                // TODO Put this in a better spot
-                console.log('----------')
-                console.log(`AI Turn - ${this.currentPlayer.id}`)
-                for (let i = 1; i <= 2; i++) {
-                    let tileIndex = Math.floor(Math.random() * this.currentPlayer.hand.length)
-                    this.$store.dispatch('players/addTileSelection', { index: tileIndex })
-                    let availableTileLocations = this.$store.getters['board/availableTileLocations'](this.currentPlayer.selectedTiles[0])
-                    let mapIndex = availableTileLocations[Math.floor(Math.random() * availableTileLocations.length)]
-                    console.log(`Placing tile ${helpers.getTileNameByType(this.currentPlayer.hand[tileIndex])} at map location ${helpers.getCoordinatesByIndex(mapIndex)} (${mapIndex})`)
-                    this.$store.dispatch('board/handleBoardClick', { index: mapIndex })
-                    // TODO Add a slight delay so human player can "watch" the turn unfold
-                }
-                await this.doEndTurn()
-            }
+            this.$store.dispatch('game/save')
         },
         getPlayer(id) {
             let matchingPlayers = this.allPlayers.filter(x => x.id == id)
@@ -228,6 +235,9 @@ export default {
         },
         saveSettings() {
             this.$store.dispatch('settings/save')
+        },
+        commitTilesToRebellion() {
+            //let defendingPlayer = this.$store.getters()
         }
     }
 }

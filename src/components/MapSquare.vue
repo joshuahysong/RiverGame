@@ -3,7 +3,7 @@
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
-        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :player-id="tile.playerId" :size="40" />
+        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player-id="tile.playerId" :size="40" />
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
         <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
         <div v-if="showIndexes" class="coordinates d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
@@ -33,6 +33,9 @@ export default {
             'showCoordinates',
             'showIndexes'
         ]),
+        ...mapGetters('players', {
+            currentPlayer: 'currentPlayer'
+        }),
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
         },
@@ -73,10 +76,23 @@ export default {
     }, 
     methods: {
         getMapSquareClass() {
-            if (this.mapSquareType === 1){
-                return 'water'
+            var mapClass = ''
+            if (this.mapSquareType === 1) {
+                mapClass += 'water'
+            } else {
+                mapClass += 'ground'
             }
-            return 'ground'
+
+            let availableTileLocations = [];
+            if (this.currentPlayer &&
+                this.currentPlayer.selectedTiles &&
+                this.currentPlayer.selectedTiles[0])
+                availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
+
+            if (availableTileLocations && availableTileLocations.includes(this.index))
+                mapClass += ' valid-location'
+
+            return mapClass;
         },
         doMapSquareClick() {
             this.$store.dispatch('board/handleBoardClick', { index: this.index })
@@ -89,8 +105,11 @@ export default {
     .ground {
         background: BurlyWood;
     }
-    .water{
+    .water {
         background: PaleTurquoise;
+    }
+    .valid-location {
+        box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 40%);
     }
     .map-square {
         position: relative;

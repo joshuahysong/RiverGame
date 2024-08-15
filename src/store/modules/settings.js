@@ -1,7 +1,7 @@
 const state = () => ({
     showCoordinates: false,
     showIndexes: false,
-    showKingdoms: false
+    showKingdoms: true
 })
 
 const getters = {

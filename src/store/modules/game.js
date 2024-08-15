@@ -11,7 +11,7 @@ const defaultState = {
     currentPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
-    currentActionType: actionTypes.playUnit
+    currentActionType: actionTypes.playTile
 }
 
 const getters = {
@@ -58,7 +58,7 @@ const mutations = {
         state.currentPlayerId = state.currentPlayerId >= state.numberOfPlayers
             ? 1 : state.currentPlayerId + 1            
         state.remainingActions = 2
-        state.currentAction = actionTypes.playUnit
+        state.currentAction = actionTypes.playTile
     },
     incrementPlayerCount(state) {
         state.numberOfPlayers++

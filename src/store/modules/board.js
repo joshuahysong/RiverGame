@@ -3,36 +3,23 @@ import Vue from 'vue';
 
 const state = () => ({
     map: [
-        0,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,
-        0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,
-        0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,
+        0,0,0,0,1,1,1,1,1,0,2,0,1,0,0,0,
+        0,2,0,0,1,0,0,0,0,0,0,0,1,0,0,2,
+        0,0,0,1,1,2,0,0,0,0,0,0,1,1,0,0,
         1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-        1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,
-        0,0,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
-        0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        1,1,1,1,0,0,0,0,2,0,0,0,1,1,1,0,
+        0,2,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
+        0,0,0,0,0,0,1,1,1,1,1,1,1,0,2,0,
+        0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0
     ],
     tiles: [],
     kingdoms: [],
-    boardSelectionPlayerId: 0
+    boardActionPlayerId: 0,
+    availableTileLocations: []
 })
-
-const initialTiles = [
-    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
-    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
-]
 
 const getters = {
     map: (state) => {
@@ -46,7 +33,6 @@ const getters = {
     },
     getNeighbors: (state) => (index) => {
         if (state.tiles.length > 0) {
-            // TODO Cleanup
             // top left
             if (index === 0) {
                 return {
@@ -120,10 +106,79 @@ const getters = {
         }
         return kingdomIndex !== null ? state.kingdoms[kingdomIndex] : null
     },
-    boardSelectionPlayerId: (state) => {
-        return state.boardSelectionPlayerId
+    boardActionPlayerId: (state) => {
+        return state.boardActionPlayerId
     },
-    availableTileLocations: (state, getters) => (selectedTile) => {
+    getAvailableTileLocations: (state) => {
+        return state.availableTileLocations
+    },
+    neighborKingdoms: (state, getters) => (tile) => {
+        const neighbors = getters.getNeighbors(tile.index)
+        const neighborKingdoms = []
+        if (neighbors.left && neighbors.left.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.left.index))
+        if (neighbors.top && neighbors.top.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.top.index))
+        if (neighbors.right && neighbors.right.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.right.index))
+        if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty)
+            neighborKingdoms.push(getters.getKingdom(neighbors.bottom.index))
+        return Array.from(new Set(neighborKingdoms));
+    }
+}
+
+const actions = {
+    init ({state, commit, dispatch}) {
+        let newTiles = []
+        for (let i = 0; i < state.map.length; i++) {
+            newTiles.push({
+                index: i,
+                tileType: state.map[i] === mapTypes.treasure ? tileTypes.treasure : tileTypes.empty,
+                isLeaderTile: false,
+                playerId: 0
+            })
+        }
+        commit('setTiles', newTiles)
+        dispatch('setKingdoms')
+    },
+    handleBoardClick ({commit, rootGetters, dispatch, getters}, payload) {
+        let currentPlayer = rootGetters['players/currentPlayer']
+        let currentActionType = rootGetters['game/currentActionType']
+        if (payload) {
+            if (currentActionType === actionTypes.playTile &&
+                currentPlayer.selectedTiles &&
+                currentPlayer.selectedTiles.length >= 1) {
+                const selectedTile = currentPlayer.selectedTiles[0]
+                let availableTileLocations = getters.getAvailableTileLocations
+                if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
+                    const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
+                    const neighborKingdoms = getters.neighborKingdoms(newPayload)
+                    commit('addTile', newPayload)
+                    dispatch('setKingdoms')
+                    //dispatch('checkForRebellion', newPayload)
+                    if (neighborKingdoms.length <= 1)
+                        dispatch('checkForScoring', newPayload)
+                    dispatch('players/removeSelectedTiles', null, { root: true })
+                    commit('resetAvailableTileLocations')
+                    commit('game/actionCompleted', null, {root: true})
+                }
+            }
+            if (currentActionType === actionTypes.takeTreasure) {
+                const tile = getters.tile(payload.index)
+                if (tile.isHighlighted) {
+                    commit('players/incrementScore', {playerId: getters.boardActionPlayerId, tileType: tileTypes.treasure}, {root: true})
+                    commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
+                    let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
+                    for (let i = 0; i < highlightedTiles.length; i++) {
+                        commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
+                    }
+                    commit('setBoardActionPlayerId', {playerId: 0})
+                    commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
+                }
+            }
+        }
+    },
+    calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
         let eligibleTileLocations = []
         let tileType = selectedTile.tileType
         for (let i = 0; i < state.tiles.length; i++) {
@@ -131,7 +186,7 @@ const getters = {
             let mapSquareTile = state.tiles[i]
             if (mapSquareTile) {
                 if (selectedTile.isLeaderTile) {
-                    const isJoiningKingdoms = getters.isJoiningKingdoms(mapSquareTile)
+                    const isJoiningKingdoms = getters.neighborKingdoms(mapSquareTile).length > 1
                     const neighbors = getters.getNeighbors(i)
                     const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
@@ -151,71 +206,8 @@ const getters = {
                         eligibleTileLocations.push(i)
                 }
             }
-        }
-        return eligibleTileLocations
-    },
-    isJoiningKingdoms: (state, getters) => (tile) => {
-        const neighbors = getters.getNeighbors(tile.index)
-        const hasLeftNeighbor = neighbors.left && neighbors.left.tileType !== tileTypes.empty
-        const hasTopNeighbor = neighbors.top && neighbors.top.tileType !== tileTypes.empty
-        const hasRightNeighbor = neighbors.right && neighbors.right.tileType !== tileTypes.empty
-        const hasBottomNeighbor = neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty
-        let isJoiningKingdoms = false;
-        if (hasLeftNeighbor && hasRightNeighbor) {
-            const leftKingdom = getters.getKingdom(neighbors.left.index)
-            const rightKingdom = getters.getKingdom(neighbors.right.index)
-            isJoiningKingdoms = leftKingdom.kingdomIndex !== rightKingdom.kingdomIndex
-        }
-        if (hasTopNeighbor && hasBottomNeighbor) {
-            const topKingdom = getters.getKingdom(neighbors.top.index)
-            const bottomKingdom = getters.getKingdom(neighbors.bottom.index)
-            isJoiningKingdoms = topKingdom.kingdomIndex !== bottomKingdom.kingdomIndex
-        }
-        return isJoiningKingdoms
-    }
-}
-
-const actions = {
-    init ({commit, dispatch}) {
-        let newTiles = []
-        for (let i = 0; i < initialTiles.length; i++) {
-            newTiles.push({index: i, tileType: initialTiles[i], isLeaderTile: false, playerId: 0})
-        }
-        commit('setTiles', newTiles)
-        dispatch('setKingdoms')
-    },
-    handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
-        // TODO Leader selection
-        let currentPlayer = rootGetters['players/currentPlayer']
-        let currentActionType = rootGetters['game/currentActionType']
-        if (payload) {
-            if (currentActionType === actionTypes.playUnit &&
-                currentPlayer.selectedTiles &&
-                currentPlayer.selectedTiles.length >= 1) {
-                let availableTileLocations = getters.availableTileLocations(currentPlayer.selectedTiles[0])
-                if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                    const newPayload = {...currentPlayer.selectedTiles[0], ...payload, playerId: currentPlayer.id}
-                    commit('addTile', newPayload)
-                    dispatch('setKingdoms')
-                    dispatch('checkForScoring', newPayload)
-                    dispatch('players/removeSelectedTiles', null, { root: true })
-                    commit('game/actionCompleted', null, {root: true})
-                }
-            }
-            if (currentActionType === actionTypes.takeTreasure) {
-                const tile = getters.tile(payload.index)
-                if (tile.isHighlighted) {
-                    commit('players/incrementScore', {playerId: getters.boardSelectionPlayerId, tileType: tileTypes.treasure}, {root: true})
-                    commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
-                    let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
-                    for (let i = 0; i < highlightedTiles.length; i++) {
-                        commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
-                    }
-                    commit('setBoardSelectionPlayerId', {playerId: 0})
-                    commit('game/setActionType', {actionType: actionTypes.playUnit}, {root: true})
-                }
-            }
-        }
+        }        
+        commit('setAvailableTileLocations', eligibleTileLocations)
     },
     setKingdoms({state, getters, commit}) {
         commit('resetKingdoms')
@@ -289,8 +281,31 @@ const actions = {
                     for (let i = 0; i < foundTreasureTiles.length; i++) {
                         commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
                     }
-                    commit('setBoardSelectionPlayerId', {playerId: matchingTrader.playerId})
+                    commit('setBoardActionPlayerId', {playerId: matchingTrader.playerId})
                     commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
+                }
+            }
+        }
+    },
+    checkForRebellion({state, getters, commit}, payload) {
+        if (payload && payload.isLeaderTile) {
+            const kingdom = getters.getKingdom(payload.index)
+            if (kingdom) {
+                let matchingLeader = null
+                for (let i = 0; i < kingdom.tileIndexes.length; i++) {
+                    var matchingTile = state.tiles[kingdom.tileIndexes[i]]
+                    if (matchingTile &&
+                        matchingTile.isLeaderTile &&
+                        matchingTile.tileType === payload.tileType &&
+                        matchingTile.playerId !== payload.playerId) {
+                        matchingLeader = {...matchingTile}
+                    }
+                }
+                if (matchingLeader) {
+                    commit('updateTile', {...payload, isHighlighted: true})
+                    commit('updateTile', {...matchingLeader, isHighlighted: true})
+                    commit('setBoardActionPlayerId', {playerId: matchingLeader.playerId})
+                    commit('game/setActionType', {actionType: actionTypes.rebellion}, {root: true})
                 }
             }
         }
@@ -336,10 +351,18 @@ const mutations = {
     addKingdom(state, payload) {
         state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [...payload.tileIndexes]})
     },
-    setBoardSelectionPlayerId(state, payload) {
+    setBoardActionPlayerId(state, payload) {
         if (payload) {
-            Vue.set(state, 'boardSelectionPlayerId', payload.playerId);
+            Vue.set(state, 'boardActionPlayerId', payload.playerId);
         }
+    },
+    setAvailableTileLocations(state, payload) {
+        if (payload) {
+            Vue.set(state, 'availableTileLocations', payload)
+        }
+    },
+    resetAvailableTileLocations(state) {
+        state.availableTileLocations.splice(0)
     }
 }
 
