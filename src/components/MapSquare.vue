@@ -33,6 +33,9 @@ export default {
             'showCoordinates',
             'showIndexes'
         ]),
+        ...mapGetters('players', {
+            currentPlayer: 'currentPlayer'
+        }),
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
         },
@@ -73,10 +76,23 @@ export default {
     }, 
     methods: {
         getMapSquareClass() {
-            if (this.mapSquareType === 1){
-                return 'water'
+            var mapClass = ''
+            if (this.mapSquareType === 1) {
+                mapClass += 'water'
+            } else {
+                mapClass += 'ground'
             }
-            return 'ground'
+
+            let availableTileLocations = [];
+            if (this.currentPlayer &&
+                this.currentPlayer.selectedTiles &&
+                this.currentPlayer.selectedTiles[0])
+                availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
+
+            if (availableTileLocations && availableTileLocations.includes(this.index))
+                mapClass += ' highlight'
+
+            return mapClass;
         },
         doMapSquareClick() {
             this.$store.dispatch('board/handleBoardClick', { index: this.index })
@@ -89,8 +105,11 @@ export default {
     .ground {
         background: BurlyWood;
     }
-    .water{
+    .water {
         background: PaleTurquoise;
+    }
+    .highlight {
+        box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 40%);
     }
     .map-square {
         position: relative;

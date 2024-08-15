@@ -17,7 +17,8 @@ const state = () => ({
     ],
     tiles: [],
     kingdoms: [],
-    boardActionPlayerId: 0
+    boardActionPlayerId: 0,
+    availableTileLocations: []
 })
 
 const getters = {
@@ -108,36 +109,8 @@ const getters = {
     boardActionPlayerId: (state) => {
         return state.boardActionPlayerId
     },
-    availableTileLocations: (state, getters) => (selectedTile) => {
-        let eligibleTileLocations = []
-        let tileType = selectedTile.tileType
-        for (let i = 0; i < state.tiles.length; i++) {
-            let mapSquare = state.map[i]
-            let mapSquareTile = state.tiles[i]
-            if (mapSquareTile) {
-                if (selectedTile.isLeaderTile) {
-                    const isJoiningKingdoms = getters.neighborKingdoms(mapSquareTile).length > 1
-                    const neighbors = getters.getNeighbors(i)
-                    const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
-                        (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
-                        (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
-                        (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
-                    if (!isJoiningKingdoms &&
-                        hasTempleNeighbor &&
-                        mapSquareTile.tileType == tileTypes.empty &&
-                        mapSquare === mapTypes.ground) {
-                            eligibleTileLocations.push(i)
-                        }
-                } else {
-                    // Check if square is empty and tile is able to be placed on map location (water vs ground)
-                    if (mapSquareTile.tileType == tileTypes.empty &&
-                        ((mapSquare === mapTypes.water && tileType  === tileTypes.farm) ||
-                         (mapSquare === mapTypes.ground && tileType  !== tileTypes.farm)))
-                        eligibleTileLocations.push(i)
-                }
-            }
-        }
-        return eligibleTileLocations
+    getAvailableTileLocations: (state) => {
+        return state.availableTileLocations
     },
     neighborKingdoms: (state, getters) => (tile) => {
         const neighbors = getters.getNeighbors(tile.index)
@@ -168,7 +141,7 @@ const actions = {
         commit('setTiles', newTiles)
         dispatch('setKingdoms')
     },
-    handleBoardClick ({ commit, rootGetters, dispatch, getters }, payload) {
+    handleBoardClick ({commit, rootGetters, dispatch, getters}, payload) {
         let currentPlayer = rootGetters['players/currentPlayer']
         let currentActionType = rootGetters['game/currentActionType']
         if (payload) {
@@ -176,17 +149,17 @@ const actions = {
                 currentPlayer.selectedTiles &&
                 currentPlayer.selectedTiles.length >= 1) {
                 const selectedTile = currentPlayer.selectedTiles[0]
-                let availableTileLocations = getters.availableTileLocations(selectedTile)
+                let availableTileLocations = getters.getAvailableTileLocations
                 if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
                     const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
                     const neighborKingdoms = getters.neighborKingdoms(newPayload)
-                    console.log(neighborKingdoms)
                     commit('addTile', newPayload)
                     dispatch('setKingdoms')
                     dispatch('checkForRebellion', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
                     dispatch('players/removeSelectedTiles', null, { root: true })
+                    commit('resetAvailableTileLocations')
                     commit('game/actionCompleted', null, {root: true})
                 }
             }
@@ -204,6 +177,37 @@ const actions = {
                 }
             }
         }
+    },
+    calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
+        let eligibleTileLocations = []
+        let tileType = selectedTile.tileType
+        for (let i = 0; i < state.tiles.length; i++) {
+            let mapSquare = state.map[i]
+            let mapSquareTile = state.tiles[i]
+            if (mapSquareTile) {
+                if (selectedTile.isLeaderTile) {
+                    const isJoiningKingdoms = getters.neighborKingdoms(mapSquareTile).length > 1
+                    const neighbors = getters.getNeighbors(i)
+                    const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
+                        (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
+                        (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
+                        (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
+                    if (!isJoiningKingdoms &&
+                        hasTempleNeighbor &&
+                        mapSquareTile.tileType == tileTypes.empty &&
+                        mapSquare === mapTypes.ground) {
+                            eligibleTileLocations.push(i)
+                        }
+                } else {
+                    // Check if square is empty and tile is able to be placed on map location (water vs ground)
+                    if (mapSquareTile.tileType == tileTypes.empty &&
+                        ((mapSquare === mapTypes.water && tileType  === tileTypes.farm) ||
+                         (mapSquare === mapTypes.ground && tileType  !== tileTypes.farm)))
+                        eligibleTileLocations.push(i)
+                }
+            }
+        }        
+        commit('setAvailableTileLocations', eligibleTileLocations)
     },
     setKingdoms({state, getters, commit}) {
         commit('resetKingdoms')
@@ -351,6 +355,14 @@ const mutations = {
         if (payload) {
             Vue.set(state, 'boardActionPlayerId', payload.playerId);
         }
+    },
+    setAvailableTileLocations(state, payload) {
+        if (payload) {
+            Vue.set(state, 'availableTileLocations', payload)
+        }
+    },
+    resetAvailableTileLocations(state) {
+        state.availableTileLocations.splice(0)
     }
 }
 

@@ -213,21 +213,6 @@ export default {
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
             this.$store.dispatch('game/save')
-            if (this.currentPlayer && !this.currentPlayer.isHuman) {
-                // TODO Put this in a better spot
-                console.log('----------')
-                console.log(`AI Turn - ${this.currentPlayer.id}`)
-                for (let i = 1; i <= 2; i++) {
-                    let tileIndex = Math.floor(Math.random() * this.currentPlayer.hand.length)
-                    this.$store.dispatch('players/addTileSelection', { index: tileIndex })
-                    let availableTileLocations = this.$store.getters['board/availableTileLocations'](this.currentPlayer.selectedTiles[0])
-                    let mapIndex = availableTileLocations[Math.floor(Math.random() * availableTileLocations.length)]
-                    console.log(`Placing tile ${helpers.getTileNameByType(this.currentPlayer.hand[tileIndex])} at map location ${helpers.getCoordinatesByIndex(mapIndex)} (${mapIndex})`)
-                    this.$store.dispatch('board/handleBoardClick', { index: mapIndex })
-                    // TODO Add a slight delay so human player can "watch" the turn unfold
-                }
-                await this.doEndTurn()
-            }
         },
         getPlayer(id) {
             let matchingPlayers = this.allPlayers.filter(x => x.id == id)

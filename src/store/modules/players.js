@@ -54,7 +54,7 @@ const actions = {
             }
         }
     },
-    addTileSelection({commit, getters, rootGetters}, payload) {
+    addTileSelection({commit, getters, rootGetters, dispatch}, payload) {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
             let currentPlayer = getters.currentPlayer
@@ -67,11 +67,13 @@ const actions = {
                 payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.hand[payload.index]}
             }
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
+            dispatch('board/calculateAvailableTileLocations', {...payload}, { root: true })
         }
     },
     removeTileSelection({commit, getters}, payload) {
         let currentPlayer = getters.currentPlayer
         commit('removeTileSelection', {id: currentPlayer.id, ...payload})
+        commit('board/resetAvailableTileLocations', { root: true })
     },
     removeSelectedTiles({commit, getters}) {
         let currentPlayer = getters.currentPlayer
