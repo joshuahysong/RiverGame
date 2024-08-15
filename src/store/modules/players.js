@@ -58,22 +58,25 @@ const actions = {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
             let currentPlayer = getters.currentPlayer
-            if (currentActionType === actionTypes.playTile) {
+            let isPlayTileActionType = currentActionType === actionTypes.playTile
+            if (isPlayTileActionType)
                 commit('clearTileSelection', {id: currentPlayer.id})
-            }
+
             if (payload.isLeaderTile) {
                 payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.leaders[payload.index]}
             } else {
                 payload = {...payload, id: currentPlayer.id, tileType: currentPlayer.hand[payload.index]}
             }
             commit('addTileSelection', {id: currentPlayer.id, ...payload})
-            dispatch('board/calculateAvailableTileLocations', {...payload}, { root: true })
+
+            if (isPlayTileActionType)
+                dispatch('board/calculateAvailableTileLocations', {...payload}, { root: true })
         }
     },
     removeTileSelection({commit, getters}, payload) {
         let currentPlayer = getters.currentPlayer
         commit('removeTileSelection', {id: currentPlayer.id, ...payload})
-        commit('board/resetAvailableTileLocations', { root: true })
+        commit('board/resetAvailableTileLocations', null, { root: true })
     },
     removeSelectedTiles({commit, getters}) {
         let currentPlayer = getters.currentPlayer

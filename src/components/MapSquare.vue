@@ -90,7 +90,7 @@ export default {
                 availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
 
             if (availableTileLocations && availableTileLocations.includes(this.index))
-                mapClass += ' highlight'
+                mapClass += ' valid-location'
 
             return mapClass;
         },
@@ -108,7 +108,7 @@ export default {
     .water {
         background: PaleTurquoise;
     }
-    .highlight {
+    .valid-location {
         box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 40%);
     }
     .map-square {
