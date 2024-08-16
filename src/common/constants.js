@@ -13,9 +13,8 @@ export const tileTypes = {
 }
 
 export const mapTypes = {
-    ground: 0,
-    water: 1,
-    treasure: 2
+    ground: '0',
+    treasure: '1'
 }
 
 export const actionTypes = {

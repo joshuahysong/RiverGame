@@ -1,9 +1,15 @@
 <template>
-    <div class="map-square"
+    <div class="map-square ground"
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player-id="tile.playerId" :size="40" />
+        <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
+        <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
+        <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
+        <div v-if="isRiverTile && showRiverHorizontalRight" class="river river-horizontal-right"></div>
+        <div v-if="isRiverTile && showRiverVerticalBottom" class="river river-vertical-bottom"></div>
+        <div v-if="isRiverTile && showRiverVerticalTop" class="river river-vertical-top"></div>
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
         <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
         <div v-if="showIndexes" class="coordinates d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
@@ -15,6 +21,7 @@ import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import helpers from '../common/helpers'
+import { mapTypes } from '../common/constants'
 
 export default {
     name: 'MapSquare',
@@ -23,7 +30,7 @@ export default {
         LeaderTile
     },
     props: {
-        mapSquareType: Number,
+        mapSquareType: String,
         index: Number,
         tile: Object
     },
@@ -41,6 +48,22 @@ export default {
         },
         hasTile() {
             return this.tile && this.tile.tileType > 0
+        },
+        isRiverTile() {
+            return this.mapSquareType !== mapTypes.ground &&
+                this.mapSquareType !== mapTypes.treasure
+        },
+        showRiverHorizontalLeft() {
+            return this.mapSquareType === '╗' || this.mapSquareType  === '╝'
+        },
+        showRiverHorizontalRight() {
+            return this.mapSquareType === '╔' || this.mapSquareType  === '╚'
+        },
+        showRiverVerticalBottom() {
+            return this.mapSquareType === '╔' || this.mapSquareType  === '╗'
+        },
+        showRiverVerticalTop() {
+            return this.mapSquareType === '╚' || this.mapSquareType  === '╝'
         },
         kingdomStyle() {
             const kingdom = this.$store.getters['board/getKingdom'](this.index)
@@ -77,12 +100,6 @@ export default {
     methods: {
         getMapSquareClass() {
             var mapClass = ''
-            if (this.mapSquareType === 1) {
-                mapClass += 'water'
-            } else {
-                mapClass += 'ground'
-            }
-
             let availableTileLocations = [];
             if (this.currentPlayer &&
                 this.currentPlayer.selectedTiles &&
@@ -119,7 +136,42 @@ export default {
         height: 95%;
         width: 100%;
         position: absolute;
-        z-index: 3;
+        z-index: 4;
+    }
+    .river {
+        background: PaleTurquoise;
+        position: absolute;
+        z-index: 2;
+    }
+    .river-horizontal {
+        top: 25%;
+        height: 50%;
+        width: 100%;
+    }
+    .river-vertical {
+        left: 25%;
+        height: 100%;
+        width: 50%;
+    }
+    .river-horizontal-right {
+        height: 50%;
+        width: 75%;
+        right: 0;
+    }
+    .river-horizontal-left {
+        height: 50%;
+        width: 75%;
+        left: 0;
+    }
+    .river-vertical-top {
+        height: 75%;
+        width: 50%;
+        top: 0;
+    }
+    .river-vertical-bottom {
+        height: 75%;
+        width: 50%;
+        bottom: 0;
     }
     .kingdom {
         height: 100%;
