@@ -1,9 +1,9 @@
 <template>
     <div>
         <b-navbar toggleable="sm" type="dark" variant="dark">
+            <b-button size="sm" @click="startNewGame">New Game</b-button>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
-                <b-button size="sm" class="my-2 my-sm-0 mx-2" @click="startNewGame">New Game</b-button>
                 <b-navbar-nav class="ml-auto">
                     <b-dropdown right>
                         <template #button-content>
