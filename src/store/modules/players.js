@@ -5,7 +5,7 @@ const state = () => ({
     players: []
 })
 
-const getters = {    
+const getters = {
     playerHand: (state, getters) => {
         if (getters.currentPlayer) {
             return getters.currentPlayer.hand
@@ -13,9 +13,9 @@ const getters = {
         return []
     },
     currentPlayer: (state, getters, rootState, rootGetters) => {
-        let currentPlayerId = rootGetters['game/currentPlayerId']
-        if (state.players.filter(x => x.id === currentPlayerId).length > 0){
-            return state.players.filter(x => x.id === currentPlayerId)[0]
+        let currentTurnPlayerId = rootGetters['game/currentTurnPlayerId']
+        if (state.players.filter(x => x.id === currentTurnPlayerId).length > 0){
+            return state.players.filter(x => x.id === currentTurnPlayerId)[0]
         }
         return null;
     },

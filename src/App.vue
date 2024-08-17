@@ -144,8 +144,7 @@ export default {
         ]),
         ...mapGetters('board', [
             'map',
-            'tiles',
-            'boardActionPlayerId'
+            'tiles'
         ]),
         ...mapGetters('players', {
             playerHand: 'playerHand',
@@ -155,7 +154,8 @@ export default {
         ...mapGetters('game', [
             'remainingActions',
             'numberOfPlayers',
-            'currentActionType'
+            'currentActionType',
+            'currentActionPlayerId'
         ]),
         isEndTurnDisabled() {
             return this.remainingActions != 0
@@ -195,7 +195,7 @@ export default {
             if (newActionType == actionTypes.takeTreasure) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select which treasure to take'
-                this.messagePlayerId = this.boardActionPlayerId
+                this.messagePlayerId = this.currentActionPlayerId
             }
             if (newActionType == actionTypes.rebellion) {
                 this.showPlayerMessage = true

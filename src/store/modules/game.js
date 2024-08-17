@@ -1,14 +1,15 @@
 import { actionTypes } from '../../common/constants'
 
 const state = () => ({
-    currentPlayerId: 0,
+    currentTurnPlayerId: 0,
+    currentActionPlayerId: 0,
     numberOfPlayers: 0,
     remainingActions: 0,
     currentActionType: 0
 })
 
 const defaultState = {
-    currentPlayerId: 1,
+    currentTurnPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile
@@ -18,15 +19,18 @@ const getters = {
     currentActionType(state) {
         return state.currentActionType
     },
-    currentPlayerId(state) {
-        return state.currentPlayerId
+    currentTurnPlayerId(state) {
+        return state.currentTurnPlayerId
     },
     remainingActions(state) {
         return state.remainingActions
     },
     numberOfPlayers(state) {
         return state.numberOfPlayers
-    }
+    },
+    currentActionPlayerId: (state) => {
+        return state.currentActionPlayerId
+    },
 }
 
 const actions = {
@@ -55,10 +59,10 @@ const actions = {
 
 const mutations = {
     nextActivePlayer(state) {
-        state.currentPlayerId = state.currentPlayerId >= state.numberOfPlayers
-            ? 1 : state.currentPlayerId + 1            
+        state.currentTurnPlayerId = state.currentTurnPlayerId >= state.numberOfPlayers
+            ? 1 : state.currentTurnPlayerId + 1
         state.remainingActions = 2
-        state.currentAction = actionTypes.playTile
+        state.currentActionType = actionTypes.playTile
     },
     incrementPlayerCount(state) {
         state.numberOfPlayers++
@@ -71,7 +75,12 @@ const mutations = {
     },
     setState(state, payload) {
         Object.assign(state, payload)
-    }
+    },
+    setCurrentActionPlayerId(state, payload) {
+        if (payload) {
+            state.currentActionPlayerId = payload.playerId
+        }
+    },
 }
 
 export default {
