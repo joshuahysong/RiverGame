@@ -46,7 +46,7 @@ const actions = {
             let gameState = JSON.parse(localStorage.gameState);
             commit('players/loadPlayers', gameState.players, {root: true})
             commit('board/setTiles', gameState.tiles, {root: true})
-            dispatch('board/setKingdoms', null, {root: true})
+            dispatch('board/setRegions', null, {root: true})
             commit('bag/setState', gameState.bag, {root: true})
             commit('setState', gameState.game)
         }

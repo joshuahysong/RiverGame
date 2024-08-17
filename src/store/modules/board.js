@@ -16,7 +16,7 @@ const state = () => ({
         '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
     ],
     tiles: [],
-    kingdoms: [],
+    regions: [],
     boardActionPlayerId: 0,
     availableTileLocations: []
 })
@@ -110,15 +110,19 @@ const getters = {
             }
         }
     },
-    getKingdom: (state) => (index) => {
-        let kingdomIndex = null
-        for (let i = 0; i < state.kingdoms.length; i++) {
-            if (state.kingdoms[i].tileIndexes.includes(index)){
-                kingdomIndex = i
+    getRegion: (state) => (index) => {
+        let regionIndex = null
+        for (let i = 0; i < state.regions.length; i++) {
+            if (state.regions[i].tileIndexes.includes(index)){
+                regionIndex = i
                 break;
             }
         }
-        return kingdomIndex !== null ? state.kingdoms[kingdomIndex] : null
+        return regionIndex !== null ? state.regions[regionIndex] : null
+    },
+    getKingdomIndex: (state) => (index) => {
+        var kingdoms = state.regions.filter(region => region.isKingdom)
+        return kingdoms ? kingdoms.findIndex(region => region.tileIndexes.includes(index)) : null
     },
     boardActionPlayerId: (state) => {
         return state.boardActionPlayerId
@@ -126,18 +130,18 @@ const getters = {
     getAvailableTileLocations: (state) => {
         return state.availableTileLocations
     },
-    neighborKingdoms: (state, getters) => (tile) => {
+    neighborRegions: (state, getters) => (tile) => {
         const neighbors = getters.getNeighbors(tile.index)
-        const neighborKingdoms = []
+        const neighborRegions = []
         if (neighbors.left && neighbors.left.tileType !== tileTypes.empty)
-            neighborKingdoms.push(getters.getKingdom(neighbors.left.index))
+            neighborRegions.push(getters.getRegion(neighbors.left.index))
         if (neighbors.top && neighbors.top.tileType !== tileTypes.empty)
-            neighborKingdoms.push(getters.getKingdom(neighbors.top.index))
+            neighborRegions.push(getters.getRegion(neighbors.top.index))
         if (neighbors.right && neighbors.right.tileType !== tileTypes.empty)
-            neighborKingdoms.push(getters.getKingdom(neighbors.right.index))
+            neighborRegions.push(getters.getRegion(neighbors.right.index))
         if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty)
-            neighborKingdoms.push(getters.getKingdom(neighbors.bottom.index))
-        return Array.from(new Set(neighborKingdoms));
+            neighborRegions.push(getters.getRegion(neighbors.bottom.index))
+        return Array.from(new Set(neighborRegions));
     }
 }
 
@@ -153,7 +157,7 @@ const actions = {
             })
         }
         commit('setTiles', newTiles)
-        dispatch('setKingdoms')
+        dispatch('setRegions')
     },
     handleBoardClick ({commit, rootGetters, dispatch, getters}, payload) {
         let currentPlayer = rootGetters['players/currentPlayer']
@@ -166,9 +170,9 @@ const actions = {
                 let availableTileLocations = getters.getAvailableTileLocations
                 if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
                     const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
-                    const neighborKingdoms = getters.neighborKingdoms(newPayload)
+                    const neighborKingdoms = getters.neighborRegions(newPayload).filter(x => x.isKingdom)
                     commit('addTile', newPayload)
-                    dispatch('setKingdoms')
+                    dispatch('setRegions')
                     //dispatch('checkForRebellion', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
@@ -200,7 +204,8 @@ const actions = {
             let mapSquareTile = state.tiles[i]
             if (mapSquareTile) {
                 if (selectedTile.isLeaderTile) {
-                    const isJoiningKingdoms = getters.neighborKingdoms(mapSquareTile).length > 1
+                    const neighborRegions = getters.neighborRegions(mapSquareTile)
+                    const isJoiningKingdoms = neighborRegions.filter(region => region.isKingdom).length > 1
                     const neighbors = getters.getNeighbors(i)
                     const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
                         (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
@@ -223,19 +228,22 @@ const actions = {
         }        
         commit('setAvailableTileLocations', eligibleTileLocations)
     },
-    setKingdoms({state, getters, commit}) {
-        commit('resetKingdoms')
+    setRegions({state, getters, commit}) {
+        commit('resetRegions')
         let indexesToCheck = [...state.tiles.filter(x => x.tileType !== tileTypes.empty).map(x => x.index)]
         let checkedIndexes = []
         for (let i = 0; i < indexesToCheck.length; i++) {
             if (!checkedIndexes.some(x => x === indexesToCheck[i])) {
-                let newKingdomIndexes = []
+                let newRegionIndexes = []
                 let queue = [indexesToCheck[i]]
+                let isKingdom = false;
                 while (queue.length > 0) {
                     const queueIndex = queue.shift()
                     if (!checkedIndexes.some(x => x === queueIndex)) {
-                        newKingdomIndexes.push(queueIndex)
+                        newRegionIndexes.push(queueIndex)
                         checkedIndexes.push(queueIndex)
+                        var indexContainsLeader = state.tiles[queueIndex]?.isLeaderTile
+                        if (indexContainsLeader && !isKingdom) isKingdom = indexContainsLeader
                         const neighbors = getters.getNeighbors(queueIndex)
                         if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
                             queue.push(neighbors.left.index)
@@ -251,23 +259,23 @@ const actions = {
                         }
                     }
                 }
-                if (newKingdomIndexes.length > 0) {
-                    commit('addKingdom', { tileIndexes: newKingdomIndexes })
+                if (newRegionIndexes.length > 0) {
+                    commit('addRegion', { tileIndexes: newRegionIndexes, isKingdom: isKingdom })
                 }
             }
         }
     },
     checkForScoring({state, getters, commit}, payload) {
         if (payload && !payload.isLeaderTile) {
-            let kingdom = getters.getKingdom(payload.index)
-            if (kingdom) {
+            let region = getters.getRegion(payload.index)
+            if (region && region.isKingdom) {
                 let matchingLeader = null
                 let matchingKing = null
                 let matchingTrader = null
                 let foundTreasureTiles = []
                 // check if kingdom has any matching leaders to score
-                for (let i = 0; i < kingdom.tileIndexes.length; i++) {
-                    var matchingTile = state.tiles[kingdom.tileIndexes[i]]
+                for (let i = 0; i < region.tileIndexes.length; i++) {
+                    var matchingTile = state.tiles[region.tileIndexes[i]]
                     if (matchingTile) {
                         if (matchingTile.tileType === tileTypes.treasure)
                             foundTreasureTiles.push(matchingTile)
@@ -303,11 +311,11 @@ const actions = {
     },
     checkForRebellion({state, getters, commit}, payload) {
         if (payload && payload.isLeaderTile) {
-            const kingdom = getters.getKingdom(payload.index)
-            if (kingdom) {
+            const region = getters.getRegion(payload.index)
+            if (region && region.isKingdom) {
                 let matchingLeader = null
-                for (let i = 0; i < kingdom.tileIndexes.length; i++) {
-                    var matchingTile = state.tiles[kingdom.tileIndexes[i]]
+                for (let i = 0; i < region.tileIndexes.length; i++) {
+                    var matchingTile = state.tiles[region.tileIndexes[i]]
                     if (matchingTile &&
                         matchingTile.isLeaderTile &&
                         matchingTile.tileType === payload.tileType &&
@@ -359,11 +367,11 @@ const mutations = {
             Vue.set(state, 'tiles', [...payload]);
         }
     },
-    resetKingdoms(state) {
-        state.kingdoms.splice(0)
+    resetRegions(state) {
+        state.regions.splice(0)
     },
-    addKingdom(state, payload) {
-        state.kingdoms.push({kingdomIndex: state.kingdoms.length, tileIndexes: [...payload.tileIndexes]})
+    addRegion(state, payload) {
+        state.regions.push({regionIndex: state.regions.length, tileIndexes: [...payload.tileIndexes], isKingdom: payload.isKingdom})
     },
     setBoardActionPlayerId(state, payload) {
         if (payload) {

@@ -21,7 +21,7 @@ import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import helpers from '../common/helpers'
-import { mapTypes } from '../common/constants'
+import { mapTypes, tileTypes } from '../common/constants'
 
 export default {
     name: 'MapSquare',
@@ -47,7 +47,7 @@ export default {
             return helpers.getCoordinatesByIndex(this.index)
         },
         hasTile() {
-            return this.tile && this.tile.tileType > 0
+            return this.tile && this.tile.tileType !== tileTypes.empty
         },
         isRiverTile() {
             return this.mapSquareType !== mapTypes.ground
@@ -65,7 +65,9 @@ export default {
             return this.mapSquareType === '╚' || this.mapSquareType  === '╝'
         },
         kingdomStyle() {
-            const kingdom = this.$store.getters['board/getKingdom'](this.index)
+            var blankCss = 'background-color: transparent;'
+            if (!this.hasTile) return blankCss
+            const kingdomIndex = this.$store.getters['board/getKingdomIndex'](this.index)
             const colors = [
                 'FF0000',
                 'FFFF00',
@@ -92,8 +94,7 @@ export default {
                 '737373',
                 'CCCCCC'
             ]
-            return 'background-color: ' +
-                (kingdom && kingdom.tileIndexes.length > 1 ? `#${colors[kingdom.kingdomIndex]};` : 'transparent;')
+            return kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
         }
     }, 
     methods: {
