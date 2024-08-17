@@ -50,8 +50,7 @@ export default {
             return this.tile && this.tile.tileType > 0
         },
         isRiverTile() {
-            return this.mapSquareType !== mapTypes.ground &&
-                this.mapSquareType !== mapTypes.treasure
+            return this.mapSquareType !== mapTypes.ground
         },
         showRiverHorizontalLeft() {
             return this.mapSquareType === '╗' || this.mapSquareType  === '╝'
@@ -126,7 +125,7 @@ export default {
         background: PaleTurquoise;
     }
     .valid-location {
-        box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 40%);
+        box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 35%);
     }
     .map-square {
         position: relative;
