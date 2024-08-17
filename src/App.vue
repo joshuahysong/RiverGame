@@ -42,10 +42,10 @@
                 </div>
             </div>
             <div v-if="showPlayerMessage" class="row mt-3 justify-content-center align-items-center">
-                <div class="col-auto">
-                    <b-icon v-if="playerMessageId" :icon="leaderIcon" /> {{playerMessage}}
+                <div v-if="messagePlayerId" class="col-auto">
+                    <b-icon :icon="leaderIcon" /> {{playerMessage}}
                 </div>
-                <div class="col-auto">
+                <div v-if="showPlayerActionButton" class="col-auto">
                     <b-button
                         variant="danger"
                         size="sm"
@@ -125,7 +125,8 @@ export default {
         return {
             showPlayerMessage: false,
             playerMessage: '',
-            playerMessageId: 0
+            showPlayerActionButton: false,
+            messagePlayerId: 0
         }
     },
     async mounted() {
@@ -160,7 +161,7 @@ export default {
             return this.remainingActions != 0
         },
         leaderIcon() {
-            return helpers.getPlayerIconNameById(this.playerMessageId)
+            return helpers.getPlayerIconNameById(this.messagePlayerId)
         },
         showCoordinates: {
             get () {
@@ -191,16 +192,16 @@ export default {
         currentActionType(newActionType) {
             this.showPlayerMessage = false
             this.playerMessage = ''
-            this.playerMessageId = 0
             if (newActionType == actionTypes.takeTreasure) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select which treasure to take'
-                this.playerMessageId = this.boardActionPlayerId
+                this.messagePlayerId = this.boardActionPlayerId
             }
             if (newActionType == actionTypes.rebellion) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select supporting temples to add'
-                this.playerMessageId = this.currentPlayer.id
+                this.messagePlayerId = this.currentPlayer.id
+                this.showPlayerActionButton = true
                 //this.$bvModal.show('bv-modal-example')
             }
         }
