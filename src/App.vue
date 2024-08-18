@@ -25,7 +25,7 @@
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
-        <div class="main-app container-fluid text-center mt-3">
+        <div class="main-app container-fluid text-center mt-3 mb-5">
             <div class="row">
                 <div class="col p-0">
                     <div class="map-container">
