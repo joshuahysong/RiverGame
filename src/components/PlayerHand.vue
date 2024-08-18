@@ -34,28 +34,6 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm mt-2 mt-sm-0">
-                    <div class="row">
-                        <div class="col-auto col-sm pl-3 text-left small">
-                            <div class="d-inline d-sm-block pr-3 pr-sm-0">
-                                <span class="temple-score">{{player.score.temple}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.temple)}}</span>
-                            </div>
-                            <div class="d-inline d-sm-block">
-                                <span class="market-score">{{player.score.market}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.market)}}</span>
-                            </div>
-                        </div>
-                        <div class="col-6 col-sm pl-2 text-left small">
-                            <div class="d-inline d-sm-block pr-3 pr-sm-0">
-                                <span class="farm-score">{{player.score.farm}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.farm)}}</span>
-                            </div>
-                            <div class="d-inline d-sm-block">
-                                <span class="settlement-score">{{player.score.settlement}}</span>
-                                <span class="treasure-score"> +{{getTreasureCount(tileTypes.settlement)}}</span>
-                            </div>
-                        </div>
-                    </div>
                     <div v-if="size === 'lg'" class="row h-50">
                         <div class="col pl-3 d-flex">
                             <div class="my-auto small">

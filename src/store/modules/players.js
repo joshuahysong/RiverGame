@@ -30,6 +30,7 @@ const actions = {
         var hand = await dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
         var newPlayer = {
             id: state.players.length + 1,
+            name: payload.name,
             hand: hand,
             leaders: [tileTypes.king, tileTypes.priest, tileTypes.farmer, tileTypes.trader],
             selectedTiles: [],

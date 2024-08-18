@@ -29,7 +29,7 @@
         <!-- main page -->
         <div class="main-app container-fluid text-center mt-3 mb-5 p-0">
             <div class="row no-gutters">
-                <div class="col">
+                <div class="col-12 col-lg">
                     <div class="map-container">
                         <div class="grid">
                             <map-square class="cell"
@@ -42,13 +42,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <player-card v-for="(player, index) in allPlayers"
-                        :key="index"
-                        :player="getPlayer(player?.id)"
-                        :show-score="player?.id === currentPlayer.id"
-                        :class="{'border-danger': player?.id === currentPlayer.id}"
-                        class="mt-2"/>
+                <div class="col-12 col-lg-3">
+                    <div class="row no-gutters">
+                        <div v-for="(player, index) in allPlayers"
+                            :key="index"
+                            class="col-12 col-sm-6 col-lg-12 p-1">
+                            <player-card
+                                :player="getPlayer(player?.id)"
+                                :show-score="player?.id === currentPlayer.id"
+                                :class="{'border-danger': player?.id === currentPlayer.id}"
+                                class="mt-2"/>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div v-if="showPlayerMessage" class="row mt-3 justify-content-center align-items-center">
@@ -261,10 +266,10 @@ export default {
             this.$store.dispatch('board/init')
             this.$store.dispatch('bag/init')
             this.$store.commit('players/clearPlayers')
-            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 1', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 2', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 3', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 4', isHuman: true })
             this.$store.dispatch('game/save')
         },
         saveSettings() {

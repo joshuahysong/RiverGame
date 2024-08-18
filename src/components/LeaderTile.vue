@@ -39,8 +39,7 @@ export default {
         z-index: 3;
     }
     .selected {
-        border: 5px solid black;
-        box-sizing: content-box;
+        box-shadow: 0px 0px 0 1px white ,0 0 0 5px black;
     }
     .highlight {
         box-shadow: 0 0 5px 5px yellow;

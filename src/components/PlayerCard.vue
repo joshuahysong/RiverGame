@@ -1,6 +1,11 @@
 <template>
     <div class="card">
         <div class="card-body p-2">
+            <div class="row no-gutters text-left small">
+                <div class="col-auto pr-1">Player {{player.id}}:</div>
+                <div class="col-auto pr-1">{{player.name}}</div>
+                <div v-if="!player.isHuman" class="col-auto">(Bot)</div>
+            </div>
             <div class="row no-gutters">
                 <div class="col">
                     <div class="my-auto align-items-center" :style="gridStyle">
@@ -91,7 +96,7 @@ export default {
 
 <style scoped>
     .card {
-        width: 250px;
+        min-width: 250px;
     }
     .temple-score {
         color: darkred;
