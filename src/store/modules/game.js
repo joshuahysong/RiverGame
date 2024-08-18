@@ -23,6 +23,13 @@ const defaultState = {
 }
 
 const getters = {
+    isSaveValid() {
+        if (localStorage.gameState) {
+            let gameState = JSON.parse(localStorage.gameState);
+            return gameState.version === process.env.VUE_APP_VERSION
+        }
+        return false;
+    },
     currentActionType(state) {
         return state.currentActionType
     },
@@ -46,7 +53,7 @@ const getters = {
     },
     conflictDefenderPlayerId: (state) => {
         return state.conflictDefenderPlayerId
-    },
+    }
 }
 
 const actions = {
@@ -55,6 +62,7 @@ const actions = {
     },
     save({state, rootGetters}) {
         let gameState = {}
+        gameState.version = process.env.VUE_APP_VERSION
         gameState.players = rootGetters['players/all']
         gameState.tiles = rootGetters['board/tiles']
         gameState.bag = rootGetters['bag/all']

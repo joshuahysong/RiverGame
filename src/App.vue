@@ -133,7 +133,7 @@ export default {
         }
     },
     async mounted() {
-        if (localStorage.gameState) {
+        if (this.isSaveValid) {
             this.$store.dispatch('game/load')
         } else {
             await this.startNewGame()
@@ -154,6 +154,7 @@ export default {
             allPlayers: 'all'
         }),
         ...mapGetters('game', [
+            'isSaveValid',
             'remainingActions',
             'numberOfPlayers',
             'currentActionType',
@@ -169,6 +170,9 @@ export default {
         },
         actionTypeName() {
             return helpers.getActionNameByType(this.currentActionType)
+        },
+        appVersion() {
+            return process.env.VUE_APP_VERSION
         },
         showCoordinates: {
             get () {
