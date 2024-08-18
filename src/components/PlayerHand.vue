@@ -77,7 +77,7 @@ import { tileTypes, actionTypes } from '../common/constants'
 import helpers from '../common/helpers'
 
 export default {
-    name: 'PlayerHand',  
+    name: 'PlayerHand',
     components: {
         CivilizationTile,
         LeaderTile
@@ -109,18 +109,19 @@ export default {
             return tileTypes
         }
     },
-    methods:{        
+    methods:{
         isSelectedTile(index, isLeaderTile) {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.isLeaderTile === isLeaderTile)
         },
         selectTile(index, isLeaderTile) {
+            let isRevolt = this.currentActionType === actionTypes.revoltAttack  || this.currentActionType === actionTypes.revoltDefend
             if (this.selectable &&
                 ((this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) ||
-                    this.currentActionType === actionTypes.rebellion && this.player.hand[index] === tileTypes.temple)) {
+                isRevolt && this.player.hand[index] === tileTypes.temple)) {
                 if (this.isSelectedTile(index, isLeaderTile)) {
-                    this.$store.dispatch('players/removeTileSelection', { index: index, isLeaderTile: isLeaderTile })
+                    this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, isLeaderTile: isLeaderTile })
                 } else {
-                    this.$store.dispatch('players/addTileSelection', { index: index, isLeaderTile: isLeaderTile })
+                    this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, isLeaderTile: isLeaderTile })
                 }
             }
         },

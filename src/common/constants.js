@@ -20,7 +20,8 @@ export const actionTypes = {
     playTile: 0,
     swapTiles: 1,
     takeTreasure: 2,
-    rebellion: 3
+    revoltAttack: 3,
+    revoltDefend: 4
 }
 
 export const playerIcons = {

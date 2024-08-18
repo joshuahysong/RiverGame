@@ -49,8 +49,8 @@
                     <b-button
                         variant="danger"
                         size="sm"
-                        @click="commitTilesToRebellion">
-                        Commit {{ this.currentPlayer.selectedTiles.length }} tiles to Rebellion
+                        @click="commitTilesToRevolt">
+                        Commit {{ this.currentPlayer.selectedTiles.length }} tiles to Revolt
                     </b-button>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="col-auto order-1 order-sm-1 order-md-2">
-                    <player-hand v-if="currentPlayer?.isHuman" :player="currentPlayer" size="lg" selectable />
+                    <player-hand v-if="currentPlayer?.isHuman" :player="getPlayer(currentHandDisplayPlayerId)" size="lg" selectable />
                     <div v-else class="card">
                         <div class="card-body">
                             <div class="row align-items-center justify-content-center hand-empty">
@@ -90,8 +90,11 @@
                 right shadow no-header
                 sidebar-class="border-left border-dark text-left mt-5">
                 <div class="px-3 py-2">
-                    Current Player: {{currentPlayer?.id}}<br />
                     Number of Players: {{ numberOfPlayers }}<br />
+                    Current Action Type: {{ actionTypeName }}<br />
+                    Current Turn PlayerId: {{currentPlayer?.id}}<br />
+                    Current Hand PlayerId: {{ currentHandDisplayPlayerId }}<br />
+                    Current Action PlayerId: {{ currentActionPlayerId }}<br />
                     Bag: {{debugBagStats}}<br />
                     Hands: <br />
                     <player-hand v-for="(player, index) in allPlayers"
@@ -102,8 +105,8 @@
                 </div>
             </b-sidebar>
         </div>
-        <b-modal id="bv-modal-example" title="Rebellion Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
-            Rebellion Results
+        <b-modal id="bv-modal-example" title="Revolt Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
+            Revolt Results
         </b-modal>
     </div>
 </template>
@@ -147,7 +150,6 @@ export default {
             'tiles'
         ]),
         ...mapGetters('players', {
-            playerHand: 'playerHand',
             currentPlayer: 'currentPlayer',
             allPlayers: 'all'
         }),
@@ -155,13 +157,18 @@ export default {
             'remainingActions',
             'numberOfPlayers',
             'currentActionType',
-            'currentActionPlayerId'
+            'currentHandDisplayPlayerId',
+            'currentActionPlayerId',
+            'conflictDefenderPlayerId'
         ]),
         isEndTurnDisabled() {
             return this.remainingActions != 0
         },
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.messagePlayerId)
+        },
+        actionTypeName() {
+            return helpers.getActionNameByType(this.currentActionType)
         },
         showCoordinates: {
             get () {
@@ -197,10 +204,11 @@ export default {
                 this.playerMessage = 'Select which treasure to take'
                 this.messagePlayerId = this.currentActionPlayerId
             }
-            if (newActionType == actionTypes.rebellion) {
+            if (newActionType == actionTypes.revoltAttack ||
+                newActionType == actionTypes.revoltDefend) {
                 this.showPlayerMessage = true
                 this.playerMessage = 'Select supporting temples to add'
-                this.messagePlayerId = this.currentPlayer.id
+                this.messagePlayerId = this.currentActionPlayerId
                 this.showPlayerActionButton = true
                 //this.$bvModal.show('bv-modal-example')
             }
@@ -237,8 +245,11 @@ export default {
         saveSettings() {
             this.$store.dispatch('settings/save')
         },
-        commitTilesToRebellion() {
-            //let defendingPlayer = this.$store.getters()
+        commitTilesToRevolt() {
+            // Add attacker selected tiles to conflict
+            this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderPlayerId })
+            this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderPlayerId })
+            this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
         }
     }
 }

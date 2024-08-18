@@ -169,12 +169,14 @@ const actions = {
                     const neighborKingdoms = getters.neighborRegions(newPayload).filter(x => x.isKingdom)
                     commit('addTile', newPayload)
                     dispatch('setRegions')
-                    //dispatch('checkForRebellion', newPayload)
+                    //dispatch('checkForRevolt', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
-                    dispatch('players/removeSelectedTiles', null, { root: true })
+                    dispatch('players/removeSelectedTiles', {playerId: currentPlayer.id}, { root: true })
                     commit('resetAvailableTileLocations')
-                    commit('game/actionCompleted', null, {root: true})
+
+                    if (rootGetters['game/currentActionType'] !== actionTypes.revoltAttack)
+                        commit('game/actionCompleted', null, {root: true})
                 }
             }
             if (currentActionType === actionTypes.takeTreasure) {
@@ -186,7 +188,6 @@ const actions = {
                     for (let i = 0; i < highlightedTiles.length; i++) {
                         commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
                     }
-                    commit('game/setCurrentActionPlayerId', {playerId: 0}, {root: true})
                     commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
                 }
             }
@@ -305,25 +306,27 @@ const actions = {
             }
         }
     },
-    checkForRebellion({state, getters, commit}, payload) {
+    checkForRevolt({state, getters, commit}, payload) {
         if (payload && payload.isLeaderTile) {
             const region = getters.getRegion(payload.index)
             if (region && region.isKingdom) {
-                let matchingLeader = null
+                let matchingDefenderLeader = null
                 for (let i = 0; i < region.tileIndexes.length; i++) {
                     var matchingTile = state.tiles[region.tileIndexes[i]]
                     if (matchingTile &&
                         matchingTile.isLeaderTile &&
                         matchingTile.tileType === payload.tileType &&
                         matchingTile.playerId !== payload.playerId) {
-                        matchingLeader = {...matchingTile}
+                            matchingDefenderLeader = {...matchingTile}
                     }
                 }
-                if (matchingLeader) {
+                if (matchingDefenderLeader) {
                     commit('updateTile', {...payload, isHighlighted: true})
-                    commit('updateTile', {...matchingLeader, isHighlighted: true})
-                    commit('game/setCurrentActionPlayerId', {playerId: matchingLeader.playerId}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.rebellion}, {root: true})
+                    commit('updateTile', {...matchingDefenderLeader, isHighlighted: true})
+                    commit('game/setCurrentActionPlayerId', {playerId: payload.playerId}, {root: true})
+                    commit('game/setConflictAttackerPlayerId', {playerId: payload.playerId}, {root: true})
+                    commit('game/setConflictDefenderPlayerId', {playerId: matchingDefenderLeader.playerId}, {root: true})
+                    commit('game/setActionType', {actionType: actionTypes.revoltAttack}, {root: true})
                 }
             }
         }

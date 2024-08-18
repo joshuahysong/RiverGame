@@ -1,26 +1,33 @@
 import { actionTypes } from '../../common/constants'
 
 const state = () => ({
-    currentTurnPlayerId: 0,
+    activeTurnPlayerId: 0,
     currentActionPlayerId: 0,
+    currentHandDisplayPlayerId: 0,
     numberOfPlayers: 0,
     remainingActions: 0,
-    currentActionType: 0
+    currentActionType: 0,
+    conflictAttackerPlayerId: 0,
+    conflictDefenderPlayerId: 0,
+    conflictAttackerTiles: [],
+    conflictDefenderTiles: []
 })
 
 const defaultState = {
-    currentTurnPlayerId: 1,
+    activeTurnPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
-    currentActionType: actionTypes.playTile
+    currentActionType: actionTypes.playTile,
+    currentHandDisplayPlayerId: 1,
+    currentActionPlayerId: 1
 }
 
 const getters = {
     currentActionType(state) {
         return state.currentActionType
     },
-    currentTurnPlayerId(state) {
-        return state.currentTurnPlayerId
+    activeTurnPlayerId(state) {
+        return state.activeTurnPlayerId
     },
     remainingActions(state) {
         return state.remainingActions
@@ -30,6 +37,15 @@ const getters = {
     },
     currentActionPlayerId: (state) => {
         return state.currentActionPlayerId
+    },
+    currentHandDisplayPlayerId: (state) => {
+        return state.currentHandDisplayPlayerId
+    },
+    conflictAttackerPlayerId: (state) => {
+        return state.conflictAttackerPlayerId
+    },
+    conflictDefenderPlayerId: (state) => {
+        return state.conflictDefenderPlayerId
     },
 }
 
@@ -59,8 +75,13 @@ const actions = {
 
 const mutations = {
     nextActivePlayer(state) {
-        state.currentTurnPlayerId = state.currentTurnPlayerId >= state.numberOfPlayers
-            ? 1 : state.currentTurnPlayerId + 1
+        let activeTurnPlayerId = state.activeTurnPlayerId >= state.numberOfPlayers
+            ? 1 : state.activeTurnPlayerId + 1
+        state.activeTurnPlayerId = activeTurnPlayerId
+        state.currentActionPlayerId = activeTurnPlayerId
+        state.currentHandDisplayPlayerId = activeTurnPlayerId
+        state.conflictAttackerPlayerId = 0
+        state.conflictDefenderPlayerId = 0
         state.remainingActions = 2
         state.currentActionType = actionTypes.playTile
     },
@@ -77,9 +98,16 @@ const mutations = {
         Object.assign(state, payload)
     },
     setCurrentActionPlayerId(state, payload) {
-        if (payload) {
-            state.currentActionPlayerId = payload.playerId
-        }
+        state.currentActionPlayerId = payload.playerId
+    },
+    setCurrentHandDisplayPlayerId(state, payload) {
+        state.currentHandDisplayPlayerId = payload.playerId
+    },
+    setConflictAttackerPlayerId(state, payload) {
+        state.conflictAttackerPlayerId = payload.playerId
+    },
+    setConflictDefenderPlayerId(state, payload) {
+        state.conflictDefenderPlayerId = payload.playerId
     },
 }
 
