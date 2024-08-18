@@ -1,5 +1,6 @@
 <template>
     <div>
+        <!-- navbar -->
         <b-navbar toggleable="sm" type="dark" variant="dark" sticky>
             <b-button size="sm" @click="startNewGame">New Game</b-button>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -25,9 +26,10 @@
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
-        <div class="main-app container-fluid text-center mt-3 mb-5">
-            <div class="row">
-                <div class="col p-0">
+        <!-- main page -->
+        <div class="main-app container-fluid text-center mt-3 mb-5 p-0">
+            <div class="row no-gutters">
+                <div class="col">
                     <div class="map-container">
                         <div class="grid">
                             <map-square class="cell"
@@ -40,6 +42,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-auto">
+                    <player-card v-for="(player, index) in allPlayers"
+                        :key="index"
+                        :player="getPlayer(player?.id)"
+                        :show-score="player?.id === currentPlayer.id"
+                        :class="{'border-danger': player?.id === currentPlayer.id}"
+                        class="mt-2"/>
+                </div>
             </div>
             <div v-if="showPlayerMessage" class="row mt-3 justify-content-center align-items-center">
                 <div v-if="messagePlayerId" class="col-auto">
@@ -50,11 +60,11 @@
                         variant="danger"
                         size="sm"
                         @click="commitTilesToRevolt">
-                        Commit {{ this.currentPlayer.selectedTiles.length }} tiles to Revolt
+                        Commit {{ getPlayer(currentHandDisplayPlayerId).selectedTiles.length }} tiles to Revolt
                     </b-button>
                 </div>
             </div>
-            <div class="row justify-content-center align-items-center mt-3">
+            <div class="row no-gutters justify-content-center align-items-center mt-3">
                 <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1 d-flex justify-content-center">
                     <div class="bag-icon-container" >
                         <b-icon-bag-fill class="bag-icon" variant="dark" />
@@ -62,7 +72,8 @@
                     </div>
                 </div>
                 <div class="col-auto order-1 order-sm-1 order-md-2">
-                    <player-hand v-if="currentPlayer?.isHuman" :player="getPlayer(currentHandDisplayPlayerId)" size="lg" selectable />
+                    <player-hand v-if="currentPlayer?.isHuman"
+                        :player="getPlayer(currentHandDisplayPlayerId)" size="lg" selectable/>
                     <div v-else class="card">
                         <div class="card-body">
                             <div class="row align-items-center justify-content-center hand-empty">
@@ -99,17 +110,20 @@
                     Hands: <br />
                     <player-hand v-for="(player, index) in allPlayers"
                         :key="index"
-                        :player="getPlayer(player?.id)" size="sm"
+                        :player="getPlayer(player?.id)"
+                        size="sm"
                         :class="{'border-danger': player?.id === currentPlayer.id}"
                         class="mt-2"/>
                 </div>
             </b-sidebar>
         </div>
+        <!-- footer -->
         <b-navbar type="light" variant="light" fixed="bottom" class="border-top py-0">
             <b-navbar-nav class="mx-auto" small>
                 <b-nav-text>Version: {{appVersion}}</b-nav-text>
             </b-navbar-nav>
         </b-navbar>
+        <!-- modals -->
         <b-modal id="bv-modal-example" title="Revolt Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
             Revolt Results
         </b-modal>
@@ -120,6 +134,7 @@
 import { mapGetters } from 'vuex'
 import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
+import PlayerCard from './components/PlayerCard.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
@@ -127,7 +142,8 @@ export default {
     name: 'App',
     components: {
         MapSquare,
-        PlayerHand
+        PlayerHand,
+        PlayerCard
     },
     data() {
         return {
@@ -256,6 +272,7 @@ export default {
         },
         commitTilesToRevolt() {
             // Add attacker selected tiles to conflict
+            this.$store.dispatch('players/removeSelectedTiles', { playerId: this.currentActionPlayerId })
             this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderPlayerId })
             this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderPlayerId })
             this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
@@ -265,6 +282,9 @@ export default {
 </script>
 
 <style scoped>
+    .bg-table {
+        background-color: red;
+    }
     .main-app {
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;

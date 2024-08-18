@@ -1,5 +1,5 @@
 <template>
-    <div class="tile d-flex mx-auto" :class="tileClass">
+    <div class="tile d-flex mx-auto" :class="tileClass" :style="tileStyle">
         <div v-if="isTreasure" class="treasure-icon mx-auto my-auto"></div>
     </div>
 </template>
@@ -13,7 +13,8 @@ export default {
     props: {
         tileType: Number,
         selected: Boolean,
-        highlight: Boolean
+        highlight: Boolean,
+        size: Number
     },
     computed: {
         tileClass() {
@@ -21,6 +22,9 @@ export default {
             cssClass += this.selected ? ' selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
             return cssClass
+        },
+        tileStyle() {
+            return `height: ${this.size}px; width: ${this.size}px;`
         },
         isTreasure() {
             return this.tileType === tileTypes.treasure
@@ -57,6 +61,9 @@ export default {
     }
     .catastrophe {
         background: red;
+    }
+    .generic {
+        background: #F4A460;
     }
     .treasure-icon {
         height: 35%;

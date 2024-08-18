@@ -9,7 +9,8 @@ export const tileTypes = {
     king: 7,
     priest: 8,
     farmer: 9,
-    trader: 10
+    trader: 10,
+    generic: 11
 }
 
 export const mapTypes = {
