@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-navbar toggleable="sm" type="dark" variant="dark">
+        <b-navbar toggleable="sm" type="dark" variant="dark" sticky>
             <b-button size="sm" @click="startNewGame">New Game</b-button>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
@@ -105,6 +105,11 @@
                 </div>
             </b-sidebar>
         </div>
+        <b-navbar type="light" variant="light" fixed="bottom" class="border-top py-0">
+            <b-navbar-nav class="mx-auto" small>
+                <b-nav-text>Version: {{appVersion}}</b-nav-text>
+            </b-navbar-nav>
+        </b-navbar>
         <b-modal id="bv-modal-example" title="Revolt Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
             Revolt Results
         </b-modal>
