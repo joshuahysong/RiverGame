@@ -70,7 +70,7 @@
                 </div>
             </div>
             <div class="row no-gutters justify-content-center align-items-center mt-3">
-                <div class="col-12 col-sm-auto">
+                <div class="col-12 col-sm-auto p-1">
                     <player-hand v-if="currentPlayer?.isHuman"
                         :player="getPlayer(currentHandDisplayPlayerId)" :size="30" selectable/>
                     <div v-else class="card">
@@ -81,18 +81,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-auto order-md-3 py-3 py-sm-0">
-                    <div class="row">
-                        <div class="col">
-                            <b-button
-                                variant="primary"
-                                class="m-2"
-                                :disabled="isEndTurnDisabled"
-                                @click="doEndTurn">
-                                End Turn
-                            </b-button>
-                        </div>
-                    </div>
+                <div class="col-12 col-sm-auto py-3 py-sm-0">
+                    <b-button
+                        variant="primary"
+                        class="m-2"
+                        :disabled="isEndTurnDisabled"
+                        @click="doEndTurn">
+                        End Turn
+                    </b-button>
                 </div>
             </div>
             <b-sidebar

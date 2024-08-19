@@ -1,33 +1,29 @@
 <template>
     <div class="card">
         <div class="card-body p-2">
-            <div class="row">
-                <div class="col-12 col-sm">
-                    <div class="row no-gutters">
-                        <div class="col align-self-center">
-                            <leader-tile
-                                v-for="(tileType, index) in player.leaders"
-                                :key="index"
-                                :size="size"
-                                :tile-type="tileType"
-                                :player-id="player.id"
-                                :selected="isSelectedTile(index, true)"
-                                @click.native="selectTile(index, true)"
-                                class="mr-2" />
-                        </div>
-                    </div>
-                    <div class="row no-gutters mt-2">
-                        <div class="col align-self-center">
-                            <civilization-tile
-                                v-for="(tileType, index) in player.hand"
-                                :key="index"
-                                :size="size"
-                                :tile-type="tileType"
-                                :selected="isSelectedTile(index, false)"
-                                @click.native="selectTile(index, false)"
-                                class="mr-2" />
-                        </div>
-                    </div>
+            <div class="row no-gutters">
+                <div class="col align-self-center">
+                    <leader-tile
+                        v-for="(tileType, index) in player.leaders"
+                        :key="index"
+                        :size="size"
+                        :tile-type="tileType"
+                        :player-id="player.id"
+                        :selected="isSelectedTile(index, true)"
+                        @click.native="selectTile(index, true)"
+                        class="mr-2" />
+                </div>
+            </div>
+            <div class="row no-gutters mt-2">
+                <div class="col align-self-center">
+                    <civilization-tile
+                        v-for="(tileType, index) in player.hand"
+                        :key="index"
+                        :size="size"
+                        :tile-type="tileType"
+                        :selected="isSelectedTile(index, false)"
+                        @click.native="selectTile(index, false)"
+                        class="mr-2" />
                 </div>
             </div>
         </div>
