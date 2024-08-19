@@ -2,7 +2,6 @@
     <div class="card">
         <div class="card-body p-2">
             <div class="row no-gutters text-left small pb-2">
-                <div class="col-auto pr-1">Player {{player.id}}:</div>
                 <div class="col-auto pr-1">{{player.name}}</div>
                 <div v-if="!player.isHuman" class="col-auto">(Bot)</div>
             </div>

@@ -29,7 +29,7 @@
         <!-- main page -->
         <div class="main-app container-fluid text-center mt-3 mb-5 p-0">
             <div class="row no-gutters">
-                <div class="col-12 col-lg">
+                <div class="col-12 col-lg order-1">
                     <div class="map-container">
                         <div class="grid">
                             <map-square class="cell"
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-3 order-3 order-lg-2">
                     <div class="row no-gutters">
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
@@ -52,6 +52,30 @@
                                 :show-score="player?.id === currentPlayer.id"
                                 :class="{'border-danger': player?.id === currentPlayer.id}"
                                 class="mt-2"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 order-2 order-lg-3">
+                    <div class="row no-gutters justify-content-center align-items-center mt-3">
+                        <div class="col-12 col-sm-auto p-1">
+                            <player-hand v-if="currentPlayer?.isHuman"
+                                :player="getPlayer(currentHandDisplayPlayerId)" :size="30" selectable/>
+                            <div v-else class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center justify-content-center hand-empty">
+                                        Player {{ currentPlayer?.id }}'s turn
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-auto pt-2 py-sm-0">
+                            <b-button
+                                variant="primary"
+                                class="m-2"
+                                :disabled="isEndTurnDisabled"
+                                @click="doEndTurn">
+                                End Turn
+                            </b-button>
                         </div>
                     </div>
                 </div>
@@ -66,28 +90,6 @@
                         size="sm"
                         @click="commitTilesToRevolt">
                         Commit {{ getPlayer(currentHandDisplayPlayerId).selectedTiles.length }} tiles to Revolt
-                    </b-button>
-                </div>
-            </div>
-            <div class="row no-gutters justify-content-center align-items-center mt-3">
-                <div class="col-12 col-sm-auto p-1">
-                    <player-hand v-if="currentPlayer?.isHuman"
-                        :player="getPlayer(currentHandDisplayPlayerId)" :size="30" selectable/>
-                    <div v-else class="card">
-                        <div class="card-body">
-                            <div class="row align-items-center justify-content-center hand-empty">
-                                Player {{ currentPlayer?.id }}'s turn
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-auto py-3 py-sm-0">
-                    <b-button
-                        variant="primary"
-                        class="m-2"
-                        :disabled="isEndTurnDisabled"
-                        @click="doEndTurn">
-                        End Turn
                     </b-button>
                 </div>
             </div>
@@ -256,10 +258,10 @@ export default {
             this.$store.dispatch('board/init')
             this.$store.dispatch('bag/init')
             this.$store.commit('players/clearPlayers')
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 1', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 2', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 3', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test 4', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 1', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 2', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 3', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: true })
             this.$store.dispatch('game/save')
         },
         saveSettings() {
