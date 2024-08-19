@@ -1,5 +1,5 @@
 <template>
-    <div class="tile" :class="tileClass">
+    <div class="tile d-inline-block" :class="tileClass" :style="tileStyle">
         <b-icon class="h-100 w-100" :icon="icon" :class="iconClass" />
     </div>
 </template>
@@ -13,13 +13,17 @@ export default {
         tileType: Number,
         playerId: Number,
         selected: Boolean,
-        highlight: Boolean
+        highlight: Boolean,
+        size: Number
     },
     computed: {
         tileClass() {
             let cssClass = this.selected ? 'selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
             return cssClass
+        },
+        tileStyle() {
+            return `height: ${this.size}px; width: ${this.size}px;`
         },
         iconClass() {
             return helpers.getTileNameByType(this.tileType)

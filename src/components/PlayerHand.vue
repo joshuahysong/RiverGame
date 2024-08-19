@@ -4,41 +4,28 @@
             <div class="row">
                 <div class="col-12 col-sm">
                     <div class="row no-gutters">
-                        <div class="col-12 col-sm d-flex h-100">
-                            <div class="my-auto align-items-center"
-                                :style="gridStyle">
-                                <leader-tile
-                                    v-for="(tileType, index) in player.leaders"
-                                    :key="index"
-                                    :size="iconSize"
-                                    :tile-type="tileType"
-                                    :player-id="player.id"
-                                    :selected="isSelectedTile(index, true)"
-                                    @click.native="selectTile(index, true)" />
-                            </div>
+                        <div class="col align-self-center">
+                            <leader-tile
+                                v-for="(tileType, index) in player.leaders"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :player-id="player.id"
+                                :selected="isSelectedTile(index, true)"
+                                @click.native="selectTile(index, true)"
+                                class="mr-2" />
                         </div>
                     </div>
                     <div class="row no-gutters mt-2">
-                        <div class="col d-flex h-100">
-                            <div class="my-auto align-items-center"
-                                :style="gridStyle">
-                                <civilization-tile
-                                    v-for="(tileType, index) in player.hand"
-                                    :key="index"
-                                    :size="iconSize"
-                                    :tile-type="tileType"
-                                    :selected="isSelectedTile(index, false)"
-                                    @click.native="selectTile(index, false)" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm mt-2 mt-sm-0">
-                    <div v-if="size === 'lg'" class="row h-50">
-                        <div class="col pl-3 d-flex">
-                            <div class="my-auto small">
-                                Actions: {{ remainingActions }}
-                            </div>
+                        <div class="col align-self-center">
+                            <civilization-tile
+                                v-for="(tileType, index) in player.hand"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :selected="isSelectedTile(index, false)"
+                                @click.native="selectTile(index, false)"
+                                class="mr-2" />
                         </div>
                     </div>
                 </div>
@@ -62,7 +49,7 @@ export default {
     },
     props: {
         player: Object,
-        size: String,
+        size: Number,
         selectable: {
             type: Boolean,
             default: false
@@ -73,16 +60,6 @@ export default {
             remainingActions: 'remainingActions',
             currentActionType: 'currentActionType'
         }),
-        iconSize() {
-            return this.size === 'lg' ? 40 : 20
-        },
-        gridStyle() {
-            let gridSize = this.size === 'lg' ? 40 : 20
-            return `display: grid;
-                grid-template-columns: repeat(6, ${gridSize}px);
-                grid-template-rows: repeat(1, ${gridSize}px);
-                grid-gap: ${gridSize / 4}px;`
-        },
         tileTypes() {
             return tileTypes
         }
@@ -116,7 +93,7 @@ export default {
 
 <style scoped>
     .card {
-        max-width: 450px;
+        min-width: 300px;
     }
     .temple-score {
         color: darkred;

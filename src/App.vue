@@ -70,15 +70,9 @@
                 </div>
             </div>
             <div class="row no-gutters justify-content-center align-items-center mt-3">
-                <div class="col-12 col-sm-6 col-md-1 py-3 order-3 order-sm-2 order-md-1 d-flex justify-content-center">
-                    <div class="bag-icon-container" >
-                        <b-icon-bag-fill class="bag-icon" variant="dark" />
-                        <div class="bag-text text-white">{{ bagSpaceRemaining }}%</div>
-                    </div>
-                </div>
-                <div class="col-auto order-1 order-sm-1 order-md-2">
+                <div class="col-12 col-sm-auto">
                     <player-hand v-if="currentPlayer?.isHuman"
-                        :player="getPlayer(currentHandDisplayPlayerId)" size="lg" selectable/>
+                        :player="getPlayer(currentHandDisplayPlayerId)" :size="30" selectable/>
                     <div v-else class="card">
                         <div class="card-body">
                             <div class="row align-items-center justify-content-center hand-empty">
@@ -87,7 +81,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-2 order-2 order-sm-3 order-md-3 py-3 py-sm-0">
+                <div class="col-12 col-sm-auto order-md-3 py-3 py-sm-0">
                     <div class="row">
                         <div class="col">
                             <b-button
@@ -116,7 +110,7 @@
                     <player-hand v-for="(player, index) in allPlayers"
                         :key="index"
                         :player="getPlayer(player?.id)"
-                        size="sm"
+                        :size="20"
                         :class="{'border-danger': player?.id === currentPlayer.id}"
                         class="mt-2"/>
                 </div>

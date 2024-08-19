@@ -1,6 +1,6 @@
 <template>
-    <div class="tile d-flex mx-auto" :class="tileClass" :style="tileStyle">
-        <div v-if="isTreasure" class="treasure-icon mx-auto my-auto"></div>
+    <div class="tile d-inline-block" :class="tileClass" :style="tileStyle">
+        <div v-if="isTreasure" class="treasure-icon"></div>
     </div>
 </template>
 
@@ -70,5 +70,8 @@ export default {
         background-color: gold;
         border-radius: 50%;
         border: 2px solid goldenrod;
+        top: 32.5%;
+        left: 32.5%;
+        position: absolute;
     }
 </style>
