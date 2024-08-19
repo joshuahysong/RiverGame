@@ -3,28 +3,25 @@
         <!-- navbar -->
         <b-navbar toggleable="sm" type="dark" variant="dark" sticky>
             <b-button size="sm" @click="startNewGame">New Game</b-button>
-            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-            <b-collapse id="nav-collapse" is-nav>
-                <b-navbar-nav class="ml-auto">
-                    <b-dropdown right>
-                        <template #button-content>
-                            <b-icon-gear-fill />
-                        </template>
-                        <b-dropdown-form form-class="px-3" style="width: 170px">
-                            <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
-                                Show Coordinates
-                            </b-form-checkbox>
-                            <b-form-checkbox v-model="showIndexes" class="small" @change="saveSettings">
-                                Show Indexes
-                            </b-form-checkbox>
-                            <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">
-                                Show Kingdoms
-                            </b-form-checkbox>
-                        </b-dropdown-form>
-                    </b-dropdown>
-                    <b-button size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
-                </b-navbar-nav>
-            </b-collapse>
+            <b-navbar-nav class="ml-auto">
+                <b-nav-item-dropdown right>
+                    <template #button-content>
+                        <b-icon-gear-fill />
+                    </template>
+                    <b-dropdown-form form-class="px-3" style="width: 170px">
+                        <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
+                            Show Coordinates
+                        </b-form-checkbox>
+                        <b-form-checkbox v-model="showIndexes" class="small" @change="saveSettings">
+                            Show Indexes
+                        </b-form-checkbox>
+                        <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">
+                            Show Kingdoms
+                        </b-form-checkbox>
+                    </b-dropdown-form>
+                </b-nav-item-dropdown>
+                <b-button v-if="showDebug" size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
+            </b-navbar-nav>
         </b-navbar>
         <!-- main page -->
         <div class="main-app container-fluid text-center mt-3 mb-5 p-0">
@@ -144,6 +141,7 @@ export default {
     },
     data() {
         return {
+            showDebug: false,
             showPlayerMessage: false,
             playerMessage: '',
             showPlayerActionButton: false,
