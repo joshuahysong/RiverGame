@@ -11,8 +11,8 @@
         <div v-if="isRiverTile && showRiverVerticalBottom" class="river river-vertical-bottom"></div>
         <div v-if="isRiverTile && showRiverVerticalTop" class="river river-vertical-top"></div>
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
-        <div v-if="showCoordinates" class="coordinates" :class="{'text-white': hasTile}">{{coordinates}}</div>
-        <div v-if="showIndexes" class="coordinates d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
+        <div v-if="showCoordinates" class="coordinates coordinates-text-size" :class="{'text-white': hasTile}">{{coordinates}}</div>
+        <div v-if="showIndexes" class="coordinates coordinates-text-size d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
     </div>
 </template>
 
@@ -132,12 +132,22 @@ export default {
         position: relative;
     }
     .coordinates {
-        font-size: 0.65em;
         height: 95%;
         width: 100%;
         position: absolute;
         z-index: 4;
     }
+
+    .coordinates-text-size {
+        font-size: 0.65em;
+    }
+
+    @media (max-width: 577px) {
+        .coordinates-text-size {
+            font-size: 0.45em;
+        }
+    }
+
     .river {
         background: PaleTurquoise;
         position: absolute;
