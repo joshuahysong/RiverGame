@@ -8,18 +8,19 @@
             <div class="row no-gutters">
                 <div class="col text-left align-self-center">
                     <leader-tile
-                        v-for="(tileType, index) in player.leaders"
+                        v-for="(leaderTileType, index) in leaderTileTypes"
                         :key="index"
-                        :size="25"
-                        :tile-type="tileType"
-                        :player-id="player.id"
-                        class="mr-2" />
+                        :size="size"
+                        :tile-type="leaderTileType"
+                        :player="player"
+                        class="mr-2"
+                        show-empty />
                 </div>
                 <div class="col-auto">
                     <div class="row no-gutters">
-                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.generic" :size="25" /></div>
+                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.generic" :size="size" /></div>
                         <div class="col-auto pr-2">x{{player.hand.length}}</div>
-                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.catastrophe" :size="25" /></div>
+                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.catastrophe" :size="size" /></div>
                         <div class="col-auto">x2</div>
                     </div>
                 </div>
@@ -63,7 +64,7 @@
 <script>
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes } from '../common/constants'
+import { tileTypes, leaderTileTypes } from '../common/constants'
 
 export default {
     name: 'PlayerHand',
@@ -78,16 +79,23 @@ export default {
             default: false
         }
     },
+    data() {
+        return {
+            size: 25
+        }
+    },
     computed: {
         gridStyle() {
-            let gridSize = 25
             return `display: grid;
-                grid-template-columns: repeat(4, ${gridSize}px);
-                grid-template-rows: repeat(1, ${gridSize}px);
-                grid-gap: ${gridSize / 4}px;`
+                grid-template-columns: repeat(4, ${this.size}px);
+                grid-template-rows: repeat(1, ${this.size}px);
+                grid-gap: ${this.size / 4}px;`
         },
         tileTypes() {
             return tileTypes
+        },
+        leaderTileTypes() {
+            return leaderTileTypes
         }
     }
 }

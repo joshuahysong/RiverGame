@@ -13,6 +13,13 @@ export const tileTypes = {
     generic: 11
 }
 
+export const leaderTileTypes = [
+    tileTypes.king,
+    tileTypes.priest,
+    tileTypes.farmer,
+    tileTypes.trader
+]
+
 export const mapTypes = {
     ground: '0',
 }

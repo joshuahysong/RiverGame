@@ -11,10 +11,11 @@ export default {
     name: 'LeaderTile',
     props: {
         tileType: Number,
-        playerId: Number,
+        player: Object,
         selected: Boolean,
         highlight: Boolean,
-        size: Number
+        size: Number,
+        showEmpty: Boolean
     },
     computed: {
         tileClass() {
@@ -26,10 +27,12 @@ export default {
             return `height: ${this.size}px; width: ${this.size}px;`
         },
         iconClass() {
-            return helpers.getTileNameByType(this.tileType)
+            var leaderClass = helpers.getTileNameByType(this.tileType)
+            if (!this.player.leaders.includes(this.tileType) && this.showEmpty) leaderClass += ' empty'
+            return leaderClass
         },
         icon() {
-            return helpers.getPlayerIconNameById(this.playerId)
+            return helpers.getPlayerIconNameById(this.player.id)
         }
     }
 }
@@ -50,14 +53,28 @@ export default {
     }
     .king {
         color: DimGray;
+        stroke: DimGray;
+        stroke-width: 0;
     }
     .priest {
         color: darkred;
+        stroke: darkred;
+        stroke-width: 0;
     }
     .farmer {
         color: dodgerblue;
+        stroke: dodgerblue;
+        stroke-width: 0;
     }
     .trader {
         color: green;
+        stroke: green;
+        stroke-width: 0;
+    }
+    .empty {
+        color: GhostWhite;
+        stroke-width: 1px;
+        stroke-dasharray: 1, 2;
+        stroke-linecap: round;
     }
 </style>

@@ -3,7 +3,7 @@
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
-        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player-id="tile.playerId" :size="40" />
+        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player="getPlayer(tile.playerId)" :size="40" />
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
         <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
@@ -113,6 +113,9 @@ export default {
         },
         doMapSquareClick() {
             this.$store.dispatch('board/handleBoardClick', { index: this.index })
+        },
+        getPlayer() {
+            return this.$store.getters['players/getPlayer'](this.tile.playerId)
         }
     }
 }

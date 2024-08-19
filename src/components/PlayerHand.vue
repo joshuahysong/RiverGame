@@ -4,14 +4,15 @@
             <div class="row no-gutters">
                 <div class="col align-self-center">
                     <leader-tile
-                        v-for="(tileType, index) in player.leaders"
+                        v-for="(leaderTileType, index) in leaderTileTypes"
                         :key="index"
                         :size="size"
-                        :tile-type="tileType"
-                        :player-id="player.id"
+                        :tile-type="leaderTileType"
+                        :player="player"
                         :selected="isSelectedTile(index, true)"
                         @click.native="selectTile(index, true)"
-                        class="mr-2" />
+                        class="mr-2"
+                        show-empty />
                 </div>
             </div>
             <div class="row no-gutters mt-2">
@@ -34,7 +35,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes, actionTypes } from '../common/constants'
+import { tileTypes, leaderTileTypes, actionTypes } from '../common/constants'
 import helpers from '../common/helpers'
 
 export default {
@@ -58,6 +59,9 @@ export default {
         }),
         tileTypes() {
             return tileTypes
+        },
+        leaderTileTypes() {
+            return leaderTileTypes
         }
     },
     methods:{
