@@ -70,6 +70,7 @@ const actions = {
         localStorage.gameState = JSON.stringify(gameState);
     },
     load({commit, dispatch}) {
+        commit('setActionType', {actionType: actionTypes.loading})
         if (localStorage.gameState) {
             let gameState = JSON.parse(localStorage.gameState);
             commit('players/loadPlayers', gameState.players, {root: true})

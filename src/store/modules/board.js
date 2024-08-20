@@ -188,6 +188,7 @@ const actions = {
                     for (let i = 0; i < highlightedTiles.length; i++) {
                         commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
                     }
+                    commit('game/setCurrentActionPlayerId', {playerId: rootGetters['game/activeTurnPlayerId']}, {root: true})
                     commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
                 }
             }

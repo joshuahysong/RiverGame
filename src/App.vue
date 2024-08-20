@@ -24,8 +24,9 @@
             </b-navbar-nav>
         </b-navbar>
         <!-- main page -->
-        <div class="main-app container-fluid text-center mt-3 mb-5 p-0">
-            <div class="row no-gutters">
+        <div class="main-app container-fluid text-center mb-5 p-0">
+            <action-bar></action-bar>
+            <div class="row no-gutters mt-3">
                 <div class="col-12 col-lg order-1">
                     <div class="map-container">
                         <div class="grid">
@@ -65,29 +66,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-auto pt-2 py-sm-0">
-                            <b-button
-                                variant="primary"
-                                class="m-2"
-                                :disabled="isEndTurnDisabled"
-                                @click="doEndTurn">
-                                End Turn
-                            </b-button>
-                        </div>
                     </div>
-                </div>
-            </div>
-            <div v-if="showPlayerMessage" class="row mt-3 justify-content-center align-items-center">
-                <div v-if="messagePlayerId" class="col-auto">
-                    <b-icon :icon="leaderIcon" /> {{playerMessage}}
-                </div>
-                <div v-if="showPlayerActionButton" class="col-auto">
-                    <b-button
-                        variant="danger"
-                        size="sm"
-                        @click="commitTilesToRevolt">
-                        Commit {{ getPlayer(currentHandDisplayPlayerId).selectedTiles.length }} tiles to Revolt
-                    </b-button>
                 </div>
             </div>
             <b-sidebar
@@ -129,6 +108,7 @@ import { mapGetters } from 'vuex'
 import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
+import ActionBar from './components/ActionBar.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
@@ -137,7 +117,8 @@ export default {
     components: {
         MapSquare,
         PlayerHand,
-        PlayerCard
+        PlayerCard,
+        ActionBar
     },
     data() {
         return {
@@ -158,8 +139,7 @@ export default {
     },
     computed: {
         ...mapGetters('bag', [
-            'debugBagStats',
-            'bagSpaceRemaining'
+            'debugBagStats'
         ]),
         ...mapGetters('board', [
             'map',
@@ -171,16 +151,12 @@ export default {
         }),
         ...mapGetters('game', [
             'isSaveValid',
-            'remainingActions',
             'numberOfPlayers',
             'currentActionType',
             'currentHandDisplayPlayerId',
             'currentActionPlayerId',
             'conflictDefenderPlayerId'
         ]),
-        isEndTurnDisabled() {
-            return this.remainingActions != 0
-        },
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.messagePlayerId)
         },
@@ -215,33 +191,9 @@ export default {
             }
         }
     },
-    watch: {
-        currentActionType(newActionType) {
-            this.showPlayerMessage = false
-            this.playerMessage = ''
-            if (newActionType == actionTypes.takeTreasure) {
-                this.showPlayerMessage = true
-                this.playerMessage = 'Select which treasure to take'
-                this.messagePlayerId = this.currentActionPlayerId
-            }
-            if (newActionType == actionTypes.revoltAttack ||
-                newActionType == actionTypes.revoltDefend) {
-                this.showPlayerMessage = true
-                this.playerMessage = 'Select supporting temples to add'
-                this.messagePlayerId = this.currentActionPlayerId
-                this.showPlayerActionButton = true
-                //this.$bvModal.show('bv-modal-example')
-            }
-        }
-    },
     methods: {
         getTile(index) {
             return this.tiles[index];
-        },
-        async doEndTurn() {
-            await this.$store.dispatch('players/refillPlayerHands')
-            this.$store.commit('game/nextActivePlayer')
-            this.$store.dispatch('game/save')
         },
         getPlayer(id) {
             let matchingPlayers = this.allPlayers.filter(x => x.id == id)

@@ -25,11 +25,12 @@ export const mapTypes = {
 }
 
 export const actionTypes = {
-    playTile: 0,
-    swapTiles: 1,
-    takeTreasure: 2,
-    revoltAttack: 3,
-    revoltDefend: 4
+    loading: 0,
+    playTile: 1,
+    swapTiles: 2,
+    takeTreasure: 3,
+    revoltAttack: 4,
+    revoltDefend: 5
 }
 
 export const playerIcons = {
