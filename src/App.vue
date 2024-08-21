@@ -26,8 +26,8 @@
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
             <action-bar></action-bar>
-            <div class="row no-gutters mt-3">
-                <div class="col-12 col-lg order-1">
+            <div class="row no-gutters mt-2">
+                <div class="col-12 col-lg-9 col-xl-7 order-2 order-xl-1">
                     <div class="map-container">
                         <div class="grid">
                             <map-square class="cell"
@@ -40,24 +40,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-3 order-3 order-lg-2">
-                    <div class="row no-gutters">
-                        <div v-for="(player, index) in allPlayers"
-                            :key="index"
-                            class="col-12 col-sm-6 col-lg-12 p-1">
-                            <player-card
-                                :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentPlayer.id"
-                                :class="{'border-danger': player?.id === currentPlayer.id}"
-                                class="mt-2"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 order-2 order-lg-3">
-                    <div class="row no-gutters justify-content-center align-items-center mt-3">
-                        <div class="col-12 col-sm-auto p-1">
+                <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
+                    <div class="row no-gutters justify-content-center align-items-center">
+                        <div class="col-12 col-md-10 col-lg-8 col-xl-auto pr-xl-3 px-1">
                             <player-hand v-if="currentPlayer?.isHuman"
-                                :player="getPlayer(currentHandDisplayPlayerId)" :size="30" selectable/>
+                                :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">
                                 <div class="card-body">
                                     <div class="row align-items-center justify-content-center hand-empty">
@@ -65,6 +52,19 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-3 order-3">
+                    <div class="row no-gutters">
+                        <div v-for="(player, index) in allPlayers"
+                            :key="index"
+                            :class="index != 0 ? 'mt-2' : 'mt-2 mt-lg-0'"
+                            class="col-12 col-sm-6 col-lg-12 px-1">
+                            <player-card
+                                :player="getPlayer(player?.id)"
+                                :show-score="player?.id === currentPlayer.id"
+                                :class="{'border-danger': player?.id === currentPlayer.id}" />
                         </div>
                     </div>
                 </div>

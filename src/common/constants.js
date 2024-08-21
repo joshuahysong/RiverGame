@@ -44,3 +44,10 @@ export const boardStats = {
     columns: 16,
     rows: 11
 }
+
+export const breakpoints = {
+    small: 576,
+    medium: 768,
+    large: 992,
+    extraLarge: 1200
+}

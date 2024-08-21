@@ -41,10 +41,10 @@ export default {
         z-index: 3;
     }
     .selected {
-        box-shadow: 0px 0px 0 5px black;
+        box-shadow: 0px 0px 0 4px black;
     }
     .highlight {
-        box-shadow: 0 0 5px 5px yellow;
+        box-shadow: 0 0 4px 4px yellow;
     }
     .temple, .treasure {
         background: darkred;

@@ -1,29 +1,64 @@
 <template>
     <div class="card">
-        <div class="card-body p-2">
+        <div class="card-header bg-transparent border-0"><strong>Hand</strong></div>
+        <div class="card-body px-2 pb-3 pt-2">
             <div class="row no-gutters">
-                <div class="col align-self-center">
-                    <leader-tile
-                        v-for="(leaderTileType, index) in leaderTileTypes"
-                        :key="index"
-                        :size="size"
-                        :tile-type="leaderTileType"
-                        :player="player"
-                        :selected="isSelectedTile(index, true)"
-                        @click.native="selectTile(index, true)"
-                        class="mr-2"
-                        show-empty />
+                <div class="col-auto col-xl-12 align-self-center justify-content-center">
+                    <div class="row no-gutters">
+                        <div class="col-auto col-xl-12 text-right text-xl-center">
+                            <leader-tile
+                                v-for="(tileType, index) in playerLeaders1"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :player="player"
+                                :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
+                                :selected="isSelectedTile(index, true)"
+                                @click.native="selectTile(index, true)" />
+                        </div>
+                        <div class="col-auto col-xl-12 text-left text-xl-center">
+                            <leader-tile
+                                v-for="(tileType, index) in playerLeaders2"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :player="player"
+                                :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
+                                :selected="isSelectedTile(index + 2, true)"
+                                @click.native="selectTile(index + 2, true)" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="row no-gutters mt-2">
-                <div class="col align-self-center">
+                <div class="col col-xl-12 align-self-center justify-content-center pt-xl-4">
+                    <div class="row no-gutters">
+                        <div class="col col-xl-12 text-right text-xl-center">
+                            <civilization-tile
+                                v-for="(tileType, index) in playerTiles1"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :selected="isSelectedTile(index, false)"
+                                @click.native="selectTile(index, false)"
+                                class="mr-2" />
+                        </div>
+                        <div class="col col-xl-12 text-left text-xl-center">
+                            <civilization-tile
+                                v-for="(tileType, index) in playerTiles2"
+                                :key="index"
+                                :size="size"
+                                :tile-type="tileType"
+                                :selected="isSelectedTile(index + 3, false)"
+                                @click.native="selectTile(index + 3, false)"
+                                class="mr-2" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto col-xl-12 align-self-center justify-content-center pt-xl-4">
                     <civilization-tile
-                        v-for="(tileType, index) in player.hand"
+                        v-for="(n, index) in player.catastropheTiles"
                         :key="index"
                         :size="size"
-                        :tile-type="tileType"
-                        :selected="isSelectedTile(index, false)"
-                        @click.native="selectTile(index, false)"
+                        :tile-type="tileTypes.catastrophe"
                         class="mr-2" />
                 </div>
             </div>
@@ -35,7 +70,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes, leaderTileTypes, actionTypes } from '../common/constants'
+import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '../common/constants'
 import helpers from '../common/helpers'
 
 export default {
@@ -46,11 +81,22 @@ export default {
     },
     props: {
         player: Object,
-        size: Number,
         selectable: {
             type: Boolean,
             default: false
         }
+    },
+    data() {
+        return {
+            size: 0
+        }
+    },
+    mounted() {
+        window.addEventListener("resize", this.onWindowResize);
+        this.onWindowResize()
+    },
+    unmounted() {
+        window.removeEventListener("resize", this.onWindowResize);
     },
     computed: {
         ...mapGetters('game', {
@@ -62,6 +108,24 @@ export default {
         },
         leaderTileTypes() {
             return leaderTileTypes
+        },
+        playerTiles1() {
+            var max = this.player.hand.length < 3 ? this.player.hand.length : 3
+            return this.player.hand.slice(0, max)
+        },
+        playerTiles2() {
+            if (this.player.hand.length < 4) return []
+            var max = this.player.hand.length < 6 ? this.player.hand.length : 6
+            return this.player.hand.slice(3, max)
+        },
+        playerLeaders1() {
+            var max = this.player.leaders.length < 2 ? this.player.leaders.length : 2
+            return this.player.leaders.slice(0, max)
+        },
+        playerLeaders2() {
+            if (this.player.leaders.length < 3) return []
+            var max = this.player.leaders.length < 4 ? this.player.leaders.length : 4
+            return this.player.leaders.slice(2, max)
         }
     },
     methods:{
@@ -86,15 +150,18 @@ export default {
             const lowestScoreFirstIndex = scoreEntries.findIndex(x => x[1] === lowestScore)
             const matchingScoreIndex = scoreEntries.findIndex(x => x[0] === helpers.getTileNameByType(tileType))
             return matchingScoreIndex === lowestScoreFirstIndex ? this.player.score.treasure : 0
+        },
+        onWindowResize() {
+            var windowWidth = window.innerWidth;
+            this.size = 40
+            if (windowWidth <= breakpoints.medium) this.size = 30
+            if (windowWidth <= breakpoints.small) this.size = 20
         }
     }
 }
 </script>
 
 <style scoped>
-    .card {
-        min-width: 300px;
-    }
     .temple-score {
         color: darkred;
     }
