@@ -1,60 +1,53 @@
 <template>
-    <div class="card">
+    <div class="card h-100">
         <div class="card-body p-2">
             <div class="row no-gutters text-left small pb-2">
                 <div class="col-auto pr-1">{{player.name}}</div>
                 <div v-if="!player.isHuman" class="col-auto">(Bot)</div>
             </div>
-            <div class="row no-gutters">
-                <div class="col text-left align-self-center">
+            <div class="row no-gutters align-items-center">
+                <div class="col text-center text-sm-left">
                     <leader-tile
                         v-for="(leaderTileType, index) in leaderTileTypes"
                         :key="index"
                         :size="size"
                         :tile-type="leaderTileType"
                         :player="player"
-                        class="mr-2"
+                        class="mr-1"
                         show-empty />
                 </div>
                 <div class="col-auto">
-                    <div class="row no-gutters">
-                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.generic" :size="size" /></div>
-                        <div class="col-auto pr-2">x{{player.hand.length}}</div>
-                        <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.catastrophe" :size="size" /></div>
-                        <div class="col-auto">x2</div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-12 col-sm-auto pr-0 pr-sm-2">
+                            <div class="row no-gutters align-items-center justify-content-center">
+                                <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.generic" :size="size" /></div>
+                                <div class="col-auto small">x{{player.hand.length}}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-auto pt-1 pt-sm-0">
+                            <div class="row no-gutters align-items-center justify-content-center">
+                                <div class="col-auto pr-1"><civilization-tile :tile-type="tileTypes.catastrophe" :size="size" /></div>
+                                <div class="col-auto small">x{{player.catastropheTiles}}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div v-if="showScore" class="row no-gutters mt-3">
+            <div v-if="showScore" class="row no-gutters mt-3 text-center">
                 <div class="col-auto align-self-center">
-                    <div class="score-icon score-temple d-inline-block mr-1"></div>
-                </div>
-                <div class="col-auto align-self-center pr-2">
-                    <div class="temple-score d-inline-block small">{{player.score.temple}}</div>
+                    <b-badge pill class="temple-score mr-2">{{player.score.temple}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <div class="score-icon score-market d-inline-block mr-2"></div>
-                </div>
-                <div class="col-auto align-self-center pr-2">
-                    <div class="market-score d-inline-block small">{{player.score.market}}</div>
+                    <b-badge pill class="market-score mr-2">{{player.score.market}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <div class="score-icon score-farm d-inline-block mr-2"></div>
-                </div>
-                <div class="col-auto align-self-center pr-2">
-                    <div class="farm-score d-inline-block small">{{player.score.farm}}</div>
+                    <b-badge pill class="farm-score mr-2">{{player.score.farm}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <div class="score-icon score-settlement d-inline-block mr-2"></div>
-                </div>
-                <div class="col-auto align-self-center pr-2">
-                    <div class="settlement-score d-inline-block small">{{player.score.settlement}}</div>
+                    <b-badge pill class="settlement-score mr-2">{{player.score.settlement}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <div class="score-icon score-treasure d-inline-block mr-2"></div>
-                </div>
-                <div class="col-auto align-self-center pr-2">
-                    <div class="treasure-score d-inline-block small">{{player.score.treasure}}</div>
+                    <b-badge pill class="treasure-score mr-2">{{player.score.treasure}}</b-badge>
                 </div>
             </div>
         </div>
@@ -102,49 +95,19 @@ export default {
 </script>
 
 <style scoped>
-    .card {
-        min-width: 250px;
-    }
     .temple-score {
-        color: darkred;
+        background-color: darkred;
     }
     .market-score  {
-        color: green;
+        background-color: green;
     }
     .settlement-score  {
-        color: DimGray;
+        background-color: DimGray;
     }
     .farm-score  {
-        color: dodgerblue;
+        background-color: dodgerblue;
     }
     .treasure-score  {
-        color: goldenrod;
-    }
-    .h-50 {
-        height: 50% !important;
-    }
-    .score-icon {
-        height: 15px;
-        width: 20px;
-    }
-    .score-temple {
-        background-color: firebrick;
-        border: 2px solid darkred;
-    }
-    .score-market {
-        background-color: forestgreen;
-        border: 2px solid green;
-    }
-    .score-farm {
-        background-color: deepskyblue;
-        border: 2px solid dodgerblue;
-    }
-    .score-settlement {
-        background-color: gray;
-        border: 2px solid DimGray;
-    }
-    .score-treasure {
-        background-color: gold;
-        border: 2px solid goldenrod;
+        background-color: goldenrod;
     }
 </style>

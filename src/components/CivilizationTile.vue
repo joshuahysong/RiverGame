@@ -1,5 +1,5 @@
 <template>
-    <div class="tile d-inline-block" :class="tileClass" :style="tileStyle">
+    <div class="tile" :class="tileClass" :style="tileStyle">
         <div v-if="isTreasure" class="treasure-icon"></div>
     </div>
 </template>
@@ -24,7 +24,16 @@ export default {
             return cssClass
         },
         tileStyle() {
-            return `height: ${this.size}px; width: ${this.size}px;`
+            var style = `height: ${this.size}px; width: ${this.size}px;`
+            if (this.tileType == tileTypes.catastrophe) {
+                style += `background: repeating-linear-gradient(`
+                style += `135deg,`
+                style += `#eed202,`
+                style += `#eed202 ${this.size/4}px,`
+                style += `black ${this.size/4}px,`
+                style += `black ${this.size/2}px);`
+            }
+            return style
         },
         isTreasure() {
             return this.tileType === tileTypes.treasure
@@ -57,9 +66,6 @@ export default {
     }
     .farm {
         background: dodgerblue;
-    }
-    .catastrophe {
-        background: red;
     }
     .generic {
         background: #F4A460;

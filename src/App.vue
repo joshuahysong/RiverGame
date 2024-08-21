@@ -60,7 +60,7 @@
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
                             :class="index != 0 ? 'mt-2' : 'mt-2 mt-lg-0'"
-                            class="col-12 col-sm-6 col-lg-12 px-1">
+                            class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
                                 :show-score="player?.id === currentPlayer.id"

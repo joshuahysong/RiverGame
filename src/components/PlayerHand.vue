@@ -1,7 +1,7 @@
 <template>
     <div class="card">
-        <div class="card-header bg-transparent border-0"><strong>Hand</strong></div>
-        <div class="card-body px-2 pb-3 pt-2">
+        <div class="card-header bg-transparent border-0 py-2"><strong>Hand</strong></div>
+        <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
             <div class="row no-gutters">
                 <div class="col-auto col-xl-12 align-self-center justify-content-center">
                     <div class="row no-gutters">
@@ -39,7 +39,7 @@
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index, false)"
                                 @click.native="selectTile(index, false)"
-                                class="mr-2" />
+                                class="d-inline-block mr-2" />
                         </div>
                         <div class="col col-xl-12 text-left text-xl-center">
                             <civilization-tile
@@ -49,7 +49,7 @@
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index + 3, false)"
                                 @click.native="selectTile(index + 3, false)"
-                                class="mr-2" />
+                                class="d-inline-block mr-2" />
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                         :key="index"
                         :size="size"
                         :tile-type="tileTypes.catastrophe"
-                        class="mr-2" />
+                        class="d-inline-block mr-2" />
                 </div>
             </div>
         </div>
@@ -160,24 +160,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-    .temple-score {
-        color: darkred;
-    }
-    .market-score  {
-        color: green;
-    }
-    .settlement-score  {
-        color: DimGray;
-    }
-    .farm-score  {
-        color: dodgerblue;
-    }
-    .treasure-score  {
-        color: goldenrod;
-    }
-    .h-50 {
-        height: 50% !important;
-    }
-</style>
