@@ -129,13 +129,21 @@ const getters = {
     neighborRegions: (state, getters) => (tile) => {
         const neighbors = getters.getNeighbors(tile.index)
         const neighborRegions = []
-        if (neighbors.left && neighbors.left.tileType !== tileTypes.empty)
+        if (neighbors.left &&
+            neighbors.left.tileType !== tileTypes.empty &&
+            neighbors.left.tileType !== tileTypes.catastrophe)
             neighborRegions.push(getters.getRegion(neighbors.left.index))
-        if (neighbors.top && neighbors.top.tileType !== tileTypes.empty)
+        if (neighbors.top &&
+            neighbors.top.tileType !== tileTypes.empty &&
+            neighbors.top.tileType !== tileTypes.catastrophe)
             neighborRegions.push(getters.getRegion(neighbors.top.index))
-        if (neighbors.right && neighbors.right.tileType !== tileTypes.empty)
+        if (neighbors.right &&
+            neighbors.right.tileType !== tileTypes.empty &&
+            neighbors.right.tileType !== tileTypes.catastrophe)
             neighborRegions.push(getters.getRegion(neighbors.right.index))
-        if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty)
+        if (neighbors.bottom &&
+            neighbors.bottom.tileType !== tileTypes.empty &&
+            neighbors.bottom.tileType !== tileTypes.catastrophe)
             neighborRegions.push(getters.getRegion(neighbors.bottom.index))
         return Array.from(new Set(neighborRegions));
     }
@@ -169,6 +177,7 @@ const actions = {
                     const neighborKingdoms = getters.neighborRegions(newPayload).filter(x => x.isKingdom)
                     commit('addTile', newPayload)
                     dispatch('setRegions')
+                    dispatch('checkForDisplacedLeader')
                     //dispatch('checkForRevolt', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
@@ -329,6 +338,23 @@ const actions = {
             }
         }
     },
+    checkForDisplacedLeader({state, getters, commit}) {
+        for (let i = 0; i < state.tiles.length; i++) {
+            let tile = state.tiles[i]
+            if (tile.isLeaderTile) {
+                let neighbors = getters.getNeighbors(i)
+                let hasTemple = false
+                if (neighbors.bottom.tileType == tileTypes.temple || neighbors.bottom.tileType == tileTypes.treasure) hasTemple = true
+                if (neighbors.left.tileType == tileTypes.temple || neighbors.left.tileType == tileTypes.treasure) hasTemple = true
+                if (neighbors.right.tileType == tileTypes.temple || neighbors.right.tileType == tileTypes.treasure) hasTemple = true
+                if (neighbors.top.tileType == tileTypes.temple || neighbors.top.tileType == tileTypes.treasure) hasTemple = true
+                if (!hasTemple) {
+                    commit('players/addLeaderToPlayer', tile, {root: true})
+                    commit('removeTile', { index: tile.index })
+                }
+            }
+        }
+    },
     checkForRevolt({state, getters, commit}, payload) {
         if (payload && payload.isLeaderTile) {
             const region = getters.getRegion(payload.index)
@@ -375,7 +401,7 @@ const mutations = {
             isLeaderTile: false,
             playerId: 0
         }
-        state.tiles.splice(payload.indes, 1, newTile)
+        state.tiles.splice(payload.index, 1, newTile)
     },
     updateTile(state, payload) {
         let matchingTile = state.tiles[payload.index]

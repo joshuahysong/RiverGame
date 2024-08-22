@@ -105,24 +105,24 @@ const mutations = {
         })
     },
     removeTileSelection(state, payload) {
-        let currentSelectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
-        let selectedTileIndex = currentSelectedTiles.findIndex(x => x.index === payload.index && x.isLeaderTile === payload.isLeaderTile)
-        currentSelectedTiles.splice(selectedTileIndex, 1)
+        let selectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
+        let selectedTileIndex = selectedTiles.findIndex(x => x.index === payload.index && x.isLeaderTile === payload.isLeaderTile)
+        selectedTiles.splice(selectedTileIndex, 1)
     },
     clearTileSelection(state, payload) {
-        let currentSelectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
-        currentSelectedTiles.splice(0, currentSelectedTiles.length)
+        let selectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
+        selectedTiles.splice(0, selectedTiles.length)
     },
     removeTileFromHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
-        if (currentPlayerHand && currentPlayerHand.length > payload.index) {
-            currentPlayerHand.splice(payload.index, 1)
+        let playerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
+        if (playerHand && playerHand.length > payload.index) {
+            playerHand.splice(payload.index, 1)
         }
     },
     removeLeaderFromHand(state, payload) {
-        let currentPlayerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
-        if (currentPlayerLeaders && currentPlayerLeaders.length > payload.index) {
-            currentPlayerLeaders.splice(payload.index, 1)
+        let playerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
+        if (playerLeaders && playerLeaders.length > payload.index) {
+            playerLeaders.splice(payload.index, 1)
         }
     },
     removeCatastropheFromHand(state, payload) {
@@ -132,9 +132,14 @@ const mutations = {
         }
     },
     addTilesToPlayerHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
-        currentPlayerHand = [...currentPlayerHand, ...payload.tilesToAdd]
-        state.players.filter(x => x.id === payload.playerId)[0].hand = currentPlayerHand
+        let playerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
+        playerHand = [...playerHand, ...payload.tilesToAdd]
+        state.players.filter(x => x.id === payload.playerId)[0].hand = playerHand
+    },
+    addLeaderToPlayer(state, payload) {
+        let playerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
+        playerLeaders.push(payload.tileType)
+        playerLeaders = playerLeaders.sort((a,b) => a - b);
     },
     incrementScore(state, payload) {
         state.players.filter(x => x.id === payload.playerId)[0].score[helpers.getTileNameByType(payload.tileType)]++
