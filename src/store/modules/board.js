@@ -196,7 +196,6 @@ const actions = {
     },
     calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
         let eligibleTileLocations = []
-        let tileType = selectedTile.tileType
         for (let i = 0; i < state.tiles.length; i++) {
             let mapSquare = state.map[i]
             let mapSquareTile = state.tiles[i]
@@ -218,8 +217,8 @@ const actions = {
                 } else {
                     // Check if square is empty and tile is able to be placed on map location (water vs ground)
                     if (mapSquareTile.tileType == tileTypes.empty &&
-                        ((mapSquare !== mapTypes.ground && tileType === tileTypes.farm) ||
-                         (mapSquare === mapTypes.ground && tileType !== tileTypes.farm)))
+                        ((mapSquare !== mapTypes.ground && selectedTile.tileType === tileTypes.farm) ||
+                         (mapSquare === mapTypes.ground && selectedTile.tileType !== tileTypes.farm)))
                         eligibleTileLocations.push(i)
                 }
             }

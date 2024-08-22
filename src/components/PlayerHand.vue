@@ -13,8 +13,8 @@
                                 :tile-type="tileType"
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
-                                :selected="isSelectedTile(index, true)"
-                                @click.native="selectTile(index, true)" />
+                                :selected="isSelectedTile(index, tileType)"
+                                @click.native="selectTile(index, tileType)" />
                         </div>
                         <div class="col-auto col-xl-12 text-left text-xl-center">
                             <leader-tile
@@ -24,8 +24,8 @@
                                 :tile-type="tileType"
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
-                                :selected="isSelectedTile(index + 2, true)"
-                                @click.native="selectTile(index + 2, true)" />
+                                :selected="isSelectedTile(index + 2, tileType)"
+                                @click.native="selectTile(index + 2, tileType)" />
                         </div>
                     </div>
                 </div>
@@ -37,8 +37,8 @@
                                 :key="index"
                                 :size="size"
                                 :tile-type="tileType"
-                                :selected="isSelectedTile(index, false)"
-                                @click.native="selectTile(index, false)"
+                                :selected="isSelectedTile(index, tileType)"
+                                @click.native="selectTile(index, tileType)"
                                 class="d-inline-block mr-2" />
                         </div>
                         <div class="col col-xl-12 text-left text-xl-center">
@@ -47,8 +47,8 @@
                                 :key="index"
                                 :size="size"
                                 :tile-type="tileType"
-                                :selected="isSelectedTile(index + 3, false)"
-                                @click.native="selectTile(index + 3, false)"
+                                :selected="isSelectedTile(index + 3, tileType)"
+                                @click.native="selectTile(index + 3, tileType)"
                                 class="d-inline-block mr-2" />
                         </div>
                     </div>
@@ -59,6 +59,8 @@
                         :key="index"
                         :size="size"
                         :tile-type="tileTypes.catastrophe"
+                        :selected="isSelectedTile(index, tileTypes.catastrophe)"
+                        @click.native="selectTile(index, tileTypes.catastrophe)"
                         class="d-inline-block mr-2" />
                 </div>
             </div>
@@ -129,18 +131,19 @@ export default {
         }
     },
     methods:{
-        isSelectedTile(index, isLeaderTile) {
-            return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.isLeaderTile === isLeaderTile)
+        isSelectedTile(index, tileType) {
+            return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.tileType === tileType)
         },
-        selectTile(index, isLeaderTile) {
+        selectTile(index, tileType) {
+            let isLeaderTile = leaderTileTypes.includes(tileType)
             let isRevolt = this.currentActionType === actionTypes.revoltAttack  || this.currentActionType === actionTypes.revoltDefend
             if (this.selectable &&
                 ((this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) ||
                 isRevolt && this.player.hand[index] === tileTypes.temple)) {
-                if (this.isSelectedTile(index, isLeaderTile)) {
-                    this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, isLeaderTile: isLeaderTile })
+                if (this.isSelectedTile(index, tileType)) {
+                    this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 } else {
-                    this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, isLeaderTile: isLeaderTile })
+                    this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
             }
         },

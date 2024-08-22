@@ -112,6 +112,6 @@ export default {
 
 <style scoped>
     .action-bar {
-        min-height: 40px;
+        min-height: 50px;
     }
 </style>

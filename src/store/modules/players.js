@@ -51,44 +51,38 @@ const actions = {
         for (const player of state.players) {
             if (player.hand.length < 6) {
                 let missingTiles = 6 - player.hand.length
-                let drawnTiles = await dispatch('bag/drawTiles', {numberOfTiles: missingTiles}, { root: true })
-                commit('addTilesToPlayerHand', {id: player.id, tilesToAdd: drawnTiles})
+                let drawnTiles = await dispatch('bag/drawTiles', { numberOfTiles: missingTiles }, { root: true })
+                commit('addTilesToPlayerHand', { playerId: player.id, tilesToAdd: drawnTiles })
             }
         }
     },
-    addTileSelection({commit, getters, rootGetters, dispatch}, payload) {
+    addTileSelection({commit, rootGetters, dispatch}, payload) {
         if (payload) {
             let currentActionType = rootGetters['game/currentActionType']
-            let player = getters.getPlayer(payload.playerId)
             let isPlayTileActionType = currentActionType === actionTypes.playTile
             if (isPlayTileActionType)
-                commit('clearTileSelection', {id: payload.playerId})
+                commit('clearTileSelection', { ...payload })
 
-            if (payload.isLeaderTile) {
-                payload = {...payload, id: player.id, tileType: player.leaders[payload.index]}
-            } else {
-                payload = {...payload, id: player.id, tileType: player.hand[payload.index]}
-            }
-            commit('addTileSelection', {id: player.id, ...payload})
+            commit('addTileSelection', { ...payload })
 
             if (isPlayTileActionType)
-                dispatch('board/calculateAvailableTileLocations', {...payload}, { root: true })
+                dispatch('board/calculateAvailableTileLocations', { ...payload }, { root: true })
         }
     },
     removeTileSelection({commit}, payload) {
-        commit('removeTileSelection', {id: payload.playerId, ...payload})
+        commit('removeTileSelection', { ...payload })
         commit('board/resetAvailableTileLocations', null, { root: true })
     },
     removeSelectedTiles({commit, getters}, payload) {
         let player = getters.getPlayer(payload.playerId)
         player.selectedTiles.forEach(selectedTile => {
             if (selectedTile.isLeaderTile) {
-                commit('removeLeaderFromHand', {id: player.id, index: selectedTile.index})
+                commit('removeLeaderFromHand', { playerId: player.id, ...selectedTile })
             } else {
-                commit('removeTileFromHand', {id: player.id, index: selectedTile.index})
+                commit('removeTileFromHand', { playerId: player.id, ...selectedTile })
             }
         })
-        commit('clearTileSelection', {id: player.id})
+        commit('clearTileSelection', { ...payload })
     }
 }
 
@@ -103,35 +97,35 @@ const mutations = {
         state.players.push(payload)
     },
     addTileSelection(state, payload) {
-        state.players.filter(x => x.id === payload.id)[0].selectedTiles.push({
+        state.players.filter(x => x.id === payload.playerId)[0].selectedTiles.push({
             index: payload.index, tileType: payload.tileType, isLeaderTile: payload.isLeaderTile
         })
     },
     removeTileSelection(state, payload) {
-        let currentSelectedTiles = state.players.filter(x => x.id === payload.id)[0].selectedTiles
+        let currentSelectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
         let selectedTileIndex = currentSelectedTiles.findIndex(x => x.index === payload.index && x.isLeaderTile === payload.isLeaderTile)
         currentSelectedTiles.splice(selectedTileIndex, 1)
     },
     clearTileSelection(state, payload) {
-        let currentSelectedTiles = state.players.filter(x => x.id === payload.id)[0].selectedTiles
+        let currentSelectedTiles = state.players.filter(x => x.id === payload.playerId)[0].selectedTiles
         currentSelectedTiles.splice(0, currentSelectedTiles.length)
     },
     removeTileFromHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id === payload.id)[0].hand
+        let currentPlayerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
         if (currentPlayerHand && currentPlayerHand.length > payload.index) {
             currentPlayerHand.splice(payload.index, 1)
         }
     },
     removeLeaderFromHand(state, payload) {
-        let currentPlayerLeaders = state.players.filter(x => x.id === payload.id)[0].leaders
+        let currentPlayerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
         if (currentPlayerLeaders && currentPlayerLeaders.length > payload.index) {
             currentPlayerLeaders.splice(payload.index, 1)
         }
     },
     addTilesToPlayerHand(state, payload) {
-        let currentPlayerHand = state.players.filter(x => x.id === payload.id)[0].hand
+        let currentPlayerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
         currentPlayerHand = [...currentPlayerHand, ...payload.tilesToAdd]
-        state.players.filter(x => x.id === payload.id)[0].hand = currentPlayerHand
+        state.players.filter(x => x.id === payload.playerId)[0].hand = currentPlayerHand
     },
     incrementScore(state, payload) {
         state.players.filter(x => x.id === payload.playerId)[0].score[helpers.getTileNameByType(payload.tileType)]++
