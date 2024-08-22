@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="showScore" class="row no-gutters mt-3 text-center">
+            <div v-if="showScore" class="row no-gutters mt-1 justify-content-center justify-content-lg-start">
                 <div class="col-auto align-self-center">
                     <b-badge pill class="temple-score mr-2">{{player.score.temple}}</b-badge>
                 </div>

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { tileTypes } from '../common/constants'
+import { tileTypes, breakpoints } from '../common/constants'
 import helpers from '../common/helpers'
 
 export default {
@@ -16,6 +16,18 @@ export default {
         highlight: Boolean,
         size: Number
     },
+    data() {
+        return {
+            calculatedSize: 0
+        }
+    },
+    mounted() {
+        window.addEventListener("resize", this.onWindowResize);
+        this.onWindowResize()
+    },
+    unmounted() {
+        window.removeEventListener("resize", this.onWindowResize);
+    },
     computed: {
         tileClass() {
             let cssClass = helpers.getTileNameByType(this.tileType)
@@ -24,19 +36,30 @@ export default {
             return cssClass
         },
         tileStyle() {
-            var style = `height: ${this.size}px; width: ${this.size}px;`
-            if (this.tileType == tileTypes.catastrophe) {
+            let style = ''
+            let size = this.size ? this.size : this.calculatedSize
+            if (this.size) style += `height: ${size}px; width: ${size}px;`
+            if (this.tileType === tileTypes.catastrophe) {
                 style += `background: repeating-linear-gradient(`
                 style += `135deg,`
                 style += `#eed202,`
-                style += `#eed202 ${this.size/4}px,`
-                style += `black ${this.size/4}px,`
-                style += `black ${this.size/2}px);`
+                style += `#eed202 ${size/4}px,`
+                style += `black ${size/4}px,`
+                style += `black ${size/2}px);`
             }
             return style
         },
         isTreasure() {
             return this.tileType === tileTypes.treasure
+        }
+    },
+    methods: {
+        onWindowResize() {
+            var windowWidth = window.innerWidth;
+            this.calculatedSize = 50
+            if (windowWidth <= breakpoints.large) this.calculatedSize = 40
+            if (windowWidth <= breakpoints.medium) this.calculatedSize = 30
+            if (windowWidth <= breakpoints.small) this.calculatedSize = 20
         }
     }
 }
@@ -69,6 +92,9 @@ export default {
     }
     .generic {
         background: #F4A460;
+    }
+    .catastrophe {
+        background: red;
     }
     .treasure-icon {
         height: 35%;
