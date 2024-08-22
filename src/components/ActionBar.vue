@@ -10,7 +10,15 @@
             </div>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
-            <b-button v-if="showCurrentPlayerMessage"
+            <b-button
+                variant="danger"
+                size="sm"
+                :disabled="isPassDisabled"
+                @click="showPassTurnMessageBox"
+                class="mr-2">
+                Pass
+            </b-button>
+            <b-button
                 variant="primary"
                 size="sm"
                 :disabled="isEndTurnDisabled"
@@ -55,6 +63,9 @@ export default {
         isEndTurnDisabled() {
             return this.remainingActions != 0
         },
+        isPassDisabled() {
+            return this.remainingActions == 0
+        }
     },
     watch: {
         currentActionType(newActionType) {
@@ -68,7 +79,6 @@ export default {
                 // this.playerMessage = 'Select supporting temples to add'
                 // this.messagePlayerId = this.currentActionPlayerId
                 // this.showPlayerActionButton = true
-                //this.$bvModal.show('bv-modal-example')
             }
         }
     },
@@ -78,6 +88,24 @@ export default {
             this.$store.commit('game/nextActivePlayer')
             this.$store.dispatch('game/save')
         },
+        async showPassTurnMessageBox() {
+            const h = this.$createElement
+            //const message = h('div', { domProps: { innerHTML: `Are you sure?<br/>You have ${this.remainingActionsMessage}` } })
+            const message = h('div', { class: ['text-center'] }, [ 'Are you sure?', h('br'), `You have ${this.remainingActionsMessage}` ])
+            this.$bvModal.msgBoxConfirm(message, {
+                size: 'sm',
+                buttonSize: 'sm',
+                okVariant: 'danger',
+                okTitle: 'Pass Turn',
+                cancelVariant: 'primary',
+                footerClass: 'border-top-0'
+            })
+            .then(async result => {
+                if (result) {
+                    await this.doEndTurn()
+                }
+            })
+        }
     }
 }
 </script>

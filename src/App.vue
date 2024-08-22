@@ -96,10 +96,6 @@
                 <b-nav-text>Version: {{appVersion}}</b-nav-text>
             </b-navbar-nav>
         </b-navbar>
-        <!-- modals -->
-        <b-modal id="bv-modal-example" title="Revolt Results" centered hide-backdrop hide-footer header-class="border-bottom-0" footer-class="border-top-0">
-            Revolt Results
-        </b-modal>
     </div>
 </template>
 
