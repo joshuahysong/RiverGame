@@ -78,6 +78,9 @@ const actions = {
         player.selectedTiles.forEach(selectedTile => {
             if (selectedTile.isLeaderTile) {
                 commit('removeLeaderFromHand', { playerId: player.id, ...selectedTile })
+            }
+            else if (selectedTile.tileType == tileTypes.catastrophe) {
+                commit('removeCatastropheFromHand', { playerId: player.id, ...selectedTile })
             } else {
                 commit('removeTileFromHand', { playerId: player.id, ...selectedTile })
             }
@@ -120,6 +123,12 @@ const mutations = {
         let currentPlayerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
         if (currentPlayerLeaders && currentPlayerLeaders.length > payload.index) {
             currentPlayerLeaders.splice(payload.index, 1)
+        }
+    },
+    removeCatastropheFromHand(state, payload) {
+        let player = state.players.filter(x => x.id === payload.playerId)[0]
+        if (player && player.catastropheTiles > payload.index) {
+            player.catastropheTiles--
         }
     },
     addTilesToPlayerHand(state, payload) {

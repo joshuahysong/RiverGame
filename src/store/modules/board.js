@@ -172,10 +172,11 @@ const actions = {
                     //dispatch('checkForRevolt', newPayload)
                     if (neighborKingdoms.length <= 1)
                         dispatch('checkForScoring', newPayload)
+                    dispatch('checkForTreasureToTake', newPayload)
                     dispatch('players/removeSelectedTiles', {playerId: currentPlayer.id}, { root: true })
                     commit('resetAvailableTileLocations')
 
-                    if (rootGetters['game/currentActionType'] !== actionTypes.revoltAttack)
+                    if (rootGetters['game/currentActionType'] === actionTypes.playTile)
                         commit('game/actionCompleted', null, {root: true})
                 }
             }
@@ -214,8 +215,12 @@ const actions = {
                         mapSquare === mapTypes.ground) {
                             eligibleTileLocations.push(i)
                         }
+                } else if (selectedTile.tileType === tileTypes.catastrophe) {
+                    if (mapSquareTile.tileType !== tileTypes.treasure &&
+                        mapSquareTile.tileType !== tileTypes.catastrophe &&
+                        !mapSquareTile.isLeaderTile)
+                        eligibleTileLocations.push(i)
                 } else {
-                    // Check if square is empty and tile is able to be placed on map location (water vs ground)
                     if (mapSquareTile.tileType == tileTypes.empty &&
                         ((mapSquare !== mapTypes.ground && selectedTile.tileType === tileTypes.farm) ||
                          (mapSquare === mapTypes.ground && selectedTile.tileType !== tileTypes.farm)))
@@ -227,7 +232,9 @@ const actions = {
     },
     setRegions({state, getters, commit}) {
         commit('resetRegions')
-        let indexesToCheck = [...state.tiles.filter(x => x.tileType !== tileTypes.empty).map(x => x.index)]
+        let indexesToCheck = [...state.tiles
+            .filter(x => x.tileType !== tileTypes.empty && x.tileType !== tileTypes.catastrophe)
+            .map(x => x.index)]
         let checkedIndexes = []
         for (let i = 0; i < indexesToCheck.length; i++) {
             if (!checkedIndexes.some(x => x === indexesToCheck[i])) {
@@ -239,19 +246,27 @@ const actions = {
                     if (!checkedIndexes.some(x => x === queueIndex)) {
                         newRegionIndexes.push(queueIndex)
                         checkedIndexes.push(queueIndex)
-                        var indexContainsLeader = state.tiles[queueIndex]?.isLeaderTile
+                        let indexContainsLeader = state.tiles[queueIndex]?.isLeaderTile
                         if (indexContainsLeader && !isKingdom) isKingdom = indexContainsLeader
                         const neighbors = getters.getNeighbors(queueIndex)
-                        if (neighbors.left && neighbors.left.tileType !== tileTypes.empty) {
+                        if (neighbors.left &&
+                            neighbors.left.tileType !== tileTypes.empty &&
+                            neighbors.left.tileType !== tileTypes.catastrophe) {
                             queue.push(neighbors.left.index)
                         }
-                        if (neighbors.top && neighbors.top.tileType !== tileTypes.empty) {
+                        if (neighbors.top &&
+                            neighbors.top.tileType !== tileTypes.empty &&
+                            neighbors.top.tileType !== tileTypes.catastrophe) {
                             queue.push(neighbors.top.index)
                         }
-                        if (neighbors.right && neighbors.right.tileType !== tileTypes.empty) {
+                        if (neighbors.right &&
+                            neighbors.right.tileType !== tileTypes.empty &&
+                            neighbors.right.tileType !== tileTypes.catastrophe) {
                             queue.push(neighbors.right.index)
                         }
-                        if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty) {
+                        if (neighbors.bottom &&
+                            neighbors.bottom.tileType !== tileTypes.empty &&
+                            neighbors.bottom.tileType !== tileTypes.catastrophe) {
                             queue.push(neighbors.bottom.index)
                         }
                     }
@@ -268,25 +283,17 @@ const actions = {
             if (region && region.isKingdom) {
                 let matchingLeader = null
                 let matchingKing = null
-                let matchingTrader = null
-                let foundTreasureTiles = []
                 // check if kingdom has any matching leaders to score
                 for (let i = 0; i < region.tileIndexes.length; i++) {
-                    var matchingTile = state.tiles[region.tileIndexes[i]]
-                    if (matchingTile) {
-                        if (matchingTile.tileType === tileTypes.treasure)
-                            foundTreasureTiles.push(matchingTile)
-                        if (matchingTile.isLeaderTile) {
-                            if (matchingTile.tileType === tileTypes.trader)
-                                matchingTrader = matchingTile
-                            if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
-                                (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
-                                (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
-                                (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
-                                matchingLeader = matchingTile
-                            } else if (matchingTile.tileType === tileTypes.king) {
-                                matchingKing = matchingTile
-                            }
+                    let matchingTile = state.tiles[region.tileIndexes[i]]
+                    if (matchingTile && matchingTile.isLeaderTile) {
+                        if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
+                            (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
+                            (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
+                            (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
+                            matchingLeader = matchingTile
+                        } else if (matchingTile.tileType === tileTypes.king) {
+                            matchingKing = matchingTile
                         }
                     }
                 }
@@ -295,14 +302,30 @@ const actions = {
                 } else if (matchingKing !== null) {
                     commit('players/incrementScore', {playerId: matchingKing.playerId, tileType: payload.tileType}, {root: true})
                 }
-                // If more than one treasure exists score extras
-                if (foundTreasureTiles.length > 1 && matchingTrader !== null) {
-                    for (let i = 0; i < foundTreasureTiles.length; i++) {
-                        commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
+            }
+        }
+    },
+    checkForTreasureToTake({state, getters, commit}, payload) {
+        let region = getters.getRegion(payload.index)
+        if (region && region.isKingdom) {
+            let matchingTrader = null
+            let foundTreasureTiles = []
+            for (let i = 0; i < region.tileIndexes.length; i++) {
+                let matchingTile = state.tiles[region.tileIndexes[i]]
+                if (matchingTile) {
+                    if (matchingTile.tileType === tileTypes.treasure)
+                        foundTreasureTiles.push(matchingTile)
+                    if (matchingTile.tileType === tileTypes.trader) {
+                        matchingTrader = matchingTile
                     }
-                    commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
                 }
+            }
+            if (foundTreasureTiles.length > 1 && matchingTrader !== null) {
+                for (let i = 0; i < foundTreasureTiles.length; i++) {
+                    commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
+                }
+                commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
+                commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
             }
         }
     },
