@@ -5,20 +5,18 @@
             <div class="row no-gutters align-items-center">
                 <div class="col-6 col-lg-12 text-right text-lg-center">
                     <monument-tile
-                        v-for="(tileType, index) in monumentTypes1"
+                        v-for="(monumentType, index) in monumentTypes1"
                         :key="index"
                         :size="40"
-                        :primary-tile-type="tileTypes.temple"
-                        :secondary-tile-type="tileTypes.farm"
+                        :monument-type="monumentType"
                         class="d-inline-block mr-2" />
                 </div>
                 <div class="col-6 col-lg-12 text-left text-lg-center">
                     <monument-tile
-                        v-for="(tileType, index) in monumentTypes2"
+                        v-for="(monumentType, index) in monumentTypes2"
                         :key="index"
                         :size="40"
-                        :primary-tile-type="tileTypes.temple"
-                        :secondary-tile-type="tileTypes.farm"
+                        :monument-type="monumentType"
                         class="d-inline-block mr-2" />
                 </div>
             </div>
