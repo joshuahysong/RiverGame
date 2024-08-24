@@ -8,12 +8,23 @@
             <div v-if="showTakeTreasureMessage" class="d-inline-block">
                 {{playerName}} must select a Treasure to take.
             </div>
+            <div v-if="showBuildMonumentMessage" class="d-inline-block">
+                {{playerName}}: Select a monument to build
+            </div>
+        </div>
+        <div v-if="showBuildMonumentMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+            <b-button
+                variant="warning"
+                size="sm"
+                @click="passMonumentBuilding">
+                Pass
+            </b-button>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
             <b-button
                 variant="danger"
                 size="sm"
-                :disabled="isPassDisabled"
+                :disabled="isPassTurnDisabled"
                 @click="showPassTurnMessageBox"
                 class="mr-2">
                 Pass
@@ -39,7 +50,8 @@ export default {
     data() {
         return {
             showCurrentPlayerMessage: true,
-            showTakeTreasureMessage: false
+            showTakeTreasureMessage: false,
+            showBuildMonumentMessage: false
         }
     },
     computed: {
@@ -63,7 +75,7 @@ export default {
         isEndTurnDisabled() {
             return this.remainingActions != 0
         },
-        isPassDisabled() {
+        isPassTurnDisabled() {
             return this.remainingActions == 0
         }
     },
@@ -71,15 +83,10 @@ export default {
         currentActionType(newActionType) {
             this.showCurrentPlayerMessage = false
             this.showTakeTreasureMessage = false
+            this.showBuildMonumentMessage = false
             if (newActionType == actionTypes.playTile) this.showCurrentPlayerMessage = true
             if (newActionType == actionTypes.takeTreasure) this.showTakeTreasureMessage = true
-            if (newActionType == actionTypes.revoltAttack ||
-                newActionType == actionTypes.revoltDefend) {
-                // this.showPlayerMessage = true
-                // this.playerMessage = 'Select supporting temples to add'
-                // this.messagePlayerId = this.currentActionPlayerId
-                // this.showPlayerActionButton = true
-            }
+            if (newActionType == actionTypes.buildMonument) this.showBuildMonumentMessage = true
         }
     },
     methods: {
@@ -105,6 +112,11 @@ export default {
                     await this.doEndTurn()
                 }
             })
+        },
+        passMonumentBuilding() {
+            this.showBuildMonumentMessage = false
+            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+            this.$store.commit('game/actionCompleted')
         }
     }
 }

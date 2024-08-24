@@ -52,8 +52,8 @@ export default {
         box-shadow: 0 0 4px 4px yellow;
     }
     .king {
-        color: DimGray;
-        stroke: DimGray;
+        color: #202020;
+        stroke: #202020;
         stroke-width: 0;
     }
     .priest {

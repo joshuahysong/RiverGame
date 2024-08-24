@@ -4,6 +4,10 @@
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player="getPlayer(tile.playerId)" :size="40" />
+        <monument-tile v-if="showMonument"
+            class="monument"
+            :primary-tile-type="tileTypes.temple"
+            :secondary-tile-type="tileTypes.farm" />
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
         <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
@@ -20,6 +24,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
+import MonumentTile from './MonumentTile.vue'
 import helpers from '../common/helpers'
 import { mapTypes, tileTypes } from '../common/constants'
 
@@ -27,7 +32,8 @@ export default {
     name: 'MapSquare',
     components: {
         CivilizationTile,
-        LeaderTile
+        LeaderTile,
+        MonumentTile
     },
     props: {
         mapSquareType: String,
@@ -95,6 +101,12 @@ export default {
                 'CCCCCC'
             ]
             return kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
+        },
+        showMonument() {
+            return this.tile && this.tile.tileType === tileTypes.monumentBottomRight
+        },
+        tileTypes() {
+            return tileTypes
         }
     }, 
     methods: {
@@ -192,5 +204,14 @@ export default {
         position: absolute;
         opacity: 30%;
         z-index: 1;
+    }
+    .monument {
+        height: calc(120% + 2px);
+        width: calc(120% + 2px);
+        bottom: 40%;
+        right: 40%;
+        position: absolute;
+        padding: 2px;
+        z-index: 5;
     }
 </style>

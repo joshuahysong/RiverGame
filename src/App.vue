@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
                     <div class="row no-gutters justify-content-center align-items-center">
-                        <div class="col-12 col-md-10 col-lg-8 col-xl-auto pr-xl-3 px-1">
+                        <div class="col-12 col-md-10 col-lg-8 col-xl pr-xl-3 px-1">
                             <player-hand v-if="currentPlayer?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">
@@ -52,6 +52,9 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-12 col-md-10 col-lg-8 col-xl pr-xl-3 px-1 mt-1 mt-xl-3">
+                            <monument-card />
                         </div>
                     </div>
                 </div>
@@ -105,6 +108,7 @@ import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
 import ActionBar from './components/ActionBar.vue'
+import MonumentCard from './components/MonumentCard.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
@@ -114,7 +118,8 @@ export default {
         MapSquare,
         PlayerHand,
         PlayerCard,
-        ActionBar
+        ActionBar,
+        MonumentCard
     },
     data() {
         return {

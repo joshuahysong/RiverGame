@@ -10,7 +10,11 @@ export const tileTypes = {
     priest: 8,
     farmer: 9,
     trader: 10,
-    generic: 11
+    generic: 11,
+    monumentTopLeft: 12,
+    monumentTopRight: 13,
+    monumentBottomLeft: 14,
+    monumentBottomRight: 15
 }
 
 export const leaderTileTypes = [
@@ -29,8 +33,9 @@ export const actionTypes = {
     playTile: 1,
     swapTiles: 2,
     takeTreasure: 3,
-    revoltAttack: 4,
-    revoltDefend: 5
+    buildMonument: 4,
+    revoltAttack: 5,
+    revoltDefend: 6
 }
 
 export const playerIcons = {
@@ -50,4 +55,13 @@ export const breakpoints = {
     medium: 768,
     large: 992,
     extraLarge: 1200
+}
+
+export const monumentTypes = {
+    redBlue: 0,
+    blueGreen: 1,
+    greenRed: 2,
+    blackRed: 3,
+    blackGreen: 4,
+    blackBlue: 5
 }

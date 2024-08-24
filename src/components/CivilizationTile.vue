@@ -85,7 +85,7 @@ export default {
         background: green;
     }
     .settlement {
-        background: DimGray;
+        background: #202020;
     }
     .farm {
         background: dodgerblue;
@@ -105,5 +105,21 @@ export default {
         top: 32.5%;
         left: 32.5%;
         position: absolute;
+    }
+    .monument-top-left {
+        background-color: #7a5230;
+        box-shadow: 5px 5px 0px 5px #b77b48 inset;
+    }
+    .monument-top-right {
+        background-color: #7a5230;
+        box-shadow: -5px 5px 0px 5px #b77b48 inset;
+    }
+    .monument-bottom-left {
+        background-color: #7a5230;
+        box-shadow: 5px -5px 0px 5px #b77b48 inset;
+    }
+    .monument-bottom-right {
+        background-color: #7a5230;
+        box-shadow: -5px -5px 0px 5px #b77b48 inset;
     }
 </style>

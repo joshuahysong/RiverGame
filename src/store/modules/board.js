@@ -17,7 +17,8 @@ const state = () => ({
     ],
     tiles: [],
     regions: [],
-    availableTileLocations: []
+    availableTileLocations: [],
+    availableMonumentLocations: []
 })
 
 const initialTiles = [
@@ -46,65 +47,80 @@ const getters = {
     },
     getNeighbors: (state) => (index) => {
         if (state.tiles.length > 0) {
-            // top left
+            // top left corner
             if (index === 0) {
                 return {
                     right: state.tiles[1],
+                    bottomRight: state.tiles[index + boardStats.columns + 1],
                     bottom: state.tiles[index + boardStats.columns]
                 }
-            // top
+            // top edge
             } else if (index < boardStats.columns - 1) {
                 return {
                     right: state.tiles[index + 1],
+                    bottomRight: state.tiles[index + boardStats.columns + 1],
                     bottom: state.tiles[index + boardStats.columns],
+                    bottomLeft: state.tiles[index + boardStats.columns - 1],
                     left: state.tiles[index - 1]
                 }
-            // top right
+            // top right corner
             } else if (index === boardStats.columns - 1) {
                 return {
                     bottom: state.tiles[index + boardStats.columns],
+                    bottomLeft: state.tiles[index + boardStats.columns - 1],
                     left: state.tiles[index - 1]
                 }
-            // bottom left
+            // bottom left corner
             } else if (index === boardStats.columns * (boardStats.rows - 1)) {
                 return {
-                    right: state.tiles[index + 1],
-                    top: state.tiles[index - boardStats.columns]
+                    top: state.tiles[index - boardStats.columns],
+                    topRight: state.tiles[index - boardStats.columns + 1],
+                    right: state.tiles[index + 1]
                 }
-            // left side
+            // left edge
             } else if (index > boardStats.columns - 1 && index % boardStats.columns === 0) {
                 return {
+                    top: state.tiles[index - boardStats.columns],
+                    topRight: state.tiles[index - boardStats.columns + 1],
                     right: state.tiles[index + 1],
-                    bottom: state.tiles[index + boardStats.columns],
-                    top: state.tiles[index - boardStats.columns]
+                    bottomRight: state.tiles[index + boardStats.columns + 1],
+                    bottom: state.tiles[index + boardStats.columns]
                 }
-            // bottom right
+            // bottom right corner
             } else if (index === boardStats.columns * boardStats.rows - 1) {
                 return {
                     top: state.tiles[index - boardStats.columns],
-                    left: state.tiles[index - 1]
+                    left: state.tiles[index - 1],
+                    topLeft: state.tiles[index - boardStats.columns - 1]
                 }
-            // right side
+            // right edge
             } else if (index % boardStats.columns === boardStats.columns - 1) {
                 return {
-                    left: state.tiles[index - 1],
+                    top: state.tiles[index - boardStats.columns],
                     bottom: state.tiles[index + boardStats.columns],
-                    top: state.tiles[index - boardStats.columns]
+                    bottomLeft: state.tiles[index + boardStats.columns - 1],
+                    left: state.tiles[index - 1],
+                    topLeft: state.tiles[index - boardStats.columns - 1]
                 }
-            // bottom
+            // bottom edge
             } else if (index > boardStats.columns * (boardStats.rows - 1)) {
                 return {
-                    right: state.tiles[index + 1],
                     top: state.tiles[index - boardStats.columns],
-                    left: state.tiles[index - 1]
+                    topRight: state.tiles[index - boardStats.columns + 1],
+                    right: state.tiles[index + 1],
+                    left: state.tiles[index - 1],
+                    topLeft: state.tiles[index - boardStats.columns - 1]
                 }
-            // middle
             } else {
                 return {
-                    right: state.tiles[index + 1],
                     top: state.tiles[index - boardStats.columns],
+                    topRight: state.tiles[index - boardStats.columns + 1],
+                    right: state.tiles[index + 1],
+                    bottomRight: state.tiles[index + boardStats.columns + 1],
+                    bottom: state.tiles[index + boardStats.columns],
+                    bottomLeft: state.tiles[index + boardStats.columns - 1],
                     left: state.tiles[index - 1],
-                    bottom: state.tiles[index + boardStats.columns]
+                    topLeft: state.tiles[index - boardStats.columns - 1]
                 }
             }
         }
@@ -125,6 +141,9 @@ const getters = {
     },
     getAvailableTileLocations: (state) => {
         return state.availableTileLocations
+    },
+    getAvailableMonumentLocations: (state) => {
+        return state.availableMonumentLocations
     },
     neighborRegions: (state, getters) => (tile) => {
         const neighbors = getters.getNeighbors(tile.index)
@@ -184,6 +203,7 @@ const actions = {
                     dispatch('checkForTreasureToTake', newPayload)
                     dispatch('players/removeSelectedTiles', {playerId: currentPlayer.id}, { root: true })
                     commit('resetAvailableTileLocations')
+                    dispatch('checkForMonument', newPayload)
 
                     if (rootGetters['game/currentActionType'] === actionTypes.playTile)
                         commit('game/actionCompleted', null, {root: true})
@@ -338,6 +358,30 @@ const actions = {
             }
         }
     },
+    checkForMonument({getters, commit}, payload) {
+        commit('resetAvailableMonumentLocations')
+        var neighbors = getters.getNeighbors(payload.index)
+        let top = neighbors.top?.tileType ?? tileTypes.empty
+        let topRight = neighbors.topRight?.tileType  ?? tileTypes.empty
+        let right = neighbors.right?.tileType  ?? tileTypes.empty
+        let bottomRight = neighbors.bottomRight?.tileType  ?? tileTypes.empty
+        let bottom = neighbors.bottom?.tileType  ?? tileTypes.empty
+        let bottomLeft =neighbors.bottomLeft?.tileType  ?? tileTypes.empty
+        let left = neighbors.left?.tileType  ?? tileTypes.empty
+        let topLeft = neighbors.topLeft?.tileType ?? tileTypes.empty
+
+        let monumentStartingIndexes = []
+        if ([topLeft, top, left].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.topLeft.index)
+        if ([top, topRight, right].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.top.index)
+        if ([right, bottomRight, bottom].every(x => x === payload.tileType)) monumentStartingIndexes.push(payload.index)
+        if ([bottom, bottomLeft, left].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.left.index)
+
+        if (monumentStartingIndexes && monumentStartingIndexes.length > 0) {
+            commit('resetAvailableMonumentLocations', monumentStartingIndexes)
+            commit('game/setCurrentActionPlayerId', { playerId: payload.playerId }, { root: true })
+            commit('game/setActionType', { actionType: actionTypes.buildMonument }, { root: true })
+        }
+    },
     checkForDisplacedLeader({state, getters, commit}) {
         for (let i = 0; i < state.tiles.length; i++) {
             let tile = state.tiles[i]
@@ -428,6 +472,14 @@ const mutations = {
     },
     resetAvailableTileLocations(state) {
         state.availableTileLocations.splice(0)
+    },
+    setAvailableMonumentLocations(state, payload) {
+        if (payload) {
+            Vue.set(state, 'availableMonumentLocations', payload)
+        }
+    },
+    resetAvailableMonumentLocations(state) {
+        state.availableMonumentLocations.splice(0)
     }
 }
 

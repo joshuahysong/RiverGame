@@ -1,4 +1,4 @@
-import { actionTypes } from '../../common/constants'
+import { actionTypes, monumentTypes } from '../../common/constants'
 
 const state = () => ({
     activeTurnPlayerId: 0,
@@ -10,7 +10,8 @@ const state = () => ({
     conflictAttackerPlayerId: 0,
     conflictDefenderPlayerId: 0,
     conflictAttackerTiles: [],
-    conflictDefenderTiles: []
+    conflictDefenderTiles: [],
+    remainingMonuments: []
 })
 
 const defaultState = {
@@ -19,7 +20,15 @@ const defaultState = {
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
     currentHandDisplayPlayerId: 1,
-    currentActionPlayerId: 1
+    currentActionPlayerId: 1,
+    remainingMonuments: [
+        monumentTypes.redBlue,
+        monumentTypes.blueGreen,
+        monumentTypes.greenRed,
+        monumentTypes.blackRed,
+        monumentTypes.blackGreen,
+        monumentTypes.blackBlue
+    ]
 }
 
 const getters = {
@@ -53,6 +62,9 @@ const getters = {
     },
     conflictDefenderPlayerId: (state) => {
         return state.conflictDefenderPlayerId
+    },
+    remainingMonuments: (state) => {
+        return state.remainingMonuments
     }
 }
 
