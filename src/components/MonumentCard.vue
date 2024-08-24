@@ -3,7 +3,7 @@
         <div class="card-header bg-transparent border-0 py-2"><strong>Monuments</strong></div>
         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
             <div class="row no-gutters align-items-center">
-                <div class="col-6 col-xl-12 text-right text-xl-center">
+                <div class="col-6 col-lg-12 text-right text-lg-center">
                     <monument-tile
                         v-for="(tileType, index) in monumentTypes1"
                         :key="index"
@@ -12,7 +12,7 @@
                         :secondary-tile-type="tileTypes.farm"
                         class="d-inline-block mr-2" />
                 </div>
-                <div class="col-6 col-xl-12 text-left text-xl-center">
+                <div class="col-6 col-lg-12 text-left text-lg-center">
                     <monument-tile
                         v-for="(tileType, index) in monumentTypes2"
                         :key="index"

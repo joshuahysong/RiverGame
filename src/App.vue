@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
                     <div class="row no-gutters justify-content-center align-items-center">
-                        <div class="col-12 col-md-10 col-lg-8 col-xl pr-xl-3 px-1">
+                        <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
                             <player-hand v-if="currentPlayer?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">
@@ -53,12 +53,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-10 col-lg-8 col-xl pr-xl-3 px-1 mt-1 mt-xl-3">
+                        <div class="col-12 mt-3 pr-3 d-none d-xl-block">
                             <monument-card />
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-3 order-3">
+                <div class="col-12 col-lg-3 order-3 ">
                     <div class="row no-gutters">
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
@@ -68,6 +68,9 @@
                                 :player="getPlayer(player?.id)"
                                 :show-score="player?.id === currentPlayer.id"
                                 :class="{'border-danger': player?.id === currentPlayer.id}" />
+                        </div>
+                        <div class="col-12 px-1 mt-2 d-block d-xl-none">
+                            <monument-card />
                         </div>
                     </div>
                 </div>
