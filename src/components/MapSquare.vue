@@ -4,6 +4,7 @@
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player="getPlayer(tile.playerId)" :size="40" />
+        <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
         <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
@@ -11,8 +12,16 @@
         <div v-if="isRiverTile && showRiverVerticalBottom" class="river river-vertical-bottom"></div>
         <div v-if="isRiverTile && showRiverVerticalTop" class="river river-vertical-top"></div>
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
-        <div v-if="showCoordinates" class="coordinates coordinates-text-size" :class="{'text-white': hasTile}">{{coordinates}}</div>
-        <div v-if="showIndexes" class="coordinates coordinates-text-size d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
+        <div v-if="showCoordinates"
+            class="coordinates coordinates-text-size"
+            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            {{coordinates}}
+        </div>
+        <div v-if="showIndexes"
+            class="coordinates coordinates-text-size d-flex justify-content-center"
+            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            <span class="align-self-end">{{index}}</span>
+        </div>
     </div>
 </template>
 
@@ -20,6 +29,7 @@
 import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
+import MonumentTile from './MonumentTile.vue'
 import helpers from '../common/helpers'
 import { mapTypes, tileTypes } from '../common/constants'
 
@@ -27,7 +37,8 @@ export default {
     name: 'MapSquare',
     components: {
         CivilizationTile,
-        LeaderTile
+        LeaderTile,
+        MonumentTile
     },
     props: {
         mapSquareType: String,
@@ -95,6 +106,14 @@ export default {
                 'CCCCCC'
             ]
             return kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
+        },
+        showMonument() {
+            return this.tile &&
+                this.tile.monumentType &&
+                this.tile.tileType === tileTypes.monumentBottomRight
+        },
+        tileTypes() {
+            return tileTypes
         }
     }, 
     methods: {
@@ -135,10 +154,11 @@ export default {
         position: relative;
     }
     .coordinates {
+        cursor: default;
         height: 95%;
         width: 100%;
         position: absolute;
-        z-index: 4;
+        z-index: 5;
     }
 
     .coordinates-text-size {
@@ -192,5 +212,27 @@ export default {
         position: absolute;
         opacity: 30%;
         z-index: 1;
+    }
+
+    .monument {
+        height: calc(140% + 2px);
+        width: calc(140% + 2px);
+        bottom: 30%;
+        right: 30%;
+        position: absolute;
+        padding: 2px;
+        z-index: 4;
+    }
+
+    @media (max-width: 767.98px) {
+        .monument {
+            height: calc(140%);
+            width: calc(140%);
+            bottom: 30%;
+            right: 30%;
+            position: absolute;
+            padding: 2px;
+            z-index: 4;
+        }
     }
 </style>

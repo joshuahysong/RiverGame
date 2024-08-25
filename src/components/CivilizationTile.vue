@@ -14,6 +14,7 @@ export default {
         tileType: Number,
         selected: Boolean,
         highlight: Boolean,
+        showPointer: Boolean,
         size: Number
     },
     data() {
@@ -33,6 +34,7 @@ export default {
             let cssClass = helpers.getTileNameByType(this.tileType)
             cssClass += this.selected ? ' selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
+            cssClass += this.showPointer || this.highlight ? ' pointer' : ''
             return cssClass
         },
         tileStyle() {
@@ -73,7 +75,7 @@ export default {
         z-index: 3;
     }
     .selected {
-        box-shadow: 0px 0px 0 4px black;
+        box-shadow: 0px 0px 0 4px red;
     }
     .highlight {
         box-shadow: 0 0 4px 4px yellow;
@@ -85,7 +87,7 @@ export default {
         background: green;
     }
     .settlement {
-        background: DimGray;
+        background: #202020;
     }
     .farm {
         background: dodgerblue;
@@ -105,5 +107,21 @@ export default {
         top: 32.5%;
         left: 32.5%;
         position: absolute;
+    }
+    .monument-top-left {
+        background-color: #F4A460;
+        box-shadow: 3px 3px 0px 3px #b77b48 inset;
+    }
+    .monument-top-right {
+        background-color: #F4A460;
+        box-shadow: -3px 3px 0px 3px #b77b48 inset;
+    }
+    .monument-bottom-left {
+        background-color: #F4A460;
+        box-shadow: 3px -3px 0px 3px #b77b48 inset;
+    }
+    .monument-bottom-right {
+        background-color: #F4A460;
+        box-shadow: -3px -3px 0px 3px #b77b48 inset;
     }
 </style>

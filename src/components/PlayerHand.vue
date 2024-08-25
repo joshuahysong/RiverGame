@@ -14,7 +14,8 @@
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index, tileType)"
-                                @click.native="selectTile(index, tileType)" />
+                                @click.native="selectTile(index, tileType)"
+                                show-pointer />
                         </div>
                         <div class="col-auto col-xl-12 text-left text-xl-center">
                             <leader-tile
@@ -25,7 +26,8 @@
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index + 2, tileType)"
-                                @click.native="selectTile(index + 2, tileType)" />
+                                @click.native="selectTile(index + 2, tileType)"
+                                show-pointer />
                         </div>
                     </div>
                 </div>
@@ -39,7 +41,8 @@
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index, tileType)"
                                 @click.native="selectTile(index, tileType)"
-                                class="d-inline-block mr-2" />
+                                class="d-inline-block mr-2"
+                                show-pointer />
                         </div>
                         <div class="col col-xl-12 text-left text-xl-center">
                             <civilization-tile
@@ -49,7 +52,8 @@
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index + 3, tileType)"
                                 @click.native="selectTile(index + 3, tileType)"
-                                class="d-inline-block mr-2" />
+                                class="d-inline-block mr-2"
+                                show-pointer />
                         </div>
                     </div>
                 </div>
@@ -61,7 +65,8 @@
                         :tile-type="tileTypes.catastrophe"
                         :selected="isSelectedTile(index, tileTypes.catastrophe)"
                         @click.native="selectTile(index, tileTypes.catastrophe)"
-                        class="d-inline-block mr-2" />
+                        class="d-inline-block mr-2"
+                        show-pointer />
                 </div>
             </div>
         </div>
@@ -73,7 +78,6 @@ import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '../common/constants'
-import helpers from '../common/helpers'
 
 export default {
     name: 'PlayerHand',
@@ -146,13 +150,6 @@ export default {
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
             }
-        },
-        getTreasureCount(tileType) {
-            const scoreEntries = Object.entries(this.player.score)
-            const lowestScore = Math.min(...scoreEntries.map(x => x[1]))
-            const lowestScoreFirstIndex = scoreEntries.findIndex(x => x[1] === lowestScore)
-            const matchingScoreIndex = scoreEntries.findIndex(x => x[0] === helpers.getTileNameByType(tileType))
-            return matchingScoreIndex === lowestScoreFirstIndex ? this.player.score.treasure : 0
         },
         onWindowResize() {
             var windowWidth = window.innerWidth;

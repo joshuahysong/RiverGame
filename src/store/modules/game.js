@@ -1,4 +1,4 @@
-import { actionTypes } from '../../common/constants'
+import { actionTypes, monumentTypes } from '../../common/constants'
 
 const state = () => ({
     activeTurnPlayerId: 0,
@@ -10,16 +10,31 @@ const state = () => ({
     conflictAttackerPlayerId: 0,
     conflictDefenderPlayerId: 0,
     conflictAttackerTiles: [],
-    conflictDefenderTiles: []
+    conflictDefenderTiles: [],
+    remainingMonuments: [],
+    selectedMonumentType: 0
 })
 
 const defaultState = {
     activeTurnPlayerId: 1,
+    currentActionPlayerId: 1,
+    currentHandDisplayPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
-    currentHandDisplayPlayerId: 1,
-    currentActionPlayerId: 1
+    conflictAttackerPlayerId: 0,
+    conflictDefenderPlayerId: 0,
+    conflictAttackerTiles: [],
+    conflictDefenderTiles: [],
+    remainingMonuments: [
+        monumentTypes.redBlue,
+        monumentTypes.blueGreen,
+        monumentTypes.greenRed,
+        monumentTypes.blackRed,
+        monumentTypes.blackGreen,
+        monumentTypes.blackBlue
+    ],
+    selectedMonumentType: 0
 }
 
 const getters = {
@@ -53,6 +68,12 @@ const getters = {
     },
     conflictDefenderPlayerId: (state) => {
         return state.conflictDefenderPlayerId
+    },
+    remainingMonuments: (state) => {
+        return state.remainingMonuments
+    },
+    selectedMonumentType: (state) => {
+        return state.selectedMonumentType
     }
 }
 
@@ -118,6 +139,16 @@ const mutations = {
     setConflictDefenderPlayerId(state, payload) {
         state.conflictDefenderPlayerId = payload.playerId
     },
+    removeFromRemainingMonuments(state, payload) {
+        let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)
+        state.remainingMonuments.splice(monumentToRemoveIndex, 1)
+    },
+    resetSelectedMonumentType(state) {
+        state.selectedMonumentType = 0;
+    },
+    setSelectedMonumentType(state, payload) {
+        state.selectedMonumentType = payload.monumentType
+    }
 }
 
 export default {

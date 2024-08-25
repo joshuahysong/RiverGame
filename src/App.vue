@@ -42,7 +42,10 @@
                 </div>
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
                     <div class="row no-gutters justify-content-center align-items-center">
-                        <div class="col-12 col-md-10 col-lg-8 col-xl-auto pr-xl-3 px-1">
+                        <div v-if="showMonumentsBelowHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
+                            <monument-card />
+                        </div>
+                        <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
                             <player-hand v-if="currentPlayer?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">
@@ -53,9 +56,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-12 mt-3 pr-3 d-none d-xl-block">
+                            <monument-card />
+                        </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-3 order-3">
+                <div class="col-12 col-lg-3 order-3 ">
                     <div class="row no-gutters">
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
@@ -63,8 +69,11 @@
                             class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentPlayer.id"
+                                :show-score="player?.id === currentPlayer.id || showDebug"
                                 :class="{'border-danger': player?.id === currentPlayer.id}" />
+                        </div>
+                        <div class="col-12 px-1 mt-2 d-block d-xl-none">
+                            <monument-card />
                         </div>
                     </div>
                 </div>
@@ -105,6 +114,7 @@ import MapSquare from './components/MapSquare.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
 import ActionBar from './components/ActionBar.vue'
+import MonumentCard from './components/MonumentCard.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
@@ -114,7 +124,8 @@ export default {
         MapSquare,
         PlayerHand,
         PlayerCard,
-        ActionBar
+        ActionBar,
+        MonumentCard
     },
     data() {
         return {
@@ -185,6 +196,10 @@ export default {
             set (value) {
                 this.$store.commit('settings/setShowKingdoms', value)
             }
+        },
+        showMonumentsBelowHand() {
+            return this.currentActionType === actionTypes.buildMonument ||
+                this.currentActionType === actionTypes.buildMonumentMultiple
         }
     },
     methods: {
@@ -285,5 +300,11 @@ export default {
         width: 100%;
         position: absolute;
         top: 1.7rem;
+    }
+</style>
+
+<style>
+    .pointer {
+        cursor: pointer !important;
     }
 </style>

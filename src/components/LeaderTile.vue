@@ -14,6 +14,7 @@ export default {
         player: Object,
         selected: Boolean,
         highlight: Boolean,
+        showPointer: Boolean,
         size: Number,
         showEmpty: Boolean
     },
@@ -21,6 +22,7 @@ export default {
         tileClass() {
             let cssClass = this.selected ? 'selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
+            cssClass += this.showPointer || this.highlight ? ' pointer' : ''
             return cssClass
         },
         tileStyle() {
@@ -46,14 +48,14 @@ export default {
         z-index: 3;
     }
     .selected {
-        box-shadow: 0px 0px 0 1px white ,0 0 0 4px black;
+        box-shadow: 0 0 0 1px white, 0 0 0 4px red;
     }
     .highlight {
         box-shadow: 0 0 4px 4px yellow;
     }
     .king {
-        color: DimGray;
-        stroke: DimGray;
+        color: #202020;
+        stroke: #202020;
         stroke-width: 0;
     }
     .priest {

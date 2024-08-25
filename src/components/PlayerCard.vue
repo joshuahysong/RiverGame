@@ -78,12 +78,6 @@ export default {
         }
     },
     computed: {
-        gridStyle() {
-            return `display: grid;
-                grid-template-columns: repeat(4, ${this.size}px);
-                grid-template-rows: repeat(1, ${this.size}px);
-                grid-gap: ${this.size / 4}px;`
-        },
         tileTypes() {
             return tileTypes
         },
@@ -102,7 +96,7 @@ export default {
         background-color: green;
     }
     .settlement-score  {
-        background-color: DimGray;
+        background-color: #202020;
     }
     .farm-score  {
         background-color: dodgerblue;
