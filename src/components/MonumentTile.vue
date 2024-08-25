@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-iconstack class="tile-monument" :style="tileStyle">
+        <b-iconstack class="tile-monument" :style="monumentStyle" :class="monumentClass">
             <b-icon stacked icon="octagon-fill" :class="primaryTileClass"></b-icon>
             <b-icon stacked icon="circle-fill" scale="0.4" :class="secondaryTileClass"></b-icon>
         </b-iconstack>
@@ -15,6 +15,9 @@ export default {
     name: 'MonumentTile',
     props: {
         size: Number,
+        selected: Boolean,
+        disabled: Boolean,
+        showPointer: Boolean,
         monumentType: {
             type: Number,
             required: true
@@ -61,16 +64,31 @@ export default {
         secondaryTileClass() {
             return `${helpers.getTileNameByType(this.secondaryTileType)}-monument`
         },
-        tileStyle() {
+        monumentStyle() {
             let style = ''
             if (this.size) style += `height: ${this.size}px; width: ${this.size}px;`
             return style
         },
+        monumentClass() {
+            let monumentClass = ''
+            monumentClass += this.selected ? ' selected' : ''
+            monumentClass += this.disabled ? ' disabled' : ''
+            monumentClass += this.showPointer && !this.disabled ? ' pointer' : ''
+            return monumentClass
+        }
     }
 }
 </script>
 
 <style scoped>
+    .selected {
+        border-radius: 4px;
+        box-shadow: 0 0 0 2px white, 0 0 0 5px red;
+    }
+    .disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
     .tile-monument {
         height: 100%;
         width: 100%;

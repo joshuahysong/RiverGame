@@ -11,16 +11,21 @@ const state = () => ({
     conflictDefenderPlayerId: 0,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
-    remainingMonuments: []
+    remainingMonuments: [],
+    selectedMonumentType: 0
 })
 
 const defaultState = {
     activeTurnPlayerId: 1,
+    currentActionPlayerId: 1,
+    currentHandDisplayPlayerId: 1,
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
-    currentHandDisplayPlayerId: 1,
-    currentActionPlayerId: 1,
+    conflictAttackerPlayerId: 0,
+    conflictDefenderPlayerId: 0,
+    conflictAttackerTiles: [],
+    conflictDefenderTiles: [],
     remainingMonuments: [
         monumentTypes.redBlue,
         monumentTypes.blueGreen,
@@ -28,7 +33,8 @@ const defaultState = {
         monumentTypes.blackRed,
         monumentTypes.blackGreen,
         monumentTypes.blackBlue
-    ]
+    ],
+    selectedMonumentType: 0
 }
 
 const getters = {
@@ -65,6 +71,9 @@ const getters = {
     },
     remainingMonuments: (state) => {
         return state.remainingMonuments
+    },
+    selectedMonumentType: (state) => {
+        return state.selectedMonumentType
     }
 }
 
@@ -130,6 +139,9 @@ const mutations = {
     setConflictDefenderPlayerId(state, payload) {
         state.conflictDefenderPlayerId = payload.playerId
     },
+    setSelectedMonumentType(state, payload) {
+        state.selectedMonumentType = payload.monumentType
+    }
 }
 
 export default {

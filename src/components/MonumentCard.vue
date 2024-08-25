@@ -9,7 +9,11 @@
                         :key="index"
                         :size="40"
                         :monument-type="monumentType"
-                        class="d-inline-block mr-2" />
+                        :selected="isSelectedMonument(monumentType)"
+                        :disabled="!isAvailableMonument(monumentType)"
+                        class="d-inline-block mr-2 mb-1"
+                        :show-pointer="currentActionType === actionTypes.buildMonument"
+                        @click.native="selectMonument(monumentType)" />
                 </div>
                 <div class="col-6 col-lg-12 text-left text-lg-center">
                     <monument-tile
@@ -17,7 +21,11 @@
                         :key="index"
                         :size="40"
                         :monument-type="monumentType"
-                        class="d-inline-block mr-2" />
+                        :selected="isSelectedMonument(monumentType)"
+                        :disabled="!isAvailableMonument(monumentType)"
+                        class="d-inline-block mr-2 mb-1"
+                        :show-pointer="currentActionType === actionTypes.buildMonument"
+                        @click.native="selectMonument(monumentType)" />
                 </div>
             </div>
         </div>
@@ -27,7 +35,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import MonumentTile from './MonumentTile.vue'
-import { tileTypes } from '../common/constants'
+import { actionTypes, tileTypes, monumentTypes } from '../common/constants'
 
 export default {
     name: 'MonumentCard',
@@ -36,10 +44,15 @@ export default {
     },
     computed: {
         ...mapGetters('game', [
-            'remainingMonuments'
+            'currentActionType',
+            'remainingMonuments',
+            'selectedMonumentType'
         ]),
-        tileTypes() {
-            return tileTypes
+        ...mapGetters('board', [
+            'availableMonumentLocations'
+        ]),
+        actionTypes() {
+            return actionTypes
         },
         monumentTypes1() {
             var max = this.remainingMonuments.length < 3 ? this.remainingMonuments.length : 3
@@ -50,6 +63,41 @@ export default {
             var max = this.remainingMonuments.length < 6 ? this.remainingMonuments.length : 6
             return this.remainingMonuments.slice(3, max)
         },
+    },
+    methods:{
+        isSelectedMonument(monumentType) {
+            return this.currentActionType === actionTypes.buildMonument && this.selectedMonumentType === monumentType
+        },
+        isAvailableMonument(monumentType) {
+            if (this.currentActionType !== actionTypes.buildMonument) return true
+            if (this.availableMonumentLocations && this.availableMonumentLocations.length > 0) {
+                if ([monumentTypes.redBlue, monumentTypes.blackRed, monumentTypes.greenRed].some(x => x === monumentType) &&
+                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.treasure || x.tileType === tileTypes.temple))
+                    return true
+                if ([monumentTypes.redBlue, monumentTypes.blueGreen, monumentTypes.blackBlue].some(x => x === monumentType) &&
+                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.farm))
+                    return true
+                if ([monumentTypes.blueGreen, monumentTypes.greenRed, monumentTypes.blackGreen].some(x => x === monumentType) &&
+                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.market))
+                    return true
+                if ([monumentTypes.blackRed, monumentTypes.blackGreen, monumentTypes.blackBlue].some(x => x === monumentType) &&
+                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.settlement))
+                    return true
+            }
+            return false
+        },
+        selectMonument(monumentType) {
+            if (this.currentActionType === actionTypes.buildMonument &&
+                this.isAvailableMonument(monumentType)) {
+                this.$store.commit('game/setSelectedMonumentType', { monumentType: monumentType })
+                if (this.availableMonumentLocations.length === 1) {
+                    this.$store.dispatch('board/buildMonument', {
+                        index: this.availableMonumentLocations[0].index,
+                        monumentType: monumentType
+                    })
+                }
+            }
+        }
     }
 }
 </script>

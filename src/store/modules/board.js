@@ -142,7 +142,7 @@ const getters = {
     getAvailableTileLocations: (state) => {
         return state.availableTileLocations
     },
-    getAvailableMonumentLocations: (state) => {
+    availableMonumentLocations: (state) => {
         return state.availableMonumentLocations
     },
     neighborRegions: (state, getters) => (tile) => {
@@ -199,7 +199,7 @@ const actions = {
                     dispatch('checkForDisplacedLeader')
                     //dispatch('checkForRevolt', newPayload)
                     if (neighborKingdoms.length <= 1)
-                        dispatch('checkForScoring', newPayload)
+                        dispatch('checkForTileScore', newPayload)
                     dispatch('checkForTreasureToTake', newPayload)
                     dispatch('players/removeSelectedTiles', {playerId: currentPlayer.id}, { root: true })
                     commit('resetAvailableTileLocations')
@@ -247,6 +247,10 @@ const actions = {
                 } else if (selectedTile.tileType === tileTypes.catastrophe) {
                     if (mapSquareTile.tileType !== tileTypes.treasure &&
                         mapSquareTile.tileType !== tileTypes.catastrophe &&
+                        mapSquareTile.tileType !== tileTypes.monumentBottomLeft &&
+                        mapSquareTile.tileType !== tileTypes.monumentBottomRight &&
+                        mapSquareTile.tileType !== tileTypes.monumentTopLeft &&
+                        mapSquareTile.tileType !== tileTypes.monumentTopRight &&
                         !mapSquareTile.isLeaderTile)
                         eligibleTileLocations.push(i)
                 } else {
@@ -306,7 +310,7 @@ const actions = {
             }
         }
     },
-    checkForScoring({state, getters, commit}, payload) {
+    checkForTileScore({state, getters, commit}, payload) {
         if (payload && !payload.isLeaderTile) {
             let region = getters.getRegion(payload.index)
             if (region && region.isKingdom) {
@@ -370,17 +374,36 @@ const actions = {
         let left = neighbors.left?.tileType  ?? tileTypes.empty
         let topLeft = neighbors.topLeft?.tileType ?? tileTypes.empty
 
-        let monumentStartingIndexes = []
-        if ([topLeft, top, left].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.topLeft.index)
-        if ([top, topRight, right].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.top.index)
-        if ([right, bottomRight, bottom].every(x => x === payload.tileType)) monumentStartingIndexes.push(payload.index)
-        if ([bottom, bottomLeft, left].every(x => x === payload.tileType)) monumentStartingIndexes.push(neighbors.left.index)
+        let foundAvailableMonumentLocations = []
+        if ([topLeft, top, left].every(x => x === payload.tileType))
+            foundAvailableMonumentLocations.push({ index: neighbors.topLeft.index, tileType: neighbors.topLeft.tileType })
+        if ([top, topRight, right].every(x => x === payload.tileType))
+            foundAvailableMonumentLocations.push({ index: neighbors.top.index, tileType: neighbors.top.tileType })
+        if ([right, bottomRight, bottom].every(x => x === payload.tileType))
+            foundAvailableMonumentLocations.push({ index: payload.index, tileType: payload.tileType })
+        if ([bottom, bottomLeft, left].every(x => x === payload.tileType))
+            foundAvailableMonumentLocations.push({ index: neighbors.left.index, tileType: neighbors.left.tileType })
 
-        if (monumentStartingIndexes && monumentStartingIndexes.length > 0) {
-            commit('resetAvailableMonumentLocations', monumentStartingIndexes)
-            commit('game/setCurrentActionPlayerId', { playerId: payload.playerId }, { root: true })
+        if (foundAvailableMonumentLocations && foundAvailableMonumentLocations.length > 0) {
+            commit('setAvailableMonumentLocations', foundAvailableMonumentLocations)
             commit('game/setActionType', { actionType: actionTypes.buildMonument }, { root: true })
         }
+    },
+    buildMonument({getters, commit, dispatch}, payload) {
+        let target = getters.tile(payload.index)
+        let targetNeighbors = getters.getNeighbors(target.index)
+        commit('updateTile', {...target, tileType: tileTypes.monumentTopLeft })
+        commit('updateTile', {...targetNeighbors.right, tileType: tileTypes.monumentTopRight })
+        commit('updateTile', {...targetNeighbors.bottom, tileType: tileTypes.monumentBottomLeft })
+        commit('updateTile', {...targetNeighbors.bottomRight,
+            tileType: tileTypes.monumentBottomRight,
+            monumentType: payload.monumentType })
+
+        commit('resetAvailableTileLocations')
+        dispatch('checkForDisplacedLeader')
+        // TODO Score
+        commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
+        commit('game/actionCompleted', null, {root: true})
     },
     checkForDisplacedLeader({state, getters, commit}) {
         for (let i = 0; i < state.tiles.length; i++) {
@@ -433,7 +456,8 @@ const mutations = {
                 index: payload.index,
                 tileType: payload.tileType,
                 isLeaderTile: payload.isLeaderTile,
-                playerId: payload?.playerId ?? 0
+                playerId: payload?.playerId ?? 0,
+                monumentType: payload?.monumentType
             }
             state.tiles.splice(payload.index, 1, tile)
         }
@@ -443,7 +467,8 @@ const mutations = {
             index: payload.index,
             tileType: tileTypes.empty,
             isLeaderTile: false,
-            playerId: 0
+            playerId: 0,
+            monumentType: null
         }
         state.tiles.splice(payload.index, 1, newTile)
     },

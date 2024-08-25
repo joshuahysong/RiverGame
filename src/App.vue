@@ -295,3 +295,9 @@ export default {
         top: 1.7rem;
     }
 </style>
+
+<style>
+    .pointer {
+        cursor: pointer;
+    }
+</style>

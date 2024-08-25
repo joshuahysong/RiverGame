@@ -58,10 +58,10 @@ export const breakpoints = {
 }
 
 export const monumentTypes = {
-    redBlue: 0,
-    blueGreen: 1,
-    greenRed: 2,
-    blackRed: 3,
-    blackGreen: 4,
-    blackBlue: 5
+    redBlue: 1,
+    blueGreen: 2,
+    greenRed: 3,
+    blackRed: 4,
+    blackGreen: 5,
+    blackBlue: 6
 }

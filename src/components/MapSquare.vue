@@ -4,7 +4,7 @@
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
         <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player="getPlayer(tile.playerId)" :size="40" />
-        <monument-tile v-if="showMonument" :monumentType="0" class="monument"/>
+        <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
         <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
@@ -100,7 +100,9 @@ export default {
             return kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
         },
         showMonument() {
-            return this.tile && this.tile.tileType === tileTypes.monumentBottomRight
+            return this.tile &&
+                this.tile.monumentType &&
+                this.tile.tileType === tileTypes.monumentBottomRight
         },
         tileTypes() {
             return tileTypes
@@ -144,6 +146,7 @@ export default {
         position: relative;
     }
     .coordinates {
+        cursor: default;
         height: 95%;
         width: 100%;
         position: absolute;
