@@ -5,26 +5,26 @@
             <div class="row no-gutters align-items-center">
                 <div class="col-6 col-lg-12 text-right text-lg-center">
                     <monument-tile
-                        v-for="(monumentType, index) in monumentTypes1"
-                        :key="index"
+                        v-for="monumentType in monumentTypes1"
+                        :key="monumentType"
                         :size="40"
                         :monument-type="monumentType"
                         :selected="isSelectedMonument(monumentType)"
                         :disabled="!isAvailableMonument(monumentType)"
                         class="d-inline-block mr-2 mb-1"
-                        :show-pointer="currentActionType === actionTypes.buildMonument"
+                        :show-pointer="isBuildingMonument"
                         @click.native="selectMonument(monumentType)" />
                 </div>
                 <div class="col-6 col-lg-12 text-left text-lg-center">
                     <monument-tile
-                        v-for="(monumentType, index) in monumentTypes2"
-                        :key="index"
+                        v-for="monumentType in monumentTypes2"
+                        :key="monumentType"
                         :size="40"
                         :monument-type="monumentType"
                         :selected="isSelectedMonument(monumentType)"
                         :disabled="!isAvailableMonument(monumentType)"
                         class="d-inline-block mr-2 mb-1"
-                        :show-pointer="currentActionType === actionTypes.buildMonument"
+                        :show-pointer="isBuildingMonument"
                         @click.native="selectMonument(monumentType)" />
                 </div>
             </div>
@@ -51,8 +51,8 @@ export default {
         ...mapGetters('board', [
             'availableMonumentLocations'
         ]),
-        actionTypes() {
-            return actionTypes
+        monumentTypes() {
+            return this.remainingMonuments
         },
         monumentTypes1() {
             var max = this.remainingMonuments.length < 3 ? this.remainingMonuments.length : 3
@@ -63,13 +63,17 @@ export default {
             var max = this.remainingMonuments.length < 6 ? this.remainingMonuments.length : 6
             return this.remainingMonuments.slice(3, max)
         },
+        isBuildingMonument() {
+            return this.currentActionType === actionTypes.buildMonument ||
+                this.currentActionType === actionTypes.buildMonumentMultiple
+        }
     },
     methods:{
         isSelectedMonument(monumentType) {
-            return this.currentActionType === actionTypes.buildMonument && this.selectedMonumentType === monumentType
+            return this.isBuildingMonument && this.selectedMonumentType === monumentType
         },
         isAvailableMonument(monumentType) {
-            if (this.currentActionType !== actionTypes.buildMonument) return true
+            if (!this.isBuildingMonument) return true
             if (this.availableMonumentLocations && this.availableMonumentLocations.length > 0) {
                 if (monumentTypes.redMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.treasure || x.tileType === tileTypes.temple))
@@ -87,13 +91,19 @@ export default {
             return false
         },
         selectMonument(monumentType) {
-            if (this.currentActionType === actionTypes.buildMonument &&
+            if (this.isBuildingMonument &&
                 this.isAvailableMonument(monumentType)) {
                 this.$store.commit('game/setSelectedMonumentType', { monumentType: monumentType })
                 if (this.availableMonumentLocations.length === 1) {
                     this.$store.dispatch('board/buildMonument', {
                         index: this.availableMonumentLocations[0].index,
                         monumentType: monumentType
+                    })
+                } else if (this.availableMonumentLocations.length > 1) {
+                    this.availableMonumentLocations.forEach(location => {
+                        let tile = this.$store.getters['board/tile'](location.index)
+                        this.$store.commit('board/updateTile', { ...tile, isHighlighted: true })
+                        this.$store.commit('game/setActionType', { actionType: actionTypes.buildMonumentMultiple })
                     })
                 }
             }

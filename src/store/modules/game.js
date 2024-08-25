@@ -139,6 +139,10 @@ const mutations = {
     setConflictDefenderPlayerId(state, payload) {
         state.conflictDefenderPlayerId = payload.playerId
     },
+    removeFromRemainingMonuments(state, payload) {
+        let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)
+        state.remainingMonuments.splice(monumentToRemoveIndex, 1)
+    },
     resetSelectedMonumentType(state) {
         state.selectedMonumentType = 0;
     },

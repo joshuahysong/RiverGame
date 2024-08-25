@@ -34,8 +34,9 @@ export const actionTypes = {
     swapTiles: 2,
     takeTreasure: 3,
     buildMonument: 4,
-    revoltAttack: 5,
-    revoltDefend: 6
+    buildMonumentMultiple: 5,
+    revoltAttack: 6,
+    revoltDefend: 7
 }
 
 export const playerIcons = {

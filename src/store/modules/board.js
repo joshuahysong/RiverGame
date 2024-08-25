@@ -1,5 +1,6 @@
-import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
 import Vue from 'vue';
+import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
+
 
 const state = () => ({
     map: [
@@ -225,6 +226,10 @@ const actions = {
                     commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
                 }
             }
+            if (currentActionType === actionTypes.buildMonumentMultiple) {
+                let monumentType = rootGetters['game/selectedMonumentType']
+                dispatch('buildMonument', { ...payload, monumentType: monumentType })
+            }
         }
     },
     calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
@@ -395,19 +400,25 @@ const actions = {
     buildMonument({getters, commit, dispatch}, payload) {
         let target = getters.tile(payload.index)
         let targetNeighbors = getters.getNeighbors(target.index)
-        commit('updateTile', {...target, tileType: tileTypes.monumentTopLeft })
-        commit('updateTile', {...targetNeighbors.right, tileType: tileTypes.monumentTopRight })
-        commit('updateTile', {...targetNeighbors.bottom, tileType: tileTypes.monumentBottomLeft })
+        commit('updateTile', { ...target, tileType: tileTypes.monumentTopLeft })
+        commit('updateTile', { ...targetNeighbors.right, tileType: tileTypes.monumentTopRight })
+        commit('updateTile', { ...targetNeighbors.bottom, tileType: tileTypes.monumentBottomLeft })
         commit('updateTile', {
             ...targetNeighbors.bottomRight,
             tileType: tileTypes.monumentBottomRight,
             monumentType: payload.monumentType
         })
+        getters.availableMonumentLocations.forEach(location => {
+            let tile = getters.tile(location.index)
+            commit('updateTile', { ...tile, isHighlighted: false })
+        })
+        commit('game/removeFromRemainingMonuments', payload, { root: true })
         commit('resetAvailableMonumentLocations')
-        commit('game/resetSelectedMonumentType', null, {root: true})
+        commit('game/resetSelectedMonumentType', null, { root: true })
         dispatch('checkForDisplacedLeader')
+        dispatch('setRegions')
         commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
-        commit('game/actionCompleted', null, {root: true})
+        commit('game/actionCompleted', null, { root: true })
     },
     checkForMonumentScore({getters, rootGetters, commit}) {
         let playerId = rootGetters['game/currentActionPlayerId']

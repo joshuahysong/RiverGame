@@ -298,6 +298,6 @@ export default {
 
 <style>
     .pointer {
-        cursor: pointer;
+        cursor: pointer !important;
     }
 </style>

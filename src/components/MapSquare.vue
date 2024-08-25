@@ -12,8 +12,16 @@
         <div v-if="isRiverTile && showRiverVerticalBottom" class="river river-vertical-bottom"></div>
         <div v-if="isRiverTile && showRiverVerticalTop" class="river river-vertical-top"></div>
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
-        <div v-if="showCoordinates" class="coordinates coordinates-text-size" :class="{'text-white': hasTile}">{{coordinates}}</div>
-        <div v-if="showIndexes" class="coordinates coordinates-text-size d-flex justify-content-center" :class="{'text-white': hasTile}"><span class="align-self-end">{{index}}</span></div>
+        <div v-if="showCoordinates"
+            class="coordinates coordinates-text-size"
+            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            {{coordinates}}
+        </div>
+        <div v-if="showIndexes"
+            class="coordinates coordinates-text-size d-flex justify-content-center"
+            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            <span class="align-self-end">{{index}}</span>
+        </div>
     </div>
 </template>
 
@@ -205,6 +213,7 @@ export default {
         opacity: 30%;
         z-index: 1;
     }
+
     .monument {
         height: calc(140% + 2px);
         width: calc(140% + 2px);
@@ -213,5 +222,17 @@ export default {
         position: absolute;
         padding: 2px;
         z-index: 4;
+    }
+
+    @media (max-width: 767.98px) {
+        .monument {
+            height: calc(140%);
+            width: calc(140%);
+            bottom: 30%;
+            right: 30%;
+            position: absolute;
+            padding: 2px;
+            z-index: 4;
+        }
     }
 </style>
