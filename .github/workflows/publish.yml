@@ -4,6 +4,7 @@ jobs:
   build_vue:
     runs-on: ubuntu-latest
     name: Build Vue
+    if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v2
     - id: Build-Vue
