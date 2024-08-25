@@ -139,6 +139,9 @@ const mutations = {
     setConflictDefenderPlayerId(state, payload) {
         state.conflictDefenderPlayerId = payload.playerId
     },
+    resetSelectedMonumentType(state) {
+        state.selectedMonumentType = 0;
+    },
     setSelectedMonumentType(state, payload) {
         state.selectedMonumentType = payload.monumentType
     }

@@ -63,5 +63,9 @@ export const monumentTypes = {
     greenRed: 3,
     blackRed: 4,
     blackGreen: 5,
-    blackBlue: 6
+    blackBlue: 6,
+    redMonuments: [1,3,4],
+    blueMonuments: [1,2,6],
+    greenMonuments: [2,3,5],
+    blackMonuments: [4,5,6]
 }

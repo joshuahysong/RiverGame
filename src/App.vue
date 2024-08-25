@@ -66,7 +66,7 @@
                             class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentPlayer.id"
+                                :show-score="player?.id === currentPlayer.id || showDebug"
                                 :class="{'border-danger': player?.id === currentPlayer.id}" />
                         </div>
                         <div class="col-12 px-1 mt-2 d-block d-xl-none">

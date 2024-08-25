@@ -91,6 +91,7 @@ export default {
     },
     methods: {
         async doEndTurn() {
+            this.$store.dispatch('board/checkForMonumentScore')
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
             this.$store.dispatch('game/save')

@@ -1,4 +1,4 @@
-import { mapTypes, tileTypes, boardStats, actionTypes } from '../../common/constants'
+import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
 import Vue from 'vue';
 
 const state = () => ({
@@ -44,6 +44,9 @@ const getters = {
     },
     tile: (state) => (index) => {
         return state.tiles[index]
+    },
+    kingdoms: (state) => {
+        return state.regions.filter(region => region.isKingdom)
     },
     getNeighbors: (state) => (index) => {
         if (state.tiles.length > 0) {
@@ -395,15 +398,43 @@ const actions = {
         commit('updateTile', {...target, tileType: tileTypes.monumentTopLeft })
         commit('updateTile', {...targetNeighbors.right, tileType: tileTypes.monumentTopRight })
         commit('updateTile', {...targetNeighbors.bottom, tileType: tileTypes.monumentBottomLeft })
-        commit('updateTile', {...targetNeighbors.bottomRight,
+        commit('updateTile', {
+            ...targetNeighbors.bottomRight,
             tileType: tileTypes.monumentBottomRight,
-            monumentType: payload.monumentType })
-
-        commit('resetAvailableTileLocations')
+            monumentType: payload.monumentType
+        })
+        commit('resetAvailableMonumentLocations')
+        commit('game/resetSelectedMonumentType', null, {root: true})
         dispatch('checkForDisplacedLeader')
-        // TODO Score
         commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
         commit('game/actionCompleted', null, {root: true})
+    },
+    checkForMonumentScore({getters, rootGetters, commit}) {
+        let playerId = rootGetters['game/currentActionPlayerId']
+        let kingdoms = getters.kingdoms
+        kingdoms.forEach(kingdom => {
+            let playerLeaders = []
+            let monuments = []
+            kingdom.tileIndexes.forEach(index => {
+                let tile = getters.tiles[index]
+                if (tile.isLeaderTile && tile.playerId === playerId)
+                    playerLeaders.push(tile.tileType)
+                if (tile.monumentType)
+                    monuments.push(tile.monumentType)
+            })
+            if (playerLeaders.length > 0 && monuments.length > 0) {
+                monuments.forEach(monument => {
+                    if (monumentTypes.redMonuments.includes(monument) && playerLeaders.includes(tileTypes.priest))
+                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.temple }, { root: true })
+                    if (monumentTypes.blueMonuments.includes(monument) && playerLeaders.includes(tileTypes.farmer))
+                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.farm }, { root: true })
+                    if (monumentTypes.greenMonuments.includes(monument) && playerLeaders.includes(tileTypes.trader))
+                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.market }, { root: true })
+                    if (monumentTypes.blackMonuments.includes(monument) && playerLeaders.includes(tileTypes.king))
+                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.settlement }, { root: true })
+                })
+            }
+        })
     },
     checkForDisplacedLeader({state, getters, commit}) {
         for (let i = 0; i < state.tiles.length; i++) {

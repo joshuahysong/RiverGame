@@ -71,16 +71,16 @@ export default {
         isAvailableMonument(monumentType) {
             if (this.currentActionType !== actionTypes.buildMonument) return true
             if (this.availableMonumentLocations && this.availableMonumentLocations.length > 0) {
-                if ([monumentTypes.redBlue, monumentTypes.blackRed, monumentTypes.greenRed].some(x => x === monumentType) &&
+                if (monumentTypes.redMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.treasure || x.tileType === tileTypes.temple))
                     return true
-                if ([monumentTypes.redBlue, monumentTypes.blueGreen, monumentTypes.blackBlue].some(x => x === monumentType) &&
+                if (monumentTypes.blueMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.farm))
                     return true
-                if ([monumentTypes.blueGreen, monumentTypes.greenRed, monumentTypes.blackGreen].some(x => x === monumentType) &&
+                if (monumentTypes.greenMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.market))
                     return true
-                if ([monumentTypes.blackRed, monumentTypes.blackGreen, monumentTypes.blackBlue].some(x => x === monumentType) &&
+                if (monumentTypes.blackMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.settlement))
                     return true
             }
