@@ -7,7 +7,7 @@
                     <monument-tile
                         v-for="monumentType in monumentTypes1"
                         :key="monumentType"
-                        :size="40"
+                        :size="size"
                         :monument-type="monumentType"
                         :selected="isSelectedMonument(monumentType)"
                         :disabled="!isAvailableMonument(monumentType)"
@@ -19,7 +19,7 @@
                     <monument-tile
                         v-for="monumentType in monumentTypes2"
                         :key="monumentType"
-                        :size="40"
+                        :size="size"
                         :monument-type="monumentType"
                         :selected="isSelectedMonument(monumentType)"
                         :disabled="!isAvailableMonument(monumentType)"
@@ -35,12 +35,24 @@
 <script>
 import { mapGetters } from 'vuex'
 import MonumentTile from './MonumentTile.vue'
-import { actionTypes, tileTypes, monumentTypes } from '../common/constants'
+import { actionTypes, breakpoints, tileTypes, monumentTypes } from '../common/constants'
 
 export default {
     name: 'MonumentCard',
     components: {
         MonumentTile
+    },
+    data() {
+        return {
+            size: 0
+        }
+    },
+    mounted() {
+        window.addEventListener("resize", this.onWindowResize);
+        this.onWindowResize()
+    },
+    unmounted() {
+        window.removeEventListener("resize", this.onWindowResize);
     },
     computed: {
         ...mapGetters('game', [
@@ -107,6 +119,12 @@ export default {
                     })
                 }
             }
+        },
+        onWindowResize() {
+            var windowWidth = window.innerWidth;
+            this.size = 40
+            if (windowWidth <= breakpoints.medium) this.size = 35
+            if (windowWidth <= breakpoints.small) this.size = 30
         }
     }
 }

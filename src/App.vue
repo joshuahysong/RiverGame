@@ -42,6 +42,9 @@
                 </div>
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
                     <div class="row no-gutters justify-content-center align-items-center">
+                        <div v-if="showMonumentsBelowHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
+                            <monument-card />
+                        </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
                             <player-hand v-if="currentPlayer?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
@@ -193,6 +196,10 @@ export default {
             set (value) {
                 this.$store.commit('settings/setShowKingdoms', value)
             }
+        },
+        showMonumentsBelowHand() {
+            return this.currentActionType === actionTypes.buildMonument ||
+                this.currentActionType === actionTypes.buildMonumentMultiple
         }
     },
     methods: {
