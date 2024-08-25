@@ -150,7 +150,7 @@ export default {
         height: 95%;
         width: 100%;
         position: absolute;
-        z-index: 4;
+        z-index: 5;
     }
 
     .coordinates-text-size {
@@ -212,6 +212,6 @@ export default {
         right: 30%;
         position: absolute;
         padding: 2px;
-        z-index: 5;
+        z-index: 4;
     }
 </style>
