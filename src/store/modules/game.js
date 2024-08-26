@@ -1,6 +1,7 @@
 import { actionTypes, monumentTypes } from '../../common/constants'
 
 const state = () => ({
+    debug: false,
     activeTurnPlayerId: 0,
     currentActionPlayerId: 0,
     currentHandDisplayPlayerId: 0,
@@ -38,9 +39,12 @@ const defaultState = {
 }
 
 const getters = {
+    debug: (state) => {
+        return state.debug
+    },
     isSaveValid() {
         if (localStorage.gameState) {
-            let gameState = JSON.parse(localStorage.gameState);
+            let gameState = JSON.parse(localStorage.gameState)
             return gameState.version === process.env.VUE_APP_VERSION
         }
         return false;

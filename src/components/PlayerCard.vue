@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="showScore" class="row no-gutters mt-1 justify-content-center justify-content-lg-start">
+            <div v-if="showScore || debug" class="row no-gutters mt-1 justify-content-center justify-content-lg-start">
                 <div class="col-auto align-self-center">
                     <b-badge pill class="temple-score mr-2">{{player.score.temple}}</b-badge>
                 </div>
@@ -50,11 +50,19 @@
                     <b-badge pill class="treasure-score mr-2">{{player.score.treasure}}</b-badge>
                 </div>
             </div>
+            <div v-if="debug" class="row no-gutters mt-1 justify-content-center justify-content-lg-start">
+                <civilization-tile
+                    v-for="(tileType, index) in player.hand"
+                    :key="index"
+                    :tile-type="tileType" :size="size"
+                    class="col-auto mr-1" />
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import { tileTypes, leaderTileTypes } from '../common/constants'
@@ -78,6 +86,9 @@ export default {
         }
     },
     computed: {
+        ...mapGetters('game', [
+            'debug'
+        ]),
         tileTypes() {
             return tileTypes
         },

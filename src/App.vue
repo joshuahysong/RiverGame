@@ -20,7 +20,7 @@
                         </b-form-checkbox>
                     </b-dropdown-form>
                 </b-nav-item-dropdown>
-                <b-button v-if="showDebug" size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
+                <b-button v-if="debug" size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
             </b-navbar-nav>
         </b-navbar>
         <!-- main page -->
@@ -69,11 +69,30 @@
                             class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentPlayer.id || showDebug"
+                                :show-score="player?.id === currentPlayer.id"
                                 :class="{'border-danger': player?.id === currentPlayer.id}" />
                         </div>
                         <div class="col-12 px-1 mt-2 d-block d-xl-none">
                             <monument-card />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row no-gutters mt-2">
+                <div class="col-4 offset-4 mt-2">
+                    <div class="card">
+                        <div class="card-header bg-transparent py-2"><strong>Missing MVP Features</strong></div>
+                        <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Game Progress Tracker</li>
+                                <li class="list-group-item">Moving Leaders</li>
+                                <li class="list-group-item">Game Log</li>
+                                <li class="list-group-item">Undo Button</li>
+                                <li class="list-group-item">Revolts</li>
+                                <li class="list-group-item">Wars</li>
+                                <li class="list-group-item">Bots</li>
+                                <li class="list-group-item">Game Setup Screen</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -89,13 +108,6 @@
                     Current Hand PlayerId: {{ currentHandDisplayPlayerId }}<br />
                     Current Action PlayerId: {{ currentActionPlayerId }}<br />
                     Bag: {{debugBagStats}}<br />
-                    Hands: <br />
-                    <player-hand v-for="(player, index) in allPlayers"
-                        :key="index"
-                        :player="getPlayer(player?.id)"
-                        :size="20"
-                        :class="{'border-danger': player?.id === currentPlayer.id}"
-                        class="mt-2"/>
                 </div>
             </b-sidebar>
         </div>
@@ -129,7 +141,6 @@ export default {
     },
     data() {
         return {
-            showDebug: false,
             showPlayerMessage: false,
             playerMessage: '',
             showPlayerActionButton: false,
@@ -157,6 +168,7 @@ export default {
             allPlayers: 'all'
         }),
         ...mapGetters('game', [
+            'debug',
             'isSaveValid',
             'numberOfPlayers',
             'currentActionType',
