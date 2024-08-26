@@ -5,7 +5,8 @@ const state = () => ({
     temples: 0,
     markets: 0,
     settlements: 0,
-    farms: 0
+    farms: 0,
+    startingBag: []
 })
 
 const defaultState = {
@@ -30,11 +31,7 @@ const getters = {
         }
     },
     bagSpaceRemaining(state) {
-        return Math.round(state.bag.length /
-            (defaultState.temples +
-            defaultState.markets +
-            defaultState.settlements +
-            defaultState.farms) * 100)
+        return Math.round(state.bag.length / state.startingBag.length * 100)
     }
 }
 
@@ -51,7 +48,7 @@ const actions = {
             commit('removeTiles', {...payload, drawnTiles})
             return drawnTiles
         }
-    }
+    },
 }
 
 const mutations = {
@@ -84,6 +81,9 @@ const mutations = {
             if (tile === tileTypes.farm)
                 state.farms--;
         });
+    },
+    setStartingBag(state) {
+        state.startingBag = [...state.bag]
     },
     setState(state, payload) {
         Object.assign(state, payload)

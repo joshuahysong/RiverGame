@@ -72,19 +72,51 @@
                                 :show-score="player?.id === currentPlayer.id"
                                 :class="{'border-danger': player?.id === currentPlayer.id}" />
                         </div>
-                        <div class="col-12 px-1 mt-2 d-block d-xl-none">
-                            <monument-card />
+                        <div class="col-6 col-lg-12 px-1 mt-2 d-block d-xl-none">
+                            <monument-card class="h-100" />
+                        </div>
+                        <div class="col-6 col-lg-12 px-1 mt-2">
+                            <div class="card">
+                                <div class="card-header bg-transparent border-0 py-2"><strong>Progress</strong></div>
+                                <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
+                                    <div class="row no-gutters">
+                                        <div class="col-12 col-sm-4 small">Bag</div>
+                                        <div class="col-12 col-sm">
+                                            <b-progress max="100" height="1.5rem">
+                                                <div class="progress-foreground progress-bar bg-success"
+                                                    :style="`clip-path: inset(0 ${100-Math.round((bagSpaceRemaining / 100) * 100)}% 0 0);`"
+                                                    aria-hidden="true">{{Math.round((bagSpaceRemaining / 100) * 100)}}%</div>
+                                                <div class="progress-background"
+                                                    :style="`clip-path: inset(0 0 0 ${Math.round((bagSpaceRemaining / 100) * 100)}%);`"
+                                                    aria-hidden="true">{{Math.round((bagSpaceRemaining / 100) * 100)}}%</div>
+                                            </b-progress>
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters mt-2">
+                                        <div class="col-12 col-sm-4 small">Treasures</div>
+                                        <div class="col-12 col-sm">
+                                            <b-progress :max="initialTreasures" height="1.5rem">
+                                                <div class="progress-foreground progress-bar bg-success"
+                                                    :style="`clip-path: inset(0 ${((initialTreasures-remainingTreasures)/initialTreasures*100)}% 0 0);`"
+                                                    aria-hidden="true">{{remainingTreasures}} of {{initialTreasures}}</div>
+                                                <div class="progress-background"
+                                                    :style="`clip-path: inset(0 0 0 ${(remainingTreasures/initialTreasures*100)}%);`"
+                                                    aria-hidden="true">{{remainingTreasures}} of {{initialTreasures}}</div>
+                                            </b-progress>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row no-gutters mt-2">
-                <div class="col-4 offset-4 mt-2">
+                <div class="col-12 col-sm-8 col-lg-4 offset-0 offset-sm-2 mt-2 px-1">
                     <div class="card">
                         <div class="card-header bg-transparent py-2"><strong>Missing MVP Features</strong></div>
                         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Game Progress Tracker</li>
                                 <li class="list-group-item">Moving Leaders</li>
                                 <li class="list-group-item">Game Log</li>
                                 <li class="list-group-item">Undo Button</li>
@@ -92,6 +124,8 @@
                                 <li class="list-group-item">Wars</li>
                                 <li class="list-group-item">Bots</li>
                                 <li class="list-group-item">Game Setup Screen</li>
+                                <li class="list-group-item">Tile Swap</li>
+                                <li class="list-group-item">Game End</li>
                             </ul>
                         </div>
                     </div>
@@ -128,7 +162,7 @@ import PlayerCard from './components/PlayerCard.vue'
 import ActionBar from './components/ActionBar.vue'
 import MonumentCard from './components/MonumentCard.vue'
 import helpers from './common/helpers'
-import { actionTypes } from './common/constants'
+import { actionTypes, tileTypes } from './common/constants'
 
 export default {
     name: 'App',
@@ -157,11 +191,13 @@ export default {
     },
     computed: {
         ...mapGetters('bag', [
-            'debugBagStats'
+            'debugBagStats',
+            'bagSpaceRemaining'
         ]),
         ...mapGetters('board', [
             'map',
-            'tiles'
+            'tiles',
+            'initialTreasures'
         ]),
         ...mapGetters('players', {
             currentPlayer: 'currentPlayer',
@@ -212,6 +248,9 @@ export default {
         showMonumentsBelowHand() {
             return this.currentActionType === actionTypes.buildMonument ||
                 this.currentActionType === actionTypes.buildMonumentMultiple
+        },
+        remainingTreasures() {
+            return this.tiles.filter(x => x.tileType === tileTypes.treasure).length
         }
     },
     methods: {
@@ -235,6 +274,7 @@ export default {
             await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 2', isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 3', isHuman: true })
             await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: true })
+            this.$store.commit('bag/setStartingBag')
             this.$store.dispatch('game/save')
         },
         saveSettings() {
@@ -301,17 +341,40 @@ export default {
     .hand-empty {
         height: 80px;
     }
+
     .bag-icon-container {
         position: relative;
     }
+
     .bag-icon {
         width: 4em;
         height: 4em;
     }
+
     .bag-text {
         width: 100%;
         position: absolute;
         top: 1.7rem;
+    }
+
+    .progress-foreground {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        color: white;
+    }
+
+    .progress-background {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        color: black;
     }
 </style>
 

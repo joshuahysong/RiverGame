@@ -46,6 +46,9 @@ const getters = {
     tile: (state) => (index) => {
         return state.tiles[index]
     },
+    initialTreasures() {
+        return initialTiles.filter(x => x === tileTypes.treasure).length
+    },
     kingdoms: (state) => {
         return state.regions.filter(region => region.isKingdom)
     },
