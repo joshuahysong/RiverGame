@@ -99,20 +99,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .temple-score {
-        background-color: darkred;
+        background-color: $color-temple;
     }
     .market-score  {
-        background-color: green;
+        background-color: $color-market;
     }
     .settlement-score  {
-        background-color: #202020;
+        background-color: $color-settlement;
     }
     .farm-score  {
-        background-color: dodgerblue;
+        background-color: $color-farm;
     }
     .treasure-score  {
-        background-color: goldenrod;
+        background-color: $color-treasure;
     }
 </style>

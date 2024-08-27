@@ -80,7 +80,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .selected {
         border-radius: 4px;
         box-shadow: 0 0 0 2px white, 0 0 0 5px red;
@@ -94,21 +94,15 @@ export default {
         width: 100%;
     }
     .temple-monument {
-        color: darkred;
+        color: $color-temple;
     }
     .market-monument {
-        color: green;
+        color: $color-market;
     }
     .settlement-monument {
-        color: #202020;
+        color: $color-settlement;
     }
     .farm-monument {
-        color: dodgerblue;
-    }
-    .secondary {
-        color: yellow;
-        stroke: darkred;
-        stroke-width: 1px;
-        stroke-linecap: round;
+        color: $color-farm;
     }
 </style>

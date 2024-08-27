@@ -40,7 +40,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .tile {
         height: 90%;
         width: 90%;
@@ -54,23 +54,23 @@ export default {
         box-shadow: 0 0 4px 4px yellow;
     }
     .king {
-        color: #202020;
-        stroke: #202020;
+        color: $color-settlement;
+        stroke: $color-settlement;
         stroke-width: 0;
     }
     .priest {
-        color: darkred;
-        stroke: darkred;
+        color: $color-temple;
+        stroke: $color-temple;
         stroke-width: 0;
     }
     .farmer {
-        color: dodgerblue;
-        stroke: dodgerblue;
+        color: $color-farm;
+        stroke: $color-farm;
         stroke-width: 0;
     }
     .trader {
-        color: green;
-        stroke: green;
+        color: $color-market;
+        stroke: $color-market;
         stroke-width: 0;
     }
     .empty {

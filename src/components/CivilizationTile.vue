@@ -67,61 +67,70 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .tile {
         height: 90%;
         width: 90%;
         border-radius: 4px;
         z-index: 3;
     }
+
     .selected {
         box-shadow: 0px 0px 0 4px red;
     }
+
     .highlight {
         box-shadow: 0 0 4px 4px yellow;
     }
+
     .temple, .treasure {
-        background: darkred;
+        background: $color-temple;
     }
+
     .market {
-        background: green;
+        background: $color-market;
     }
+
     .settlement {
-        background: #202020;
+        background: $color-settlement;
     }
+
     .farm {
-        background: dodgerblue;
+        background: $color-farm;
     }
+
     .generic {
-        background: #F4A460;
+        background: $color-generic;
     }
-    .catastrophe {
-        background: red;
-    }
+
     .treasure-icon {
         height: 35%;
         width: 35%;
         background-color: gold;
         border-radius: 50%;
-        border: 2px solid goldenrod;
+        border: 2px solid $color-treasure;
         top: 32.5%;
         left: 32.5%;
         position: absolute;
     }
+
     .monument-top-left {
-        background-color: #F4A460;
-        box-shadow: 3px 3px 0px 3px #b77b48 inset;
+        background-color: $color-monument-background;
+        box-shadow: 3px 3px 0px 3px $color-monument-border inset;
     }
+
     .monument-top-right {
-        background-color: #F4A460;
-        box-shadow: -3px 3px 0px 3px #b77b48 inset;
+        background-color: $color-monument-background;
+        box-shadow: -3px 3px 0px 3px $color-monument-border inset;
     }
+
     .monument-bottom-left {
-        background-color: #F4A460;
-        box-shadow: 3px -3px 0px 3px #b77b48 inset;
+        background-color: $color-monument-background;
+        box-shadow: 3px -3px 0px 3px $color-monument-border inset;
     }
+
     .monument-bottom-right {
-        background-color: #F4A460;
-        box-shadow: -3px -3px 0px 3px #b77b48 inset;
+        background-color: $color-monument-background;
+        box-shadow: -3px -3px 0px 3px $color-monument-border inset;
     }
 </style>

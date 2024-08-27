@@ -291,9 +291,6 @@ export default {
 </script>
 
 <style scoped>
-    .bg-table {
-        background-color: red;
-    }
     .main-app {
         font-family: Avenir, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -339,21 +336,6 @@ export default {
 
     .hand-empty {
         height: 80px;
-    }
-
-    .bag-icon-container {
-        position: relative;
-    }
-
-    .bag-icon {
-        width: 4em;
-        height: 4em;
-    }
-
-    .bag-text {
-        width: 100%;
-        position: absolute;
-        top: 1.7rem;
     }
 
     .progress-foreground {
