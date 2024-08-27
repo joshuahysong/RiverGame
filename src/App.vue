@@ -124,7 +124,6 @@
                                 <li class="list-group-item">Wars</li>
                                 <li class="list-group-item">Bots</li>
                                 <li class="list-group-item">Game Setup Screen</li>
-                                <li class="list-group-item">Tile Swap</li>
                                 <li class="list-group-item">Game End</li>
                             </ul>
                         </div>

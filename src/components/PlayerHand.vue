@@ -139,11 +139,16 @@ export default {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.tileType === tileType)
         },
         selectTile(index, tileType) {
+            if (!this.selectable) return
+
             let isLeaderTile = leaderTileTypes.includes(tileType)
             let isRevolt = this.currentActionType === actionTypes.revoltAttack  || this.currentActionType === actionTypes.revoltDefend
-            if (this.selectable &&
-                ((this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) ||
-                isRevolt && this.player.hand[index] === tileTypes.temple)) {
+            let allowTileSelection = false
+            if (this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) allowTileSelection = true
+            if (isRevolt && this.player.hand[index] === tileTypes.temple) allowTileSelection = true
+            if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
+
+            if (allowTileSelection) {
                 if (this.isSelectedTile(index, tileType)) {
                     this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 } else {

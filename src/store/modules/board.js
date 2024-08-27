@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
 
-
 const state = () => ({
     map: [
         '0','0','0','0','╔','=','=','=','╝','0','0','0','║','0','0','0',

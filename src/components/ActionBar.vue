@@ -14,6 +14,34 @@
             <div v-if="showBuildMonumentMultipleMessage" class="d-inline-block">
                 {{playerName}}: Select the top-left location for the monument.
             </div>
+            <div v-if="showSwapTilesMessage" class="d-inline-block">
+                {{playerName}}: Select tiles to discard and redraw.
+            </div>
+        </div>
+        <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+            <b-button
+                variant="primary"
+                size="sm"
+                @click="beginSwapTiles"
+                :disabled="areActionsDepleted"
+                class="mr-2">
+                Swap Tiles
+            </b-button>
+            <b-button
+                variant="danger"
+                size="sm"
+                :disabled="areActionsDepleted"
+                @click="showPassTurnMessageBox"
+                class="mr-2">
+                Pass
+            </b-button>
+            <b-button
+                variant="success"
+                size="sm"
+                :disabled="isEndTurnDisabled"
+                @click="doEndTurn">
+                End Turn
+            </b-button>
         </div>
         <div v-if="showBuildMonumentMessage || showBuildMonumentMultipleMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
             <b-button
@@ -23,21 +51,19 @@
                 Pass
             </b-button>
         </div>
-        <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+        <div v-if="showSwapTilesMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+            <b-button
+                variant="warning"
+                size="sm"
+                @click="stopSwapTiles"
+                class="mr-2">
+                Cancel
+            </b-button>
             <b-button
                 variant="danger"
                 size="sm"
-                :disabled="isPassTurnDisabled"
-                @click="showPassTurnMessageBox"
-                class="mr-2">
-                Pass
-            </b-button>
-            <b-button
-                variant="primary"
-                size="sm"
-                :disabled="isEndTurnDisabled"
-                @click="doEndTurn">
-                End Turn
+                @click="doSwapTiles">
+                Discard {{ player.selectedTiles.length }} Tile{{ player.selectedTiles.length === 1 ? '' : 's' }}
             </b-button>
         </div>
     </div>
@@ -55,8 +81,12 @@ export default {
             showCurrentPlayerMessage: true,
             showTakeTreasureMessage: false,
             showBuildMonumentMessage: false,
-            showBuildMonumentMultipleMessage: false
+            showBuildMonumentMultipleMessage: false,
+            showSwapTilesMessage: false
         }
+    },
+    mounted() {
+        this.setMessageDisplayToggles(this.currentActionType)
     },
     computed: {
         ...mapGetters('game', [
@@ -82,23 +112,23 @@ export default {
         isEndTurnDisabled() {
             return this.remainingActions != 0
         },
-        isPassTurnDisabled() {
+        areActionsDepleted() {
             return this.remainingActions == 0
         }
     },
     watch: {
         currentActionType(newActionType) {
-            this.showCurrentPlayerMessage = false
-            this.showTakeTreasureMessage = false
-            this.showBuildMonumentMessage = false
-            this.showBuildMonumentMultipleMessage = false
-            if (newActionType == actionTypes.playTile) this.showCurrentPlayerMessage = true
-            if (newActionType == actionTypes.takeTreasure) this.showTakeTreasureMessage = true
-            if (newActionType == actionTypes.buildMonument) this.showBuildMonumentMessage = true
-            if (newActionType == actionTypes.buildMonumentMultiple) this.showBuildMonumentMultipleMessage = true
+            this.setMessageDisplayToggles(newActionType)
         }
     },
     methods: {
+        setMessageDisplayToggles(newActionType) {
+            this.showCurrentPlayerMessage = newActionType == actionTypes.playTile
+            this.showTakeTreasureMessage = newActionType == actionTypes.takeTreasure
+            this.showBuildMonumentMessage = newActionType == actionTypes.buildMonument
+            this.showBuildMonumentMultipleMessage = newActionType == actionTypes.buildMonumentMultiple
+            this.showSwapTilesMessage = newActionType == actionTypes.swapTiles
+        },
         async doEndTurn() {
             this.$store.dispatch('board/checkForMonumentScore')
             await this.$store.dispatch('players/refillPlayerHands')
@@ -129,6 +159,22 @@ export default {
                 let tile = this.$store.getters['board/tile'](location.index)
                 this.$store.commit('board/updateTile', { ...tile, isHighlighted: false })
             })
+            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+            this.$store.commit('game/actionCompleted')
+        },
+        beginSwapTiles(){
+            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('game/setActionType', { actionType: actionTypes.swapTiles })
+        },
+        stopSwapTiles() {
+            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+        },
+        async doSwapTiles() {
+            let tilesToRemove = [...this.player.selectedTiles]
+            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: tilesToRemove })
+            await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
             this.$store.commit('game/actionCompleted')
         }

@@ -1,7 +1,8 @@
 import { actionTypes, monumentTypes } from '../../common/constants'
 
+const DEBUG = false
+
 const state = () => ({
-    debug: false,
     activeTurnPlayerId: 0,
     currentActionPlayerId: 0,
     currentHandDisplayPlayerId: 0,
@@ -39,8 +40,8 @@ const defaultState = {
 }
 
 const getters = {
-    debug: (state) => {
-        return state.debug
+    debug() {
+        return DEBUG
     },
     isSaveValid() {
         if (localStorage.gameState) {

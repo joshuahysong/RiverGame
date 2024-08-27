@@ -27,7 +27,7 @@ const getters = {
 
 const actions = {
     async createNewPlayer({commit, state, dispatch}, payload) {
-        var hand = await dispatch('bag/drawTiles', {numberOfTiles: 6}, { root: true })
+        var hand = await dispatch('bag/drawTiles', { numberOfTiles: 6 }, { root: true })
         var newPlayer = {
             id: state.players.length + 1,
             name: payload.name,
@@ -117,6 +117,14 @@ const mutations = {
         let playerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
         if (playerHand && playerHand.length > payload.index) {
             playerHand.splice(payload.index, 1)
+        }
+    },
+    removeTilesFromHand(state, payload) {
+        let playerHand = state.players.filter(x => x.id === payload.playerId)[0].hand
+        let indexesToRemove = payload.tilesToRemove.map(tileToRemove => tileToRemove.index)
+        if (playerHand && playerHand.length >= indexesToRemove.length) {
+            let filteredHand = playerHand.filter((x, index) => !indexesToRemove.includes(index))
+            state.players.filter(x => x.id === payload.playerId)[0].hand = filteredHand
         }
     },
     removeLeaderFromHand(state, payload) {
