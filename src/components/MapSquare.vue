@@ -6,8 +6,7 @@
         <leader-tile v-if="hasTile && tile.isLeaderTile"
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"
-            :player="getPlayer(tile.playerId)"
-            :size="40" />
+            :player="getPlayer(tile.playerId)" />
         <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>

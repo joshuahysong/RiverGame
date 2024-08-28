@@ -26,7 +26,7 @@ export default {
             return cssClass
         },
         tileStyle() {
-            return `height: ${this.size}px; width: ${this.size}px;`
+            return this.size ? `height: ${this.size}px; width: ${this.size}px;` : ''
         },
         iconClass() {
             var leaderClass = helpers.getTileNameByType(this.tileType)
