@@ -18,7 +18,9 @@ const state = () => ({
     tiles: [],
     regions: [],
     availableTileLocations: [],
-    availableMonumentLocations: []
+    availableMonumentLocations: [],
+    initialTreasures: 0,
+    remainingTreasures: 0
 })
 
 const initialTiles = [
@@ -45,8 +47,11 @@ const getters = {
     tile: (state) => (index) => {
         return state.tiles[index]
     },
-    initialTreasures() {
-        return initialTiles.filter(x => x === tileTypes.treasure).length
+    initialTreasures: (state) => {
+        return state.initialTreasures
+    },
+    remainingTreasures: (state) => {
+        return state.remainingTreasures
     },
     kingdoms: (state) => {
         return state.regions.filter(region => region.isKingdom)
@@ -187,6 +192,7 @@ const actions = {
         }
         commit('setTiles', newTiles)
         dispatch('setRegions')
+        commit('setTreasureCounts')
     },
     handleBoardClick ({commit, rootGetters, dispatch, getters}, payload) {
         let currentPlayer = rootGetters['players/currentPlayer']
@@ -218,6 +224,7 @@ const actions = {
             if (currentActionType === actionTypes.takeTreasure) {
                 const tile = getters.tile(payload.index)
                 if (tile.isHighlighted) {
+                    commit('removeTreasure')
                     commit('players/incrementScore', {playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure}, {root: true})
                     commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
                     let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
@@ -494,6 +501,13 @@ const actions = {
 }
 
 const mutations = {
+    setTreasureCounts(state) {
+        state.initialTreasures = initialTiles.filter(x => x === tileTypes.treasure).length
+        state.remainingTreasures = state.tiles.filter(x => x.tileType === tileTypes.treasure).length
+    },
+    removeTreasure(state) {
+        state.remainingTreasures--
+    },
     addTile(state, payload) {
         if (payload && state.tiles.length - 1 >= payload.index) {
             let tile = {

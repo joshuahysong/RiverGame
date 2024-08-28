@@ -161,7 +161,7 @@ import PlayerCard from './components/PlayerCard.vue'
 import ActionBar from './components/ActionBar.vue'
 import MonumentCard from './components/MonumentCard.vue'
 import helpers from './common/helpers'
-import { actionTypes, tileTypes } from './common/constants'
+import { actionTypes } from './common/constants'
 
 export default {
     name: 'App',
@@ -196,7 +196,8 @@ export default {
         ...mapGetters('board', [
             'map',
             'tiles',
-            'initialTreasures'
+            'initialTreasures',
+            'remainingTreasures'
         ]),
         ...mapGetters('players', {
             currentPlayer: 'currentPlayer',
@@ -247,9 +248,6 @@ export default {
         showMonumentsBelowHand() {
             return this.currentActionType === actionTypes.buildMonument ||
                 this.currentActionType === actionTypes.buildMonumentMultiple
-        },
-        remainingTreasures() {
-            return this.tiles.filter(x => x.tileType === tileTypes.treasure).length
         }
     },
     methods: {
