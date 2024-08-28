@@ -27,6 +27,7 @@
         <div class="main-app container-fluid text-center mb-5 p-0">
             <action-bar></action-bar>
             <div class="row no-gutters mt-2">
+                <!-- board column -->
                 <div class="col-12 col-lg-9 col-xl-7 order-2 order-xl-1">
                     <div class="map-container">
                         <div class="grid">
@@ -41,17 +42,18 @@
                     </div>
                 </div>
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
+                    <!-- player hand column -->
                     <div class="row no-gutters justify-content-center align-items-center">
                         <div v-if="showMonumentsBelowHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
                             <monument-card />
                         </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
-                            <player-hand v-if="currentPlayer?.isHuman"
+                            <player-hand v-if="getPlayer(currentHandDisplayPlayerId)?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">
                                 <div class="card-body">
                                     <div class="row align-items-center justify-content-center hand-empty">
-                                        Player {{ currentPlayer?.id }}'s turn
+                                        Player {{ currentActionPlayerId }}'s turn
                                     </div>
                                 </div>
                             </div>
@@ -62,6 +64,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-lg-3 order-3 ">
+                    <!-- player card column -->
                     <div class="row no-gutters">
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
@@ -69,8 +72,8 @@
                             class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentPlayer.id"
-                                :class="{'border-danger': player?.id === currentPlayer.id}" />
+                                :show-score="player?.id === currentActionPlayerId"
+                                :class="{'border-danger': player?.id === currentActionPlayerId}" />
                         </div>
                         <div class="col-6 col-lg-12 px-1 mt-2 d-block d-xl-none">
                             <monument-card class="h-100" />
@@ -137,10 +140,10 @@
                 <div class="px-3 py-2">
                     Number of Players: {{ numberOfPlayers }}<br />
                     Current Action Type: {{ actionTypeName }}<br />
-                    Current Turn PlayerId: {{currentPlayer?.id}}<br />
+                    Current Turn PlayerId: {{ activeTurnPlayerId }}<br />
                     Current Hand PlayerId: {{ currentHandDisplayPlayerId }}<br />
                     Current Action PlayerId: {{ currentActionPlayerId }}<br />
-                    Bag: {{debugBagStats}}<br />
+                    Bag: {{ debugBagStats }}<br />
                 </div>
             </b-sidebar>
         </div>
@@ -200,13 +203,13 @@ export default {
             'remainingTreasures'
         ]),
         ...mapGetters('players', {
-            currentPlayer: 'currentPlayer',
             allPlayers: 'all'
         }),
         ...mapGetters('game', [
             'debug',
             'isSaveValid',
             'numberOfPlayers',
+            'activeTurnPlayerId',
             'currentActionType',
             'currentHandDisplayPlayerId',
             'currentActionPlayerId',
