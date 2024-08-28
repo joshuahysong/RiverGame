@@ -41,8 +41,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- player hand column -->
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
-                    <!-- player hand column -->
                     <div class="row no-gutters justify-content-center align-items-center">
                         <div v-if="showMonumentsBelowHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
                             <monument-card />
@@ -63,8 +63,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- player card column -->
                 <div class="col-12 col-lg-3 order-3 ">
-                    <!-- player card column -->
                     <div class="row no-gutters">
                         <div v-for="(player, index) in allPlayers"
                             :key="index"
@@ -79,41 +79,12 @@
                             <monument-card class="h-100" />
                         </div>
                         <div class="col-6 col-lg-12 px-1 mt-2">
-                            <div class="card">
-                                <div class="card-header bg-transparent border-0 py-2"><strong>Progress</strong></div>
-                                <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-                                    <div class="row no-gutters">
-                                        <div class="col-12 col-sm-4 small">Bag</div>
-                                        <div class="col-12 col-sm">
-                                            <b-progress max="100" height="1.5rem">
-                                                <div class="progress-foreground progress-bar bg-success"
-                                                    :style="`clip-path: inset(0 ${100-Math.round((bagSpaceRemaining / 100) * 100)}% 0 0);`"
-                                                    aria-hidden="true">{{Math.round((bagSpaceRemaining / 100) * 100)}}%</div>
-                                                <div class="progress-background"
-                                                    :style="`clip-path: inset(0 0 0 ${Math.round((bagSpaceRemaining / 100) * 100)}%);`"
-                                                    aria-hidden="true">{{Math.round((bagSpaceRemaining / 100) * 100)}}%</div>
-                                            </b-progress>
-                                        </div>
-                                    </div>
-                                    <div class="row no-gutters mt-2">
-                                        <div class="col-12 col-sm-4 small">Treasures</div>
-                                        <div class="col-12 col-sm">
-                                            <b-progress :max="initialTreasures" height="1.5rem">
-                                                <div class="progress-foreground progress-bar bg-success"
-                                                    :style="`clip-path: inset(0 ${((initialTreasures-remainingTreasures)/initialTreasures*100)}% 0 0);`"
-                                                    aria-hidden="true">{{remainingTreasures}} of {{initialTreasures}}</div>
-                                                <div class="progress-background"
-                                                    :style="`clip-path: inset(0 0 0 ${(remainingTreasures/initialTreasures*100)}%);`"
-                                                    aria-hidden="true">{{remainingTreasures}} of {{initialTreasures}}</div>
-                                            </b-progress>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <progress-card />
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Temprary feature list -->
             <div class="row no-gutters mt-2">
                 <div class="col-12 col-sm-8 col-lg-4 offset-0 offset-sm-2 mt-2 px-1">
                     <div class="card">
@@ -158,22 +129,24 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ActionBar from './components/ActionBar.vue'
 import MapSquare from './components/MapSquare.vue'
+import MonumentCard from './components/MonumentCard.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
-import ActionBar from './components/ActionBar.vue'
-import MonumentCard from './components/MonumentCard.vue'
+import ProgressCard from './components/ProgressCard.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
 export default {
     name: 'App',
     components: {
+        ActionBar,
         MapSquare,
+        MonumentCard,
         PlayerHand,
         PlayerCard,
-        ActionBar,
-        MonumentCard
+        ProgressCard
     },
     data() {
         return {
@@ -193,14 +166,11 @@ export default {
     },
     computed: {
         ...mapGetters('bag', [
-            'debugBagStats',
-            'bagSpaceRemaining'
+            'debugBagStats'
         ]),
         ...mapGetters('board', [
             'map',
-            'tiles',
-            'initialTreasures',
-            'remainingTreasures'
+            'tiles'
         ]),
         ...mapGetters('players', {
             allPlayers: 'all'
@@ -212,12 +182,8 @@ export default {
             'activeTurnPlayerId',
             'currentActionType',
             'currentHandDisplayPlayerId',
-            'currentActionPlayerId',
-            'conflictDefenderPlayerId'
+            'currentActionPlayerId'
         ]),
-        leaderIcon() {
-            return helpers.getPlayerIconNameById(this.messagePlayerId)
-        },
         actionTypeName() {
             return helpers.getActionNameByType(this.currentActionType)
         },
@@ -279,13 +245,6 @@ export default {
         },
         saveSettings() {
             this.$store.dispatch('settings/save')
-        },
-        commitTilesToRevolt() {
-            // Add attacker selected tiles to conflict
-            this.$store.dispatch('players/removeSelectedTiles', { playerId: this.currentActionPlayerId })
-            this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderPlayerId })
-            this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderPlayerId })
-            this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
         }
     }
 }
@@ -337,26 +296,6 @@ export default {
 
     .hand-empty {
         height: 80px;
-    }
-
-    .progress-foreground {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        color: white;
-    }
-
-    .progress-background {
-        position: absolute;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        color: black;
     }
 </style>
 
