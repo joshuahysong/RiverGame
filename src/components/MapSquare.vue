@@ -3,7 +3,11 @@
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
         <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
-        <leader-tile v-if="hasTile && tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" :player="getPlayer(tile.playerId)" :size="40" />
+        <leader-tile v-if="hasTile && tile.isLeaderTile"
+            :tile-type="tile.tileType"
+            :highlight="tile.isHighlighted"
+            :player="getPlayer(tile.playerId)"
+            :size="40" />
         <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
@@ -119,19 +123,13 @@ export default {
     methods: {
         getMapSquareClass() {
             var mapClass = ''
-            let availableTileLocations = [];
-            if (this.currentPlayer &&
-                this.currentPlayer.selectedTiles &&
-                this.currentPlayer.selectedTiles[0])
-                availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
-
+            let availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
             if (availableTileLocations && availableTileLocations.includes(this.index))
                 mapClass += ' valid-location'
-
             return mapClass;
         },
         doMapSquareClick() {
-            this.$store.dispatch('board/handleBoardClick', { index: this.index })
+            this.$store.dispatch('board/handleBoardClick', { ...this.tile })
         },
         getPlayer() {
             return this.$store.getters['players/getPlayer'](this.tile.playerId)
@@ -159,6 +157,9 @@ export default {
         width: 100%;
         position: absolute;
         z-index: 5;
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
     }
 
     .coordinates-text-size {

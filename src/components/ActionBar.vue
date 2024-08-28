@@ -130,12 +130,16 @@ export default {
             this.showSwapTilesMessage = newActionType == actionTypes.swapTiles
         },
         async doEndTurn() {
+            this.$store.commit('board/resetBoardTileHighlights')
+            this.$store.commit('board/resetAvailableTileLocations')
             this.$store.dispatch('board/checkForMonumentScore')
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/nextActivePlayer')
             this.$store.dispatch('game/save')
         },
         async showPassTurnMessageBox() {
+            this.$store.commit('board/resetAvailableTileLocations')
+            this.$store.commit('board/resetBoardTileHighlights')
             const h = this.$createElement
             //const message = h('div', { domProps: { innerHTML: `Are you sure?<br/>You have ${this.remainingActionsMessage}` } })
             const message = h('div', { class: ['text-center'] }, [ 'Are you sure?', h('br'), `You have ${this.remainingActionsMessage}` ])
@@ -163,6 +167,8 @@ export default {
             this.$store.commit('game/actionCompleted')
         },
         beginSwapTiles(){
+            this.$store.commit('board/resetAvailableTileLocations')
+            this.$store.commit('board/resetBoardTileHighlights')
             this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
             this.$store.commit('game/setActionType', { actionType: actionTypes.swapTiles })
         },

@@ -86,6 +86,7 @@ const actions = {
             }
         })
         commit('clearTileSelection', { ...payload })
+        commit('board/resetAvailableTileLocations', null, { root: true })
     }
 }
 

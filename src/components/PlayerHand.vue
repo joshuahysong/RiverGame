@@ -152,6 +152,7 @@ export default {
                 if (this.isSelectedTile(index, tileType)) {
                     this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 } else {
+                    this.$store.commit('board/resetBoardTileHighlights')
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
             }

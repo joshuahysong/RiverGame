@@ -176,6 +176,10 @@ const getters = {
             neighbors.bottom.tileType !== tileTypes.catastrophe)
             neighborRegions.push(getters.getRegion(neighbors.bottom.index))
         return Array.from(new Set(neighborRegions));
+    },
+    isValidTileLocation: (state, getters) => (index) => {
+        let availableTileLocations = getters.getAvailableTileLocations
+        return availableTileLocations && availableTileLocations.some(x => x === index)
     }
 }
 
@@ -194,51 +198,66 @@ const actions = {
         dispatch('setRegions')
         commit('setTreasureCounts')
     },
-    handleBoardClick ({commit, rootGetters, dispatch, getters}, payload) {
+    handleBoardClick ({commit, rootGetters, dispatch, getters}, clickedTile) {
+        if (!clickedTile) return
         let currentPlayer = rootGetters['players/currentPlayer']
         let currentActionType = rootGetters['game/currentActionType']
-        if (payload) {
-            if (currentActionType === actionTypes.playTile &&
-                currentPlayer.selectedTiles &&
-                currentPlayer.selectedTiles.length >= 1) {
-                const selectedTile = currentPlayer.selectedTiles[0]
-                let availableTileLocations = getters.getAvailableTileLocations
-                if (availableTileLocations && availableTileLocations.some(x => x === payload.index)) {
-                    const newPayload = {...selectedTile, ...payload, playerId: currentPlayer.id}
-                    const neighborKingdoms = getters.neighborRegions(newPayload).filter(x => x.isKingdom)
-                    commit('addTile', newPayload)
-                    dispatch('setRegions')
-                    dispatch('checkForDisplacedLeader')
-                    //dispatch('checkForRevolt', newPayload)
-                    if (neighborKingdoms.length <= 1)
-                        dispatch('checkForTileScore', newPayload)
-                    dispatch('checkForTreasureToTake', newPayload)
-                    dispatch('players/removeSelectedTiles', {playerId: currentPlayer.id}, { root: true })
+        let selectedBoardLeader = getters.tiles.filter(tile => tile.isLeaderTile && tile.playerId == currentPlayer.id && tile.isHighlighted)[0]
+        let playerHasSelectedTiles = currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
+        if (currentActionType === actionTypes.playTile) {
+            // Select/Deselect player leader tile
+            if (clickedTile.isLeaderTile &&
+                clickedTile.playerId === currentPlayer.id &&
+                rootGetters['game/remainingActions'] > 0
+            ) {
+                commit('players/clearTileSelection', { playerId: currentPlayer.id }, { root: true })
+                commit('updateTile', {...clickedTile, isHighlighted: !clickedTile.isHighlighted})
+                let selectedLeaderTile = getters.tile(clickedTile.index)
+                if (selectedLeaderTile.isHighlighted) {
+                    dispatch('calculateAvailableTileLocations', selectedLeaderTile)
+                } else {
                     commit('resetAvailableTileLocations')
-                    dispatch('checkForMonument', newPayload)
+                }
+            // Place a tile
+            } else if ((playerHasSelectedTiles || selectedBoardLeader) &&
+                getters.isValidTileLocation(clickedTile.index)
+            ) {
+                if (selectedBoardLeader) commit('removeTile', { index: selectedBoardLeader.index })
+                const selectedTile = playerHasSelectedTiles ? currentPlayer.selectedTiles[0] : selectedBoardLeader
+                const newTile = {
+                    ...clickedTile,
+                    isLeaderTile: selectedTile.isLeaderTile,
+                    tileType: selectedTile.tileType,
+                    playerId: currentPlayer.id
+                }
+                const neighborKingdoms = getters.neighborRegions(newTile).filter(x => x.isKingdom)
+                commit('addTile', newTile)
+                dispatch('setRegions')
+                dispatch('checkForDisplacedLeader')
+                if (neighborKingdoms.length <= 1 && playerHasSelectedTiles) dispatch('checkForTileScore', newTile)
+                dispatch('checkForTreasureToTake', newTile)
+                dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
+                commit('resetAvailableTileLocations')
+                if (playerHasSelectedTiles) dispatch('checkForMonument', newTile)
 
-                    if (rootGetters['game/currentActionType'] === actionTypes.playTile)
-                        commit('game/actionCompleted', null, {root: true})
-                }
+                if (rootGetters['game/currentActionType'] === actionTypes.playTile)
+                    commit('game/actionCompleted', null, { root: true })
             }
-            if (currentActionType === actionTypes.takeTreasure) {
-                const tile = getters.tile(payload.index)
-                if (tile.isHighlighted) {
-                    commit('removeTreasure')
-                    commit('players/incrementScore', {playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure}, {root: true})
-                    commit('updateTile', {...tile, tileType: tileTypes.temple, isHighlighted: false})
-                    let highlightedTiles = getters.tiles.filter(x => x.isHighlighted)
-                    for (let i = 0; i < highlightedTiles.length; i++) {
-                        commit('updateTile', {...highlightedTiles[i], isHighlighted: false})
-                    }
-                    commit('game/setCurrentActionPlayerId', {playerId: rootGetters['game/activeTurnPlayerId']}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
-                }
+        }
+        if (currentActionType === actionTypes.takeTreasure) {
+            if (clickedTile.isHighlighted) {
+                commit('removeTreasure')
+                commit('players/incrementScore', {playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure}, {root: true})
+                commit('updateTile', {...clickedTile, tileType: tileTypes.temple, isHighlighted: false})
+                commit('resetBoardTileHighlights')
+                commit('game/actionCompleted', null, { root: true })
+                commit('game/setCurrentActionPlayerId', {playerId: rootGetters['game/activeTurnPlayerId']}, {root: true})
+                commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
             }
-            if (currentActionType === actionTypes.buildMonumentMultiple) {
-                let monumentType = rootGetters['game/selectedMonumentType']
-                dispatch('buildMonument', { ...payload, monumentType: monumentType })
-            }
+        }
+        if (currentActionType === actionTypes.buildMonumentMultiple) {
+            let monumentType = rootGetters['game/selectedMonumentType']
+            dispatch('buildMonument', { ...clickedTile, monumentType: monumentType })
         }
     },
     calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
@@ -277,7 +296,7 @@ const actions = {
                         eligibleTileLocations.push(i)
                 }
             }
-        }        
+        }
         commit('setAvailableTileLocations', eligibleTileLocations)
     },
     setRegions({state, getters, commit}) {
@@ -563,6 +582,9 @@ const mutations = {
     },
     resetAvailableMonumentLocations(state) {
         state.availableMonumentLocations.splice(0)
+    },
+    resetBoardTileHighlights(state) {
+        state.tiles.forEach(tile => tile.isHighlighted = false)
     }
 }
 
