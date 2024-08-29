@@ -180,6 +180,9 @@ const getters = {
     isValidTileLocation: (state, getters) => (index) => {
         let availableTileLocations = getters.getAvailableTileLocations
         return availableTileLocations && availableTileLocations.some(x => x === index)
+    },
+    selectedBoardLeader: (state, getters) => (playerId) => {
+        return getters.tiles.filter(tile => tile.isLeaderTile && tile.playerId == playerId && tile.isHighlighted)[0]
     }
 }
 
@@ -202,7 +205,7 @@ const actions = {
         if (!clickedTile) return
         let currentPlayer = rootGetters['players/currentPlayer']
         let currentActionType = rootGetters['game/currentActionType']
-        let selectedBoardLeader = getters.tiles.filter(tile => tile.isLeaderTile && tile.playerId == currentPlayer.id && tile.isHighlighted)[0]
+        let selectedBoardLeader = getters.selectedBoardLeader(currentPlayer.id)
         let playerHasSelectedTiles = currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
         if (currentActionType === actionTypes.playTile) {
             // Select/Deselect player leader tile

@@ -14,6 +14,7 @@
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index, tileType)"
+                                :highlight="isHighlightedLeader(tileType)"
                                 @click.native="selectTile(index, tileType)"
                                 show-pointer
                                 show-empty />
@@ -27,6 +28,7 @@
                                 :player="player"
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index + 2, tileType)"
+                                :highlight="isHighlightedLeader(tileType)"
                                 @click.native="selectTile(index + 2, tileType)"
                                 show-pointer
                                 show-empty />
@@ -107,10 +109,13 @@ export default {
         window.removeEventListener("resize", this.onWindowResize);
     },
     computed: {
-        ...mapGetters('game', {
-            remainingActions: 'remainingActions',
-            currentActionType: 'currentActionType'
-        }),
+        ...mapGetters('game', [
+            'remainingActions',
+            'currentActionType'
+        ]),
+        ...mapGetters('board', [
+            'tiles',
+        ]),
         tileTypes() {
             return tileTypes
         },
@@ -131,6 +136,10 @@ export default {
         isSelectedTile(index, tileType) {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.tileType === tileType)
         },
+        isHighlightedLeader(tileType) {
+            let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
+            return selectedBoardLeader && selectedBoardLeader.tileType === tileType
+        },
         selectTile(index, tileType) {
             if (!this.selectable) return
 
@@ -149,6 +158,18 @@ export default {
                 } else {
                     this.$store.commit('board/resetBoardTileHighlights')
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
+                }
+            } else {
+                let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
+                if (selectedBoardLeader &&
+                    selectedBoardLeader.tileType === tileType &&
+                    this.currentActionType === actionTypes.playTile
+                ) {
+                    this.$store.commit('players/addLeaderToPlayer', { ...selectedBoardLeader })
+                    this.$store.commit('board/removeTile', { index: selectedBoardLeader.index })
+                    this.$store.dispatch('board/setRegions')
+                    this.$store.commit('board/resetAvailableTileLocations')
+                    this.$store.commit('game/actionCompleted')
                 }
             }
         },
