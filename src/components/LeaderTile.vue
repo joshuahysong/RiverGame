@@ -22,7 +22,7 @@ export default {
         tileClass() {
             let cssClass = this.selected ? 'selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
-            cssClass += this.showPointer || this.highlight ? ' pointer' : ''
+            cssClass += (this.showPointer && !this.isEmpty) || this.highlight ? ' pointer' : ''
             return cssClass
         },
         tileStyle() {
@@ -30,11 +30,14 @@ export default {
         },
         iconClass() {
             var leaderClass = helpers.getTileNameByType(this.tileType)
-            if (!this.player.leaders.includes(this.tileType) && this.showEmpty) leaderClass += ' empty'
+            if (this.isEmpty) leaderClass += ' empty'
             return leaderClass
         },
         icon() {
             return helpers.getPlayerIconNameById(this.player.id)
+        },
+        isEmpty() {
+            return !this.player.leaders.includes(this.tileType) && this.showEmpty
         }
     }
 }

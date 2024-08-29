@@ -481,10 +481,10 @@ const actions = {
             if (tile.isLeaderTile) {
                 let neighbors = getters.getNeighbors(i)
                 let hasTemple = false
-                if (neighbors.bottom.tileType == tileTypes.temple || neighbors.bottom.tileType == tileTypes.treasure) hasTemple = true
-                if (neighbors.left.tileType == tileTypes.temple || neighbors.left.tileType == tileTypes.treasure) hasTemple = true
-                if (neighbors.right.tileType == tileTypes.temple || neighbors.right.tileType == tileTypes.treasure) hasTemple = true
-                if (neighbors.top.tileType == tileTypes.temple || neighbors.top.tileType == tileTypes.treasure) hasTemple = true
+                if (neighbors.bottom && (neighbors.bottom.tileType == tileTypes.temple || neighbors.bottom.tileType == tileTypes.treasure)) hasTemple = true
+                if (neighbors.left && (neighbors.left.tileType == tileTypes.temple || neighbors.left.tileType == tileTypes.treasure)) hasTemple = true
+                if (neighbors.right && (neighbors.right.tileType == tileTypes.temple || neighbors.right.tileType == tileTypes.treasure)) hasTemple = true
+                if (neighbors.top && (neighbors.top.tileType == tileTypes.temple || neighbors.top.tileType == tileTypes.treasure)) hasTemple = true
                 if (!hasTemple) {
                     commit('players/addLeaderToPlayer', tile, {root: true})
                     commit('removeTile', { index: tile.index })

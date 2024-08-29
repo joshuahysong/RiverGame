@@ -7,7 +7,7 @@
                     <div class="row no-gutters">
                         <div class="col-auto col-xl-12 text-right text-xl-center">
                             <leader-tile
-                                v-for="(tileType, index) in playerLeaders1"
+                                v-for="(tileType, index) in leaderTileTypes.slice(0, 2)"
                                 :key="index"
                                 :size="size"
                                 :tile-type="tileType"
@@ -15,11 +15,12 @@
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index, tileType)"
                                 @click.native="selectTile(index, tileType)"
-                                show-pointer />
+                                show-pointer
+                                show-empty />
                         </div>
                         <div class="col-auto col-xl-12 text-left text-xl-center">
                             <leader-tile
-                                v-for="(tileType, index) in playerLeaders2"
+                                v-for="(tileType, index) in leaderTileTypes.slice(2, 4)"
                                 :key="index"
                                 :size="size"
                                 :tile-type="tileType"
@@ -27,7 +28,8 @@
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index + 2, tileType)"
                                 @click.native="selectTile(index + 2, tileType)"
-                                show-pointer />
+                                show-pointer
+                                show-empty />
                         </div>
                     </div>
                 </div>
@@ -123,15 +125,6 @@ export default {
             if (this.player.hand.length < 4) return []
             var max = this.player.hand.length < 6 ? this.player.hand.length : 6
             return this.player.hand.slice(3, max)
-        },
-        playerLeaders1() {
-            var max = this.player.leaders.length < 2 ? this.player.leaders.length : 2
-            return this.player.leaders.slice(0, max)
-        },
-        playerLeaders2() {
-            if (this.player.leaders.length < 3) return []
-            var max = this.player.leaders.length < 4 ? this.player.leaders.length : 4
-            return this.player.leaders.slice(2, max)
         }
     },
     methods:{
@@ -144,7 +137,9 @@ export default {
             let isLeaderTile = leaderTileTypes.includes(tileType)
             let isRevolt = this.currentActionType === actionTypes.revoltAttack  || this.currentActionType === actionTypes.revoltDefend
             let allowTileSelection = false
-            if (this.remainingActions > 0 && this.currentActionType === actionTypes.playTile) allowTileSelection = true
+            if (this.remainingActions > 0 &&
+                this.currentActionType === actionTypes.playTile &&
+                (!isLeaderTile || (isLeaderTile && this.player.leaders.includes(tileType)))) allowTileSelection = true
             if (isRevolt && this.player.hand[index] === tileTypes.temple) allowTileSelection = true
             if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
 

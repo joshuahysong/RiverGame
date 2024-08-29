@@ -130,8 +130,9 @@ const mutations = {
     },
     removeLeaderFromHand(state, payload) {
         let playerLeaders = state.players.filter(x => x.id === payload.playerId)[0].leaders
-        if (playerLeaders && playerLeaders.length > payload.index) {
-            playerLeaders.splice(payload.index, 1)
+        if (playerLeaders && playerLeaders.includes(payload.tileType)) {
+            var index = playerLeaders.indexOf(payload.tileType)
+            playerLeaders.splice(index, 1)
         }
     },
     removeCatastropheFromHand(state, payload) {
