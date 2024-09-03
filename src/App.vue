@@ -92,7 +92,6 @@
                         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">Game Log</li>
-                                <li class="list-group-item">Undo Button</li>
                                 <li class="list-group-item">Revolts</li>
                                 <li class="list-group-item">Wars</li>
                                 <li class="list-group-item">Bots</li>

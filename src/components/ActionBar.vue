@@ -28,6 +28,14 @@
                 Swap Tiles
             </b-button>
             <b-button
+                variant="warning"
+                size="sm"
+                @click="undoLastAction"
+                :disabled="!hasSnapshot"
+                class="mr-2">
+                Undo
+            </b-button>
+            <b-button
                 variant="danger"
                 size="sm"
                 :hidden="areActionsDepleted"
@@ -92,7 +100,8 @@ export default {
         ...mapGetters('game', [
             'remainingActions',
             'currentActionType',
-            'currentActionPlayerId'
+            'currentActionPlayerId',
+            'hasSnapshot'
         ]),
         ...mapGetters('board', [
             'availableMonumentLocations'
@@ -127,6 +136,7 @@ export default {
             this.showSwapTilesMessage = newActionType == actionTypes.swapTiles
         },
         async doEndTurn() {
+            this.$store.commit('game/clearSnapshot')
             this.$store.commit('board/resetBoardTileHighlights')
             this.$store.commit('board/resetAvailableTileLocations')
             this.$store.dispatch('board/checkForMonumentScore')
@@ -171,6 +181,7 @@ export default {
         },
         stopSwapTiles() {
             this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('game/clearSnapshot')
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
         },
         async doSwapTiles() {
@@ -180,6 +191,11 @@ export default {
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
             this.$store.commit('game/actionCompleted')
+        },
+        undoLastAction() {
+            this.$store.dispatch('game/restoreSnapshot')
+            this.$store.commit('game/clearSnapshot')
+            this.$store.commit('board/resetBoardTileHighlights')
         }
     }
 }

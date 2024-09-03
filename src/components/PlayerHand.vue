@@ -152,6 +152,7 @@ export default {
             if (isRevolt && this.player.hand[index] === tileTypes.temple) allowTileSelection = true
             if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
 
+            // Selecting a tile in hand
             if (allowTileSelection) {
                 if (this.isSelectedTile(index, tileType)) {
                     this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
@@ -159,12 +160,14 @@ export default {
                     this.$store.commit('board/resetBoardTileHighlights')
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
+            // Moving a leader from board to hand
             } else {
                 let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
                 if (selectedBoardLeader &&
                     selectedBoardLeader.tileType === tileType &&
                     this.currentActionType === actionTypes.playTile
                 ) {
+                    this.$store.dispatch('game/saveSnapshot')
                     this.$store.commit('players/addLeaderToPlayer', { ...selectedBoardLeader })
                     this.$store.commit('board/removeTile', { index: selectedBoardLeader.index })
                     this.$store.dispatch('board/setRegions')

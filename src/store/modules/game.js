@@ -14,7 +14,8 @@ const state = () => ({
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
     remainingMonuments: [],
-    selectedMonumentType: 0
+    selectedMonumentType: 0,
+    snapshot: null
 })
 
 const defaultState = {
@@ -36,7 +37,8 @@ const defaultState = {
         monumentTypes.blackGreen,
         monumentTypes.blackBlue
     ],
-    selectedMonumentType: 0
+    selectedMonumentType: 0,
+    snapshot: null
 }
 
 const getters = {
@@ -79,6 +81,9 @@ const getters = {
     },
     selectedMonumentType: (state) => {
         return state.selectedMonumentType
+    },
+    hasSnapshot: (state) => {
+        return !!state.snapshot
     }
 }
 
@@ -105,6 +110,42 @@ const actions = {
             dispatch('board/setRegions', null, {root: true})
             commit('bag/setState', gameState.bag, {root: true})
             commit('setState', gameState.game)
+        }
+    },
+    saveSnapshot({state, rootGetters, commit}) {
+        console.log('saveSnapshot')
+        let snapshot = {}
+        let players = rootGetters['players/all']
+        snapshot.players = []
+        players.forEach(player => {
+            // I know... but it works for deep cloning. Don't hate me
+            snapshot.players.push(JSON.parse(JSON.stringify({...player, selectedTiles: []})))
+        })
+        snapshot.tiles = [...rootGetters['board/tiles']]
+        snapshot.bag = rootGetters['bag/all']
+        snapshot.game = {}
+        snapshot.game.activeTurnPlayerId = state.activeTurnPlayerId,
+        snapshot.game.currentActionPlayerId = state.currentActionPlayerId,
+        snapshot.game.currentHandDisplayPlayerId = state.currentHandDisplayPlayerId,
+        snapshot.game.remainingActions = state.remainingActions,
+        snapshot.game.currentActionType = state.currentActionType,
+        snapshot.game.conflictAttackerPlayerId = state.conflictAttackerPlayerId,
+        snapshot.game.conflictDefenderPlayerId = state.conflictDefenderPlayerId,
+        snapshot.game.conflictAttackerTiles = [...state.conflictAttackerTiles],
+        snapshot.game.conflictDefenderTiles = [...state.conflictDefenderTiles],
+        snapshot.game.remainingMonuments = [...state.remainingMonuments],
+        snapshot.game.selectedMonumentType = 0
+        commit('setSnapshot', { ...snapshot })
+    },
+    restoreSnapshot({state, getters, commit, dispatch}) {
+        console.log('restoreSnapshot')
+        if (getters.hasSnapshot) {
+            commit('players/loadPlayers', state.snapshot.players, { root: true })
+            commit('board/setTiles', state.snapshot.tiles, { root: true })
+            commit('board/setTreasureCounts', state.snapshot.tiles, { root: true })
+            dispatch('board/setRegions', null, { root: true })
+            commit('bag/setState', state.snapshot.bag, { root: true })
+            commit('setState', { ...state, ...state.snapshot.game })
         }
     }
 }
@@ -154,6 +195,14 @@ const mutations = {
     },
     setSelectedMonumentType(state, payload) {
         state.selectedMonumentType = payload.monumentType
+    },
+    setSnapshot(state, snapshot) {
+        console.log('setSnapshot')
+        state.snapshot = {...snapshot}
+    },
+    clearSnapshot(state) {
+        console.log('clearSnapshot')
+        state.snapshot = null
     }
 }
 

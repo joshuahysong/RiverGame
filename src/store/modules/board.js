@@ -203,11 +203,12 @@ const actions = {
     },
     handleBoardClick ({commit, rootGetters, dispatch, getters}, clickedTile) {
         if (!clickedTile) return
-        let currentPlayer = rootGetters['players/currentPlayer']
         let currentActionType = rootGetters['game/currentActionType']
-        let selectedBoardLeader = getters.selectedBoardLeader(currentPlayer.id)
-        let playerHasSelectedTiles = currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
         if (currentActionType === actionTypes.playTile) {
+            let currentPlayer = rootGetters['players/currentPlayer']
+            let selectedBoardLeader = getters.selectedBoardLeader(currentPlayer.id)
+            let playerHasSelectedTiles = currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
+
             // Select/Deselect player leader tile
             if (clickedTile.isLeaderTile &&
                 clickedTile.playerId === currentPlayer.id &&
@@ -225,6 +226,7 @@ const actions = {
             } else if ((playerHasSelectedTiles || selectedBoardLeader) &&
                 getters.isValidTileLocation(clickedTile.index)
             ) {
+                dispatch('game/saveSnapshot', null, { root: true })
                 if (selectedBoardLeader) commit('removeTile', { index: selectedBoardLeader.index })
                 const selectedTile = playerHasSelectedTiles ? currentPlayer.selectedTiles[0] : selectedBoardLeader
                 const newTile = {
@@ -250,12 +252,12 @@ const actions = {
         if (currentActionType === actionTypes.takeTreasure) {
             if (clickedTile.isHighlighted) {
                 commit('removeTreasure')
-                commit('players/incrementScore', {playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure}, {root: true})
-                commit('updateTile', {...clickedTile, tileType: tileTypes.temple, isHighlighted: false})
+                commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure }, { root: true })
+                commit('updateTile', { ...clickedTile, tileType: tileTypes.temple, isHighlighted: false })
                 commit('resetBoardTileHighlights')
                 commit('game/actionCompleted', null, { root: true })
-                commit('game/setCurrentActionPlayerId', {playerId: rootGetters['game/activeTurnPlayerId']}, {root: true})
-                commit('game/setActionType', {actionType: actionTypes.playTile}, {root: true})
+                commit('game/setCurrentActionPlayerId', { playerId: rootGetters['game/activeTurnPlayerId'] }, { root: true })
+                commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
             }
         }
         if (currentActionType === actionTypes.buildMonumentMultiple) {
