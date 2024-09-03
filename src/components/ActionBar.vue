@@ -30,7 +30,7 @@
             <b-button
                 variant="danger"
                 size="sm"
-                :disabled="areActionsDepleted"
+                :hidden="areActionsDepleted"
                 @click="showPassTurnMessageBox"
                 class="mr-2">
                 Pass
@@ -38,7 +38,7 @@
             <b-button
                 variant="success"
                 size="sm"
-                :disabled="isEndTurnDisabled"
+                :hidden="!areActionsDepleted"
                 @click="doEndTurn">
                 End Turn
             </b-button>
@@ -108,9 +108,6 @@ export default {
         },
         remainingActionsMessage() {
             return `${this.remainingActions} Action${(this.remainingActions == 1 ? '' : 's')} Remaining. `
-        },
-        isEndTurnDisabled() {
-            return this.remainingActions != 0
         },
         areActionsDepleted() {
             return this.remainingActions == 0
