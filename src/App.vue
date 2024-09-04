@@ -81,6 +81,9 @@
                         <div class="col-6 col-lg-12 px-1 mt-2">
                             <progress-card />
                         </div>
+                        <div class="col-12 px-1 mt-2">
+                            <game-log />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,6 +131,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import ActionBar from './components/ActionBar.vue'
+import GameLog from './components/GameLog.vue'
 import MapSquare from './components/MapSquare.vue'
 import MonumentCard from './components/MonumentCard.vue'
 import PlayerHand from './components/PlayerHand.vue'
@@ -140,6 +144,7 @@ export default {
     name: 'App',
     components: {
         ActionBar,
+        GameLog,
         MapSquare,
         MonumentCard,
         PlayerHand,
@@ -230,6 +235,7 @@ export default {
         },
         async startNewGame() {
             localStorage.removeItem('gameState')
+            this.$store.commit('log/init')
             this.$store.dispatch('game/init')
             this.$store.dispatch('board/init')
             this.$store.dispatch('bag/init')
@@ -240,6 +246,7 @@ export default {
             await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: true })
             this.$store.commit('bag/setStartingBag')
             this.$store.dispatch('game/save')
+            this.$store.commit('log/logSystemMessage', 'New Game Started')
         },
         saveSettings() {
             this.$store.dispatch('settings/save')

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
+import helpers from '../../common/helpers'
 
 const state = () => ({
     map: [
@@ -243,6 +244,19 @@ const actions = {
                 dispatch('checkForTreasureToTake', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
+                const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(newTile.tileType))
+                if (selectedBoardLeader) {
+                    commit('log/logActionMessage', {
+                        playerId: currentPlayer.id,
+                        text: `moved ${tileName} from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} to ${helpers.getCoordinatesByIndex(newTile.index)}`
+                    }, { root: true })
+                } else {
+                    commit('log/logActionMessage', {
+                        playerId: currentPlayer.id,
+                        text: `placed ${tileName} on ${helpers.getCoordinatesByIndex(newTile.index)}`
+                    }, { root: true })
+                }
+
                 if (playerHasSelectedTiles) dispatch('checkForMonument', newTile)
 
                 if (rootGetters['game/currentActionType'] === actionTypes.playTile)
@@ -430,7 +444,7 @@ const actions = {
             commit('game/setActionType', { actionType: actionTypes.buildMonument }, { root: true })
         }
     },
-    buildMonument({getters, commit, dispatch}, payload) {
+    buildMonument({getters, commit, dispatch, rootGetters}, payload) {
         let target = getters.tile(payload.index)
         let targetNeighbors = getters.getNeighbors(target.index)
         commit('updateTile', { ...target, tileType: tileTypes.monumentTopLeft })
@@ -452,6 +466,10 @@ const actions = {
         dispatch('setRegions')
         commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
         commit('game/actionCompleted', null, { root: true })
+        commit('log/logActionMessage', {
+            playerId: rootGetters['game/currentActionPlayerId'],
+            text: `built ${helpers.getMonumentNameByType(payload.monumentType)} monument at ${helpers.getCoordinatesByIndex(payload.index)}`
+        }, { root: true })
     },
     checkForMonumentScore({getters, rootGetters, commit}) {
         let playerId = rootGetters['game/currentActionPlayerId']

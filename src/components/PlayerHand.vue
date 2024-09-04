@@ -82,6 +82,7 @@ import { mapGetters } from 'vuex'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '../common/constants'
+import helpers from '../common/helpers'
 
 export default {
     name: 'PlayerHand',
@@ -173,6 +174,11 @@ export default {
                     this.$store.dispatch('board/setRegions')
                     this.$store.commit('board/resetAvailableTileLocations')
                     this.$store.commit('game/actionCompleted')
+                    this.$store.commit('log/logActionMessage', {
+                        playerId: this.player.id,
+                        text: `moved ${helpers.capitalizeFirstLetter(helpers.getTileNameByType(selectedBoardLeader.tileType))}
+                            from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} back to hand`
+                    })
                 }
             }
         },

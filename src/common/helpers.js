@@ -1,4 +1,4 @@
-import { actionTypes, tileTypes, playerIcons, boardStats } from './constants'
+import { actionTypes, tileTypes, playerIcons, boardStats, messageTypes, monumentTypes } from './constants'
 
 const helpers = {
     getTileNameByType(tileType) {
@@ -15,13 +15,27 @@ const helpers = {
     getActionNameByType(actionTypeId) {
         return Object.keys(actionTypes).find(key => actionTypes[key] === actionTypeId);
     },
+    getMessageNameByType(messageType) {
+        return pascalToKebab(Object.keys(messageTypes).find(key => messageTypes[key] === messageType));
+    },
+    capitalizeFirstLetter(string) {
+        return string && string[0].toUpperCase() + string.slice(1);
+    },
+    getMonumentNameByType(monumentType) {
+        return this.capitalizeFirstLetter(pascalToProper(Object.keys(monumentTypes).find(key => monumentTypes[key] === monumentType)));
+    }
 }
 
 function pascalToKebab(string) {
     return string
-      .split(/(?=[A-Z])/)
-      .map(word => word.toLowerCase())
-      .join('-')
-  }
+        .split(/(?=[A-Z])/)
+        .map(word => word.toLowerCase())
+        .join('-')
+}
+function pascalToProper(string) {
+    return string
+        .split(/(?=[A-Z])/)
+        .join(' ')
+}
 
 export default helpers;

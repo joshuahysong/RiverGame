@@ -1,4 +1,4 @@
-import { actionTypes, monumentTypes } from '../../common/constants'
+import { actionTypes, messageTypes, monumentTypes } from '../../common/constants'
 
 const DEBUG = false
 
@@ -97,23 +97,26 @@ const actions = {
         gameState.players = rootGetters['players/all']
         gameState.tiles = rootGetters['board/tiles']
         gameState.bag = rootGetters['bag/all']
+        let messages =  rootGetters['log/messages']
+        gameState.log = messages.filter(x => x.messageType != messageTypes.system)
         gameState.game = state
         localStorage.gameState = JSON.stringify(gameState);
     },
     load({commit, dispatch}) {
-        commit('setActionType', {actionType: actionTypes.loading})
+        commit('setActionType', { actionType: actionTypes.loading })
         if (localStorage.gameState) {
             let gameState = JSON.parse(localStorage.gameState);
-            commit('players/loadPlayers', gameState.players, {root: true})
-            commit('board/setTiles', gameState.tiles, {root: true})
-            commit('board/setTreasureCounts', gameState.tiles, {root: true})
-            dispatch('board/setRegions', null, {root: true})
-            commit('bag/setState', gameState.bag, {root: true})
+            commit('players/loadPlayers', gameState.players, { root: true })
+            commit('board/setTiles', gameState.tiles, { root: true })
+            commit('board/setTreasureCounts', gameState.tiles, { root: true })
+            dispatch('board/setRegions', null, { root: true })
+            commit('bag/setState', gameState.bag, { root: true })
+            commit('log/setMessages', gameState.log, { root: true })
             commit('setState', gameState.game)
+            commit('log/logSystemMessage', 'Game load successful.', { root: true })
         }
     },
     saveSnapshot({state, rootGetters, commit}) {
-        console.log('saveSnapshot')
         let snapshot = {}
         let players = rootGetters['players/all']
         snapshot.players = []
@@ -138,7 +141,6 @@ const actions = {
         commit('setSnapshot', { ...snapshot })
     },
     restoreSnapshot({state, getters, commit, dispatch}) {
-        console.log('restoreSnapshot')
         if (getters.hasSnapshot) {
             commit('players/loadPlayers', state.snapshot.players, { root: true })
             commit('board/setTiles', state.snapshot.tiles, { root: true })
@@ -197,11 +199,9 @@ const mutations = {
         state.selectedMonumentType = payload.monumentType
     },
     setSnapshot(state, snapshot) {
-        console.log('setSnapshot')
         state.snapshot = {...snapshot}
     },
     clearSnapshot(state) {
-        console.log('clearSnapshot')
         state.snapshot = null
     }
 }

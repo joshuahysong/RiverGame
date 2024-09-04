@@ -70,3 +70,8 @@ export const monumentTypes = {
     greenMonuments: [2,3,5],
     blackMonuments: [4,5,6]
 }
+
+export const messageTypes = {
+    system: 0,
+    action: 1
+}
