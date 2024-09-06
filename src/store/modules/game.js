@@ -124,6 +124,7 @@ const actions = {
             // I know... but it works for deep cloning. Don't hate me
             snapshot.players.push(JSON.parse(JSON.stringify({...player, selectedTiles: []})))
         })
+        snapshot.log = JSON.parse(JSON.stringify(rootGetters['log/messages']))
         snapshot.tiles = [...rootGetters['board/tiles']]
         snapshot.bag = rootGetters['bag/all']
         snapshot.game = {}
@@ -147,6 +148,7 @@ const actions = {
             commit('board/setTreasureCounts', state.snapshot.tiles, { root: true })
             dispatch('board/setRegions', null, { root: true })
             commit('bag/setState', state.snapshot.bag, { root: true })
+            commit('log/setMessages', [...state.snapshot.log], { root: true })
             commit('setState', { ...state, ...state.snapshot.game })
         }
     }

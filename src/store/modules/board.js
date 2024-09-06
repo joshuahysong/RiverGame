@@ -270,6 +270,10 @@ const actions = {
                 commit('updateTile', { ...clickedTile, tileType: tileTypes.temple, isHighlighted: false })
                 commit('resetBoardTileHighlights')
                 commit('game/actionCompleted', null, { root: true })
+                commit('log/logActionMessage', {
+                    playerId: rootGetters['game/currentActionPlayerId'],
+                    text: `retrieved a Treasure from ${helpers.getCoordinatesByIndex(clickedTile.index)}`
+                }, { root: true })
                 commit('game/setCurrentActionPlayerId', { playerId: rootGetters['game/activeTurnPlayerId'] }, { root: true })
                 commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
             }

@@ -160,6 +160,10 @@ export default {
             })
             .then(async result => {
                 if (result) {
+                    this.$store.commit('log/logActionMessage', {
+                        playerId: this.player.id,
+                        text: `passed their turn`
+                    })
                     await this.doEndTurn()
                 }
             })
