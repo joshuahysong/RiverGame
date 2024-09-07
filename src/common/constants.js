@@ -1,20 +1,19 @@
 export const tileTypes = {
     empty: 0,
-    treasure: 1,
-    temple: 2,
-    market: 3,
-    settlement: 4,
-    farm: 5,
-    catastrophe: 6,
-    king: 7,
-    priest: 8,
-    farmer: 9,
-    trader: 10,
-    generic: 11,
-    monumentTopLeft: 12,
-    monumentTopRight: 13,
-    monumentBottomLeft: 14,
-    monumentBottomRight: 15
+    temple: 1,
+    market: 2,
+    settlement: 3,
+    farm: 4,
+    catastrophe: 5,
+    king: 6,
+    priest: 7,
+    farmer: 8,
+    trader: 9,
+    generic: 10,
+    monumentTopLeft: 11,
+    monumentTopRight: 12,
+    monumentBottomLeft: 13,
+    monumentBottomRight: 14
 }
 
 export const leaderTileTypes = [
@@ -25,7 +24,7 @@ export const leaderTileTypes = [
 ]
 
 export const mapTypes = {
-    ground: '0',
+    ground: '0'
 }
 
 export const actionTypes = {

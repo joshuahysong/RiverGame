@@ -88,7 +88,7 @@ export default {
             if (!this.isBuildingMonument) return true
             if (this.availableMonumentLocations && this.availableMonumentLocations.length > 0) {
                 if (monumentTypes.redMonuments.some(x => x === monumentType) &&
-                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.treasure || x.tileType === tileTypes.temple))
+                    this.availableMonumentLocations.some(x => x.tileType === tileTypes.temple))
                     return true
                 if (monumentTypes.blueMonuments.some(x => x === monumentType) &&
                     this.availableMonumentLocations.some(x => x.tileType === tileTypes.farm))

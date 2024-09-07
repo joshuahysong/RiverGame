@@ -1,6 +1,6 @@
 <template>
     <div class="tile" :class="tileClass" :style="tileStyle">
-        <div v-if="isTreasure" class="treasure-icon"></div>
+        <div v-if="hasTreasure" class="treasure-icon"></div>
     </div>
 </template>
 
@@ -14,6 +14,7 @@ export default {
         tileType: Number,
         selected: Boolean,
         highlight: Boolean,
+        hasTreasure: Boolean,
         showPointer: Boolean,
         size: Number
     },
@@ -50,9 +51,6 @@ export default {
                 style += `black ${size/2}px);`
             }
             return style
-        },
-        isTreasure() {
-            return this.tileType === tileTypes.treasure
         }
     },
     methods: {

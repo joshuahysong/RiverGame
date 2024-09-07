@@ -1,5 +1,4 @@
 import { actionTypes, tileTypes } from '../../common/constants'
-import helpers from '../../common/helpers'
 
 const state = () => ({
     players: []
@@ -152,7 +151,7 @@ const mutations = {
         playerLeaders = playerLeaders.sort((a,b) => a - b);
     },
     incrementScore(state, payload) {
-        state.players.filter(x => x.id === payload.playerId)[0].score[helpers.getTileNameByType(payload.tileType)]++
+        state.players.filter(x => x.id === payload.playerId)[0].score[payload.scoreName]++
     }
 }
 

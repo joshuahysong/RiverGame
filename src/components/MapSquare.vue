@@ -2,7 +2,10 @@
     <div class="map-square ground"
         :class="getMapSquareClass()"
         @click="doMapSquareClick">
-        <civilization-tile v-if="hasTile && !tile.isLeaderTile" :tile-type="tile.tileType" :highlight="tile.isHighlighted" />
+        <civilization-tile v-if="hasTile && !tile.isLeaderTile"
+            :tile-type="tile.tileType"
+            :highlight="tile.isHighlighted"
+            :has-treasure="tile.hasTreasure" />
         <leader-tile v-if="hasTile && tile.isLeaderTile"
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"

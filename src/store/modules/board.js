@@ -193,12 +193,14 @@ const getters = {
 
 const actions = {
     init ({commit, dispatch}) {
+        commit('resetAvailableTileLocations')
         let newTiles = []
         for (let i = 0; i < initialTiles.length; i++) {
             newTiles.push({
                 index: i,
                 tileType: initialTiles[i],
                 isLeaderTile: false,
+                hasTreasure: initialTiles[i] === tileTypes.temple,
                 playerId: 0
             })
         }
@@ -270,8 +272,8 @@ const actions = {
         if (currentActionType === actionTypes.takeTreasure) {
             if (clickedTile.isHighlighted) {
                 commit('removeTreasure')
-                commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], tileType: tileTypes.treasure }, { root: true })
-                commit('updateTile', { ...clickedTile, tileType: tileTypes.temple, isHighlighted: false })
+                commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], scoreName: 'treasure' }, { root: true })
+                commit('updateTile', { ...clickedTile, hasTreasure: false, isHighlighted: false })
                 commit('resetBoardTileHighlights')
                 commit('log/logActionMessage', {
                     playerId: rootGetters['game/currentActionPlayerId'],
@@ -301,10 +303,10 @@ const actions = {
                     const neighborRegions = getters.neighborRegions(mapSquareTile)
                     const isJoiningKingdoms = neighborRegions.filter(region => region.isKingdom).length > 1
                     const neighbors = getters.getNeighbors(i)
-                    const hasTempleNeighbor = (neighbors.left && (neighbors.left.tileType === tileTypes.temple || neighbors.left.tileType === tileTypes.treasure)) ||
-                        (neighbors.top && (neighbors.top.tileType === tileTypes.temple || neighbors.top.tileType === tileTypes.treasure)) ||
-                        (neighbors.bottom && (neighbors.bottom.tileType === tileTypes.temple || neighbors.bottom.tileType === tileTypes.treasure)) ||
-                        (neighbors.right && (neighbors.right.tileType === tileTypes.temple || neighbors.right.tileType === tileTypes.treasure))
+                    const hasTempleNeighbor = (neighbors.left && neighbors.left.tileType === tileTypes.temple) ||
+                        (neighbors.top && neighbors.top.tileType === tileTypes.temple) ||
+                        (neighbors.bottom && neighbors.bottom.tileType === tileTypes.temple) ||
+                        (neighbors.right && neighbors.right.tileType === tileTypes.temple)
                     if (!isJoiningKingdoms &&
                         hasTempleNeighbor &&
                         mapSquareTile.tileType == tileTypes.empty &&
@@ -312,7 +314,7 @@ const actions = {
                             eligibleTileLocations.push(i)
                         }
                 } else if (selectedTile.tileType === tileTypes.catastrophe) {
-                    if (mapSquareTile.tileType !== tileTypes.treasure &&
+                    if (!mapSquareTile.hasTreasure &&
                         mapSquareTile.tileType !== tileTypes.catastrophe &&
                         mapSquareTile.tileType !== tileTypes.monumentBottomLeft &&
                         mapSquareTile.tileType !== tileTypes.monumentBottomRight &&
@@ -398,37 +400,43 @@ const actions = {
                     }
                 }
                 if (matchingLeader !== null) {
-                    commit('players/incrementScore', {playerId: matchingLeader.playerId, tileType: payload.tileType}, {root: true})
+                    commit('players/incrementScore', {
+                        playerId: matchingLeader.playerId,
+                        scoreName: helpers.getTileNameByType(payload.tileType)
+                    }, { root: true })
                 } else if (matchingKing !== null) {
-                    commit('players/incrementScore', {playerId: matchingKing.playerId, tileType: payload.tileType}, {root: true})
+                    commit('players/incrementScore', {
+                        playerId: matchingKing.playerId,
+                        scoreName: helpers.getTileNameByType(payload.tileType)
+                    }, { root: true })
                 }
             }
         }
     },
     checkForTreasureToTake({state, getters, commit}, payload) {
-        let foundTreasureTiles = []
+        let tilesWithTreasure = []
         let region = getters.getRegion(payload.index)
         if (region && region.isKingdom) {
             let matchingTrader = null
             for (let i = 0; i < region.tileIndexes.length; i++) {
                 let matchingTile = state.tiles[region.tileIndexes[i]]
                 if (matchingTile) {
-                    if (matchingTile.tileType === tileTypes.treasure)
-                        foundTreasureTiles.push(matchingTile)
+                    if (matchingTile.hasTreasure)
+                        tilesWithTreasure.push(matchingTile)
                     if (matchingTile.tileType === tileTypes.trader) {
                         matchingTrader = matchingTile
                     }
                 }
             }
-            if (foundTreasureTiles.length > 1 && matchingTrader !== null) {
-                for (let i = 0; i < foundTreasureTiles.length; i++) {
-                    commit('updateTile', {...foundTreasureTiles[i], isHighlighted: true})
+            if (tilesWithTreasure.length > 1 && matchingTrader !== null) {
+                for (let i = 0; i < tilesWithTreasure.length; i++) {
+                    commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
                 }
                 commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
                 commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
             }
         }
-        commit('setTreasuresToTake', foundTreasureTiles.length - 1)
+        commit('setTreasuresToTake', tilesWithTreasure.length - 1)
     },
     checkForMonument({getters, commit}, payload) {
         commit('resetAvailableMonumentLocations')
@@ -500,13 +508,13 @@ const actions = {
             if (playerLeaders.length > 0 && monuments.length > 0) {
                 monuments.forEach(monument => {
                     if (monumentTypes.redMonuments.includes(monument) && playerLeaders.includes(tileTypes.priest))
-                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.temple }, { root: true })
+                        commit('players/incrementScore', { playerId: playerId, scoreName: helpers.getTileNameByType(tileTypes.temple) }, { root: true })
                     if (monumentTypes.blueMonuments.includes(monument) && playerLeaders.includes(tileTypes.farmer))
-                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.farm }, { root: true })
+                        commit('players/incrementScore', { playerId: playerId, scoreName: helpers.getTileNameByType(tileTypes.farm) }, { root: true })
                     if (monumentTypes.greenMonuments.includes(monument) && playerLeaders.includes(tileTypes.trader))
-                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.market }, { root: true })
+                        commit('players/incrementScore', { playerId: playerId, scoreName: helpers.getTileNameByType(tileTypes.market) }, { root: true })
                     if (monumentTypes.blackMonuments.includes(monument) && playerLeaders.includes(tileTypes.king))
-                        commit('players/incrementScore', { playerId: playerId, tileType: tileTypes.settlement }, { root: true })
+                        commit('players/incrementScore', { playerId: playerId, scoreName: helpers.getTileNameByType(tileTypes.settlement) }, { root: true })
                 })
             }
         })
@@ -517,10 +525,10 @@ const actions = {
             if (tile.isLeaderTile) {
                 let neighbors = getters.getNeighbors(i)
                 let hasTemple = false
-                if (neighbors.bottom && (neighbors.bottom.tileType == tileTypes.temple || neighbors.bottom.tileType == tileTypes.treasure)) hasTemple = true
-                if (neighbors.left && (neighbors.left.tileType == tileTypes.temple || neighbors.left.tileType == tileTypes.treasure)) hasTemple = true
-                if (neighbors.right && (neighbors.right.tileType == tileTypes.temple || neighbors.right.tileType == tileTypes.treasure)) hasTemple = true
-                if (neighbors.top && (neighbors.top.tileType == tileTypes.temple || neighbors.top.tileType == tileTypes.treasure)) hasTemple = true
+                if (neighbors.bottom && neighbors.bottom.tileType == tileTypes.temple) hasTemple = true
+                if (neighbors.left && neighbors.left.tileType == tileTypes.temple) hasTemple = true
+                if (neighbors.right && neighbors.right.tileType == tileTypes.temple) hasTemple = true
+                if (neighbors.top && neighbors.top.tileType == tileTypes.temple) hasTemple = true
                 if (!hasTemple) {
                     commit('players/addLeaderToPlayer', tile, {root: true})
                     commit('removeTile', { index: tile.index })
@@ -557,8 +565,8 @@ const actions = {
 
 const mutations = {
     setTreasureCounts(state) {
-        state.initialTreasures = initialTiles.filter(x => x === tileTypes.treasure).length
-        state.remainingTreasures = state.tiles.filter(x => x.tileType === tileTypes.treasure).length
+        state.initialTreasures = initialTiles.filter(x => x === tileTypes.temple).length
+        state.remainingTreasures = state.tiles.filter(x => x.hasTreasure).length
     },
     removeTreasure(state) {
         state.remainingTreasures--
