@@ -6,7 +6,7 @@
                 {{playerName}}'s Turn: {{ remainingActionsMessage }}
             </div>
             <div v-if="showTakeTreasureMessage" class="d-inline-block">
-                {{playerName}} must select a Treasure to take.
+                {{playerName}} {{treasureMessage}}
             </div>
             <div v-if="showBuildMonumentMessage" class="d-inline-block">
                 {{playerName}}: Select a monument to build.
@@ -104,7 +104,8 @@ export default {
             'hasSnapshot'
         ]),
         ...mapGetters('board', [
-            'availableMonumentLocations'
+            'availableMonumentLocations',
+            'treasuresToTake'
         ]),
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.currentActionPlayerId)
@@ -120,6 +121,11 @@ export default {
         },
         areActionsDepleted() {
             return this.remainingActions == 0
+        },
+        treasureMessage() {
+            return this.treasuresToTake > 1
+                ? `must select 1 of ${this.treasuresToTake} Treasures to acquire.`
+                : 'must select a Treasure to acquire.'
         }
     },
     watch: {
