@@ -1,6 +1,6 @@
 <template>
     <div class="tile" :class="tileClass" :style="tileStyle">
-        <div v-if="hasTreasure" class="treasure-icon"></div>
+        <div v-if="hasTreasure" class="treasure-icon" :style="treasureStyle"></div>
     </div>
 </template>
 
@@ -51,6 +51,19 @@ export default {
                 style += `black ${size/2}px);`
             }
             return style
+        },
+        treasureStyle() {
+            let style = 'top: 32.5%; left: 32.5%;'
+            if (this.tileType === tileTypes.monumentBottomLeft)
+                style = 'top: 40%; left: 20%;'
+            if (this.tileType === tileTypes.monumentBottomRight)
+                style = 'top: 40%; left: 40%;'
+            if (this.tileType === tileTypes.monumentTopLeft)
+                style = 'top: 20%; left: 20%;'
+            if (this.tileType === tileTypes.monumentTopRight)
+                style = 'top: 20%; left: 40%;'
+
+            return style;
         }
     },
     methods: {
@@ -81,7 +94,7 @@ export default {
         box-shadow: 0 0 4px 4px yellow;
     }
 
-    .temple, .treasure {
+    .temple {
         background: $color-temple;
     }
 
@@ -107,28 +120,22 @@ export default {
         background-color: gold;
         border-radius: 50%;
         border: 2px solid $color-treasure;
-        top: 32.5%;
-        left: 32.5%;
         position: absolute;
     }
 
     .monument-top-left {
-        background-color: $color-monument-background;
-        box-shadow: 3px 3px 0px 3px $color-monument-border inset;
+        background-color: $color-generic;
     }
 
     .monument-top-right {
-        background-color: $color-monument-background;
-        box-shadow: -3px 3px 0px 3px $color-monument-border inset;
+        background-color: $color-generic;
     }
 
     .monument-bottom-left {
-        background-color: $color-monument-background;
-        box-shadow: 3px -3px 0px 3px $color-monument-border inset;
+        background-color: $color-generic;
     }
 
     .monument-bottom-right {
-        background-color: $color-monument-background;
-        box-shadow: -3px -3px 0px 3px $color-monument-border inset;
+        background-color: $color-generic;
     }
 </style>
