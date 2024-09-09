@@ -250,6 +250,8 @@ const actions = {
                 dispatch('checkForTreasureToTake', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
+                dispatch('checkForRevolt', newTile)
+
                 const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(newTile.tileType))
                 if (selectedBoardLeader) {
                     commit('log/logActionMessage', {
@@ -536,27 +538,28 @@ const actions = {
             }
         }
     },
-    checkForRevolt({state, getters, commit}, payload) {
-        if (payload && payload.isLeaderTile) {
-            const region = getters.getRegion(payload.index)
+    checkForRevolt({state, getters, commit}, tile) {
+        if (tile && tile.isLeaderTile) {
+            const region = getters.getRegion(tile.index)
             if (region && region.isKingdom) {
                 let matchingDefenderLeader = null
                 for (let i = 0; i < region.tileIndexes.length; i++) {
                     var matchingTile = state.tiles[region.tileIndexes[i]]
                     if (matchingTile &&
                         matchingTile.isLeaderTile &&
-                        matchingTile.tileType === payload.tileType &&
-                        matchingTile.playerId !== payload.playerId) {
-                            matchingDefenderLeader = {...matchingTile}
+                        matchingTile.tileType === tile.tileType &&
+                        matchingTile.playerId !== tile.playerId) {
+                            matchingDefenderLeader = { ...matchingTile }
+                            break
                     }
                 }
                 if (matchingDefenderLeader) {
-                    commit('updateTile', {...payload, isHighlighted: true})
-                    commit('updateTile', {...matchingDefenderLeader, isHighlighted: true})
-                    commit('game/setCurrentActionPlayerId', {playerId: payload.playerId}, {root: true})
-                    commit('game/setConflictAttackerPlayerId', {playerId: payload.playerId}, {root: true})
-                    commit('game/setConflictDefenderPlayerId', {playerId: matchingDefenderLeader.playerId}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.revoltAttack}, {root: true})
+                    commit('updateTile', { ...tile, isHighlighted: true })
+                    commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
+                    commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
+                    commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
+                    commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
+                    commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
                 }
             }
         }

@@ -17,6 +17,9 @@
             <div v-if="showSwapTilesMessage" class="d-inline-block">
                 {{playerName}}: Select tiles to discard and redraw.
             </div>
+            <div v-if="showRevoltAttackMessage || showRevoltDefendMessage" class="d-inline-block">
+                {{playerName}}: Select Temples to commit for support.
+            </div>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
             <b-button
@@ -74,6 +77,23 @@
                 Discard {{ player.selectedTiles.length }} Tile{{ player.selectedTiles.length === 1 ? '' : 's' }}
             </b-button>
         </div>
+        <div v-if="showRevoltAttackMessage || showRevoltDefendMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+            <b-button
+                v-if="showRevoltAttackMessage"
+                variant="warning"
+                size="sm"
+                @click="undoLastAction"
+                :disabled="!hasSnapshot"
+                class="mr-2">
+                Undo
+            </b-button>
+            <b-button
+                variant="success"
+                size="sm"
+                @click="commitTilesToAttack">
+                Commit {{ player.selectedTiles.length}} Tiles
+            </b-button>
+        </div>
     </div>
 </template>
 
@@ -84,24 +104,13 @@ import { actionTypes } from '../common/constants'
 
 export default {
     name: 'ActionBar',
-    data() {
-        return {
-            showCurrentPlayerMessage: true,
-            showTakeTreasureMessage: false,
-            showBuildMonumentMessage: false,
-            showBuildMonumentMultipleMessage: false,
-            showSwapTilesMessage: false
-        }
-    },
-    mounted() {
-        this.setMessageDisplayToggles(this.currentActionType)
-    },
     computed: {
         ...mapGetters('game', [
             'remainingActions',
             'currentActionType',
             'currentActionPlayerId',
-            'hasSnapshot'
+            'hasSnapshot',
+            'conflictDefenderLeader'
         ]),
         ...mapGetters('board', [
             'availableMonumentLocations',
@@ -126,21 +135,16 @@ export default {
             return this.treasuresToTake > 1
                 ? `must select 1 of ${this.treasuresToTake} Treasures to acquire.`
                 : 'must select a Treasure to acquire.'
-        }
-    },
-    watch: {
-        currentActionType(newActionType) {
-            this.setMessageDisplayToggles(newActionType)
-        }
+        },
+        showCurrentPlayerMessage() { return this.currentActionType === actionTypes.playTile },
+        showTakeTreasureMessage() { return this.currentActionType === actionTypes.takeTreasure },
+        showBuildMonumentMessage() { return this.currentActionType === actionTypes.buildMonument },
+        showBuildMonumentMultipleMessage() { return this.currentActionType === actionTypes.buildMonumentMultiple },
+        showSwapTilesMessage() { return this.currentActionType === actionTypes.swapTiles },
+        showRevoltAttackMessage() { return this.currentActionType === actionTypes.revoltAttack },
+        showRevoltDefendMessage() { return this.currentActionType === actionTypes.revoltDefend }
     },
     methods: {
-        setMessageDisplayToggles(newActionType) {
-            this.showCurrentPlayerMessage = newActionType == actionTypes.playTile
-            this.showTakeTreasureMessage = newActionType == actionTypes.takeTreasure
-            this.showBuildMonumentMessage = newActionType == actionTypes.buildMonument
-            this.showBuildMonumentMultipleMessage = newActionType == actionTypes.buildMonumentMultiple
-            this.showSwapTilesMessage = newActionType == actionTypes.swapTiles
-        },
         async doEndTurn() {
             this.$store.commit('game/clearSnapshot')
             this.$store.commit('board/resetBoardTileHighlights')
@@ -206,6 +210,16 @@ export default {
             this.$store.dispatch('game/restoreSnapshot')
             this.$store.commit('game/clearSnapshot')
             this.$store.commit('board/resetBoardTileHighlights')
+        },
+        commitTilesToAttack() {
+            if (this.currentActionType === actionTypes.revoltAttack) {
+                this.$store.commit('game/setConflictAttackerTiles', { tiles: this.player.selectedTiles })
+                this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
+                this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderLeader.playerId })
+                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderLeader.playerId })
+                this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
+            }
         }
     }
 }
