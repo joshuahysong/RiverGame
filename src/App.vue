@@ -99,7 +99,6 @@
                         <div class="card-header bg-transparent py-2"><strong>Missing MVP Features</strong></div>
                         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Revolts</li>
                                 <li class="list-group-item">Wars</li>
                                 <li class="list-group-item">Bots</li>
                                 <li class="list-group-item">Game Setup Screen</li>
