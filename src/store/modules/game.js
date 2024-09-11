@@ -1,4 +1,5 @@
-import { actionTypes, messageTypes, monumentTypes } from '../../common/constants'
+import { actionTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
+import helpers from '../../common/helpers'
 
 const DEBUG = false
 
@@ -157,6 +158,39 @@ const actions = {
             commit('log/setMessages', [...state.snapshot.log], { root: true })
             commit('setState', { ...state, ...state.snapshot.game })
         }
+    },
+    resolveConflict({getters, rootGetters, commit}) {
+        let isRevolt = getters.currentActionType === actionTypes.revoltDefend
+        let winner = null
+        let loser = null
+        let winnerStrength = 0
+        let loserStrength = 0
+        if (isRevolt) {
+            let attackerStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader).length +
+                getters.conflictAttackerTiles.length
+            let defenderStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader).length +
+                getters.conflictDefenderTiles.length
+            if (attackerStrength > defenderStrength) {
+                winnerStrength = attackerStrength
+                loserStrength = defenderStrength
+                winner = { ...getters.conflictAttackerLeader }
+                loser = { ...getters.conflictDefenderLeader }
+            } else {
+                winnerStrength = defenderStrength
+                loserStrength = attackerStrength
+                winner = { ...getters.conflictDefenderLeader }
+                loser = { ...getters.conflictAttackerLeader }
+            }
+            commit('players/incrementScore', {
+                playerId: winner.playerId,
+                scoreName: helpers.getTileNameByType(tileTypes.temple)
+            }, { root: true })
+            commit('players/addLeaderToPlayer', loser, { root: true })
+            commit('board/removeTile', { index: loser.index }, { root: true })
+        }
+        commit('log/logActionMessage', {
+            text: `{${winner.playerId}} (${winnerStrength}) wins the ${(isRevolt ? 'Revolt' : 'War')} against {${loser.playerId}} (${loserStrength})`
+        }, { root: true })
     }
 }
 
@@ -198,6 +232,9 @@ const mutations = {
     },
     setConflictAttackerTiles(state, payload) {
         state.conflictAttackerTiles = [...payload.tiles]
+    },
+    setConflictDefenderTiles(state, payload) {
+        state.conflictDefenderTiles = [...payload.tiles]
     },
     removeFromRemainingMonuments(state, payload) {
         let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)

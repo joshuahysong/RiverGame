@@ -110,6 +110,7 @@ export default {
             'currentActionType',
             'currentActionPlayerId',
             'hasSnapshot',
+            'conflictAttackerLeader',
             'conflictDefenderLeader'
         ]),
         ...mapGetters('board', [
@@ -213,12 +214,22 @@ export default {
         },
         commitTilesToAttack() {
             if (this.currentActionType === actionTypes.revoltAttack) {
+                this.$store.commit('game/clearSnapshot')
                 this.$store.commit('game/setConflictAttackerTiles', { tiles: this.player.selectedTiles })
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderLeader.playerId })
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderLeader.playerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
+            } else if (this.currentActionType === actionTypes.revoltDefend) {
+                this.$store.commit('game/setConflictDefenderTiles', { tiles: this.player.selectedTiles })
+                this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
+                this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+                this.$store.dispatch('game/resolveConflict')
+                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictAttackerLeader.playerId })
+                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictAttackerLeader.playerId })
+                this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                this.$store.commit('game/actionCompleted')
             }
         }
     }

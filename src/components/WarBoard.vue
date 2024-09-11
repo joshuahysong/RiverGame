@@ -107,7 +107,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { breakpoints, actionTypes, tileTypes } from '../common/constants'
+import { breakpoints, actionTypes } from '../common/constants'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 
@@ -151,21 +151,12 @@ export default {
             return this.$store.getters['players/getPlayer'](playerId)
         },
         getBoardStrength(leader) {
-            let boardStrength = []
             if (this.currentActionType === actionTypes.revoltAttack ||
                 this.currentActionType === actionTypes.revoltDefend
             ) {
-                let leaderNeighbors = this.$store.getters['board/getNeighbors'](leader.index)
-                if (leaderNeighbors.top && leaderNeighbors.top.tileType === tileTypes.temple)
-                    boardStrength.push({ ...leaderNeighbors.top })
-                if (leaderNeighbors.right && leaderNeighbors.right.tileType === tileTypes.temple)
-                    boardStrength.push({ ...leaderNeighbors.right })
-                if (leaderNeighbors.bottom && leaderNeighbors.bottom.tileType === tileTypes.temple)
-                    boardStrength.push({ ...leaderNeighbors.bottom })
-                if (leaderNeighbors.left && leaderNeighbors.left.tileType === tileTypes.temple)
-                    boardStrength.push({ ...leaderNeighbors.left })
+                return this.$store.getters['board/getRevoltBoardStrength'](leader)
             }
-            return boardStrength
+            return []
         }
     }
 }
