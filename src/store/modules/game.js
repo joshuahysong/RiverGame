@@ -159,7 +159,7 @@ const actions = {
             commit('setState', { ...state, ...state.snapshot.game })
         }
     },
-    resolveConflict({getters, rootGetters, commit}) {
+    resolveConflict({getters, rootGetters, commit, dispatch}) {
         let isRevolt = getters.currentActionType === actionTypes.revoltDefend
         let winner = null
         let loser = null
@@ -188,6 +188,9 @@ const actions = {
             commit('players/addLeaderToPlayer', loser, { root: true })
             commit('board/removeTile', { index: loser.index }, { root: true })
         }
+        commit('resetConflictData')
+        commit('board/resetBoardTileHighlights', null, { root:true })
+        dispatch('board/setRegions', null, { root: true })
         commit('log/logActionMessage', {
             text: `{${winner.playerId}} (${winnerStrength}) wins the ${(isRevolt ? 'Revolt' : 'War')} against {${loser.playerId}} (${loserStrength})`
         }, { root: true })
@@ -235,6 +238,12 @@ const mutations = {
     },
     setConflictDefenderTiles(state, payload) {
         state.conflictDefenderTiles = [...payload.tiles]
+    },
+    resetConflictData(state) {
+        state.conflictAttackerLeader = null
+        state.conflictDefenderLeader = null
+        state.conflictAttackerTiles = []
+        state.conflictDefenderTiles = []
     },
     removeFromRemainingMonuments(state, payload) {
         let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)

@@ -90,7 +90,7 @@
             <b-button
                 variant="success"
                 size="sm"
-                @click="commitTilesToAttack">
+                @click="commitTilesToConflict">
                 Commit {{ player.selectedTiles.length}} Tiles
             </b-button>
         </div>
@@ -212,7 +212,7 @@ export default {
             this.$store.commit('game/clearSnapshot')
             this.$store.commit('board/resetBoardTileHighlights')
         },
-        commitTilesToAttack() {
+        commitTilesToConflict() {
             if (this.currentActionType === actionTypes.revoltAttack) {
                 this.$store.commit('game/clearSnapshot')
                 this.$store.commit('game/setConflictAttackerTiles', { tiles: this.player.selectedTiles })
@@ -222,12 +222,13 @@ export default {
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderLeader.playerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
             } else if (this.currentActionType === actionTypes.revoltDefend) {
+                var attackerPlayerId = this.conflictAttackerLeader.playerId
                 this.$store.commit('game/setConflictDefenderTiles', { tiles: this.player.selectedTiles })
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.dispatch('game/resolveConflict')
-                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictAttackerLeader.playerId })
-                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictAttackerLeader.playerId })
+                this.$store.commit('game/setCurrentActionPlayerId', { playerId: attackerPlayerId })
+                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: attackerPlayerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
                 this.$store.commit('game/actionCompleted')
             }

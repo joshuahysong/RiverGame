@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-body px-2 py-0">
             <div class="row no-gutters align-items-center">
-                <div class="col-12 col-sm-6 text-left border-bottom border-right hide-border py-2">
+                <div v-if="conflictAttackerLeader" class="col-12 col-sm-6 text-left border-bottom border-right hide-border py-2">
                     <div class="row no-gutters text-center py-2">
                         <div class="col">
                             <strong>Attacker</strong>
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 text-left text-sm-right">
+                <div v-if="conflictDefenderLeader" class="col-12 col-sm-6 text-left text-sm-right py-2">
                     <div class="row no-gutters text-center py-2">
                         <div class="col">
                             <strong>Defender</strong>
@@ -73,7 +73,7 @@
                                     v-for="(tile, index) in conflictDefenderTiles"
                                     :key="index"
                                     :tile-type="tile.tileType" :size="size"
-                                    class="col-auto ml-1 mb-1" />
+                                    class="col-auto mr-1 mr-sm-0 ml-0 ml-sm-1 mb-1" />
                             </div>
                         </div>
                         <div class="col-5 order-2">
@@ -82,15 +82,15 @@
                                     v-for="(tile, index) in getBoardStrength(conflictDefenderLeader)"
                                     :key="index"
                                     :tile-type="tile.tileType" :size="size"
-                                    class="col-auto ml-1 mb-1" />
+                                    class="col-auto mr-1 mr-sm-0 ml-0 ml-sm-1 mb-1" />
                             </div>
                         </div>
                         <div class="col-2 order-1 order-sm-3">
                             <div class="row no-gutters align-items-center justify-content-start justify-content-sm-end">
-                                <div class="col-auto text-right pl-1 order-2 order-sm-1">
+                                <div class="col-auto text-right pr-1 pr-sm-0 pl-0 pl-sm-1 order-2 order-sm-1">
                                     {{ getBoardStrength(conflictDefenderLeader).length + conflictDefenderTiles.length }}
                                 </div>
-                                <div class="col-auto pl-1 order-1 order-sm-2">
+                                <div class="col-auto pr-1 pr-sm-0 pl-0 pl-sm-1 order-1 order-sm-2">
                                     <leader-tile
                                         :size="size"
                                         :tile-type="conflictDefenderLeader.tileType"
