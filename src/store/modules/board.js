@@ -188,6 +188,19 @@ const getters = {
     },
     treasuresToTake: (state) => {
         return state.treasuresToTake
+    },
+    getRevoltBoardStrength: (state, getters) => (leader) => {
+        let boardStrength = []
+        let leaderNeighbors = getters.getNeighbors(leader.index)
+        if (leaderNeighbors.top && leaderNeighbors.top.tileType === tileTypes.temple)
+            boardStrength.push({ ...leaderNeighbors.top })
+        if (leaderNeighbors.right && leaderNeighbors.right.tileType === tileTypes.temple)
+            boardStrength.push({ ...leaderNeighbors.right })
+        if (leaderNeighbors.bottom && leaderNeighbors.bottom.tileType === tileTypes.temple)
+            boardStrength.push({ ...leaderNeighbors.bottom })
+        if (leaderNeighbors.left && leaderNeighbors.left.tileType === tileTypes.temple)
+            boardStrength.push({ ...leaderNeighbors.left })
+        return boardStrength
     }
 }
 
@@ -250,6 +263,10 @@ const actions = {
                 dispatch('checkForTreasureToTake', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
+                dispatch('checkForRevolt', newTile)
+
+                if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
+
                 const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(newTile.tileType))
                 if (selectedBoardLeader) {
                     commit('log/logActionMessage', {
@@ -530,33 +547,39 @@ const actions = {
                 if (neighbors.right && neighbors.right.tileType == tileTypes.temple) hasTemple = true
                 if (neighbors.top && neighbors.top.tileType == tileTypes.temple) hasTemple = true
                 if (!hasTemple) {
-                    commit('players/addLeaderToPlayer', tile, {root: true})
+                    commit('players/addLeaderToPlayer', tile, { root: true })
                     commit('removeTile', { index: tile.index })
                 }
             }
         }
     },
-    checkForRevolt({state, getters, commit}, payload) {
-        if (payload && payload.isLeaderTile) {
-            const region = getters.getRegion(payload.index)
+    checkForRevolt({state, getters, commit}, tile) {
+        if (tile && tile.isLeaderTile) {
+            const region = getters.getRegion(tile.index)
             if (region && region.isKingdom) {
                 let matchingDefenderLeader = null
                 for (let i = 0; i < region.tileIndexes.length; i++) {
                     var matchingTile = state.tiles[region.tileIndexes[i]]
                     if (matchingTile &&
                         matchingTile.isLeaderTile &&
-                        matchingTile.tileType === payload.tileType &&
-                        matchingTile.playerId !== payload.playerId) {
-                            matchingDefenderLeader = {...matchingTile}
+                        matchingTile.tileType === tile.tileType &&
+                        matchingTile.playerId !== tile.playerId) {
+                            matchingDefenderLeader = { ...matchingTile }
+                            break
                     }
                 }
                 if (matchingDefenderLeader) {
-                    commit('updateTile', {...payload, isHighlighted: true})
-                    commit('updateTile', {...matchingDefenderLeader, isHighlighted: true})
-                    commit('game/setCurrentActionPlayerId', {playerId: payload.playerId}, {root: true})
-                    commit('game/setConflictAttackerPlayerId', {playerId: payload.playerId}, {root: true})
-                    commit('game/setConflictDefenderPlayerId', {playerId: matchingDefenderLeader.playerId}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.revoltAttack}, {root: true})
+                    commit('updateTile', { ...tile, isHighlighted: true })
+                    commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
+                    commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
+                    commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
+                    commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
+                    commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
+                    const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(tile.tileType))
+                    commit('log/logActionMessage', {
+                        playerId: tile.playerId,
+                        text: `placed ${tileName} on ${helpers.getCoordinatesByIndex(tile.index)} starting a Revolt`
+                    }, { root: true })
                 }
             }
         }

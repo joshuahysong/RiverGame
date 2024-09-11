@@ -1,4 +1,5 @@
-import { actionTypes, messageTypes, monumentTypes } from '../../common/constants'
+import { actionTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
+import helpers from '../../common/helpers'
 
 const DEBUG = false
 
@@ -9,8 +10,8 @@ const state = () => ({
     numberOfPlayers: 0,
     remainingActions: 0,
     currentActionType: 0,
-    conflictAttackerPlayerId: 0,
-    conflictDefenderPlayerId: 0,
+    conflictAttackerLeader: null,
+    conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
     remainingMonuments: [],
@@ -25,8 +26,8 @@ const defaultState = {
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
-    conflictAttackerPlayerId: 0,
-    conflictDefenderPlayerId: 0,
+    conflictAttackerLeader: null,
+    conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
     remainingMonuments: [
@@ -70,11 +71,17 @@ const getters = {
     currentHandDisplayPlayerId: (state) => {
         return state.currentHandDisplayPlayerId
     },
-    conflictAttackerPlayerId: (state) => {
-        return state.conflictAttackerPlayerId
+    conflictAttackerLeader: (state) => {
+        return state.conflictAttackerLeader
     },
-    conflictDefenderPlayerId: (state) => {
-        return state.conflictDefenderPlayerId
+    conflictDefenderLeader: (state) => {
+        return state.conflictDefenderLeader
+    },
+    conflictAttackerTiles: (state) => {
+        return state.conflictAttackerTiles
+    },
+    conflictDefenderTiles: (state) => {
+        return state.conflictDefenderTiles
     },
     remainingMonuments: (state) => {
         return state.remainingMonuments
@@ -133,8 +140,8 @@ const actions = {
         snapshot.game.currentHandDisplayPlayerId = state.currentHandDisplayPlayerId,
         snapshot.game.remainingActions = state.remainingActions,
         snapshot.game.currentActionType = state.currentActionType,
-        snapshot.game.conflictAttackerPlayerId = state.conflictAttackerPlayerId,
-        snapshot.game.conflictDefenderPlayerId = state.conflictDefenderPlayerId,
+        snapshot.game.conflictAttackerLeader = { ...state.conflictAttackerLeader },
+        snapshot.game.conflictDefenderLeader = { ...state.conflictDefenderLeader },
         snapshot.game.conflictAttackerTiles = [...state.conflictAttackerTiles],
         snapshot.game.conflictDefenderTiles = [...state.conflictDefenderTiles],
         snapshot.game.remainingMonuments = [...state.remainingMonuments],
@@ -151,6 +158,39 @@ const actions = {
             commit('log/setMessages', [...state.snapshot.log], { root: true })
             commit('setState', { ...state, ...state.snapshot.game })
         }
+    },
+    resolveConflict({getters, rootGetters, commit}) {
+        let isRevolt = getters.currentActionType === actionTypes.revoltDefend
+        let winner = null
+        let loser = null
+        let winnerStrength = 0
+        let loserStrength = 0
+        if (isRevolt) {
+            let attackerStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader).length +
+                getters.conflictAttackerTiles.length
+            let defenderStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader).length +
+                getters.conflictDefenderTiles.length
+            if (attackerStrength > defenderStrength) {
+                winnerStrength = attackerStrength
+                loserStrength = defenderStrength
+                winner = { ...getters.conflictAttackerLeader }
+                loser = { ...getters.conflictDefenderLeader }
+            } else {
+                winnerStrength = defenderStrength
+                loserStrength = attackerStrength
+                winner = { ...getters.conflictDefenderLeader }
+                loser = { ...getters.conflictAttackerLeader }
+            }
+            commit('players/incrementScore', {
+                playerId: winner.playerId,
+                scoreName: helpers.getTileNameByType(tileTypes.temple)
+            }, { root: true })
+            commit('players/addLeaderToPlayer', loser, { root: true })
+            commit('board/removeTile', { index: loser.index }, { root: true })
+        }
+        commit('log/logActionMessage', {
+            text: `{${winner.playerId}} (${winnerStrength}) wins the ${(isRevolt ? 'Revolt' : 'War')} against {${loser.playerId}} (${loserStrength})`
+        }, { root: true })
     }
 }
 
@@ -161,8 +201,8 @@ const mutations = {
         state.activeTurnPlayerId = activeTurnPlayerId
         state.currentActionPlayerId = activeTurnPlayerId
         state.currentHandDisplayPlayerId = activeTurnPlayerId
-        state.conflictAttackerPlayerId = 0
-        state.conflictDefenderPlayerId = 0
+        state.conflictAttackerLeader = null
+        state.conflictDefenderLeader = null
         state.remainingActions = 2
         state.currentActionType = actionTypes.playTile
     },
@@ -184,11 +224,17 @@ const mutations = {
     setCurrentHandDisplayPlayerId(state, payload) {
         state.currentHandDisplayPlayerId = payload.playerId
     },
-    setConflictAttackerPlayerId(state, payload) {
-        state.conflictAttackerPlayerId = payload.playerId
+    setConflictAttackerLeader(state, payload) {
+        state.conflictAttackerLeader = { ...payload }
     },
-    setConflictDefenderPlayerId(state, payload) {
-        state.conflictDefenderPlayerId = payload.playerId
+    setConflictDefenderLeader(state, payload) {
+        state.conflictDefenderLeader = { ...payload }
+    },
+    setConflictAttackerTiles(state, payload) {
+        state.conflictAttackerTiles = [...payload.tiles]
+    },
+    setConflictDefenderTiles(state, payload) {
+        state.conflictDefenderTiles = [...payload.tiles]
     },
     removeFromRemainingMonuments(state, payload) {
         let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)

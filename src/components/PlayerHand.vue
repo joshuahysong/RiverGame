@@ -139,7 +139,9 @@ export default {
         },
         isHighlightedLeader(tileType) {
             let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
-            return selectedBoardLeader && selectedBoardLeader.tileType === tileType
+            return this.currentActionType === actionTypes.playTile &&
+                selectedBoardLeader &&
+                selectedBoardLeader.tileType === tileType
         },
         selectTile(index, tileType) {
             if (!this.selectable) return
@@ -158,7 +160,7 @@ export default {
                 if (this.isSelectedTile(index, tileType)) {
                     this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 } else {
-                    this.$store.commit('board/resetBoardTileHighlights')
+                    if (!isRevolt) this.$store.commit('board/resetBoardTileHighlights')
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
             // Moving a leader from board to hand

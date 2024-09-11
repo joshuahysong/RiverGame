@@ -25,7 +25,12 @@
         </b-navbar>
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
-            <action-bar></action-bar>
+            <action-bar />
+            <div class="row no-gutters mt-2">
+                <div class="col-12 col-xl-10 offset-xl-1">
+                    <war-board v-if="showWarBoard" class="m-1" />
+                </div>
+            </div>
             <div class="row no-gutters mt-2">
                 <!-- board column -->
                 <div class="col-12 col-lg-9 col-xl-7 order-2 order-xl-1">
@@ -44,7 +49,7 @@
                 <!-- player hand column -->
                 <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
                     <div class="row no-gutters justify-content-center align-items-center">
-                        <div v-if="showMonumentsBelowHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
+                        <div v-if="showMonumentsAboveHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
                             <monument-card />
                         </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
@@ -136,6 +141,7 @@ import MonumentCard from './components/MonumentCard.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
 import ProgressCard from './components/ProgressCard.vue'
+import WarBoard from './components/WarBoard.vue'
 import helpers from './common/helpers'
 import { actionTypes } from './common/constants'
 
@@ -148,7 +154,8 @@ export default {
         MonumentCard,
         PlayerHand,
         PlayerCard,
-        ProgressCard
+        ProgressCard,
+        WarBoard
     },
     data() {
         return {
@@ -216,9 +223,13 @@ export default {
                 this.$store.commit('settings/setShowKingdoms', value)
             }
         },
-        showMonumentsBelowHand() {
+        showMonumentsAboveHand() {
             return this.currentActionType === actionTypes.buildMonument ||
                 this.currentActionType === actionTypes.buildMonumentMultiple
+        },
+        showWarBoard() {
+            return this.currentActionType === actionTypes.revoltAttack ||
+                this.currentActionType === actionTypes.revoltDefend
         }
     },
     methods: {
