@@ -267,16 +267,18 @@ const actions = {
 
                 if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
-                const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(newTile.tileType))
                 if (selectedBoardLeader) {
                     commit('log/logActionMessage', {
                         playerId: currentPlayer.id,
-                        text: `moved ${tileName} from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} to ${helpers.getCoordinatesByIndex(newTile.index)}`
+                        text: `moved ${helpers.getLogToken(currentPlayer.id, newTile.tileType)}
+                            from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)}
+                            to ${helpers.getCoordinatesByIndex(newTile.index)}`
                     }, { root: true })
                 } else {
                     commit('log/logActionMessage', {
                         playerId: currentPlayer.id,
-                        text: `placed ${tileName} on ${helpers.getCoordinatesByIndex(newTile.index)}`
+                        text: `placed ${helpers.getLogToken(currentPlayer.id, newTile.tileType)}
+                            on ${helpers.getCoordinatesByIndex(newTile.index)}`
                     }, { root: true })
                 }
 
@@ -575,10 +577,10 @@ const actions = {
                     commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
                     commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
                     commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
-                    const tileName = helpers.capitalizeFirstLetter(helpers.getTileNameByType(tile.tileType))
                     commit('log/logActionMessage', {
                         playerId: tile.playerId,
-                        text: `placed ${tileName} on ${helpers.getCoordinatesByIndex(tile.index)} starting a Revolt`
+                        text: `placed  ${helpers.getLogToken(tile.playerId, tile.tileType)}
+                            on ${helpers.getCoordinatesByIndex(tile.index)} starting a Revolt`
                     }, { root: true })
                 }
             }

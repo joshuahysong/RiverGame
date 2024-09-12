@@ -23,6 +23,9 @@ const helpers = {
     },
     getMonumentNameByType(monumentType) {
         return this.capitalizeFirstLetter(pascalToProper(Object.keys(monumentTypes).find(key => monumentTypes[key] === monumentType)));
+    },
+    getLogToken(playerId, tileType) {
+        return `{${playerId}|${tileType}}`
     }
 }
 

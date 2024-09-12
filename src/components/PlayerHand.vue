@@ -178,7 +178,7 @@ export default {
                     this.$store.commit('game/actionCompleted')
                     this.$store.commit('log/logActionMessage', {
                         playerId: this.player.id,
-                        text: `moved ${helpers.capitalizeFirstLetter(helpers.getTileNameByType(selectedBoardLeader.tileType))}
+                        text: `moved ${helpers.getLogToken(this.player.id, selectedBoardLeader.tileType)}
                             from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} back to hand`
                     })
                 }
