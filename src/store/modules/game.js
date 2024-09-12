@@ -192,9 +192,9 @@ const actions = {
         commit('board/resetBoardTileHighlights', null, { root:true })
         dispatch('board/setRegions', null, { root: true })
         commit('log/logActionMessage', {
-            text: `{${winner.playerId}|${winner.tileType}} (${winnerStrength})
+            text: `${helpers.getLogToken(winner)} (${winnerStrength})
                 wins the ${(isRevolt ? 'Revolt' : 'War')}
-                against {${loser.playerId}|${loser.tileType}} (${loserStrength})`
+                against ${helpers.getLogToken(loser)} (${loserStrength})`
         }, { root: true })
     }
 }

@@ -25,8 +25,8 @@ const helpers = {
             pascalToProper(Object.keys(monumentTypes).find(key => monumentTypes[key] === monumentType))
         ).replace(' ', ' & ');
     },
-    getLogToken(playerId, tileType) {
-        return `{${playerId}|${tileType}}`
+    getLogToken(tile) {
+        return tile ? `{${tile.playerId}|${tile.tileType}}` : null
     }
 }
 

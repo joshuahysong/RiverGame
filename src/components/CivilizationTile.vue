@@ -119,7 +119,6 @@ export default {
         width: 35%;
         background-color: gold;
         border-radius: 50%;
-        border: 2px solid $color-treasure;
         position: absolute;
     }
 

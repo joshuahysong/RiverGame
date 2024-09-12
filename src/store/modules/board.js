@@ -265,14 +265,14 @@ const actions = {
                 if (selectedBoardLeader) {
                     commit('log/logActionMessage', {
                         playerId: currentPlayer.id,
-                        text: `moved ${helpers.getLogToken(currentPlayer.id, newTile.tileType)}
+                        text: `moved ${helpers.getLogToken(newTile)}
                             from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)}
                             to ${helpers.getCoordinatesByIndex(newTile.index)}`
                     }, { root: true })
                 } else {
                     commit('log/logActionMessage', {
                         playerId: currentPlayer.id,
-                        text: `placed ${helpers.getLogToken(currentPlayer.id, newTile.tileType)}
+                        text: `placed ${helpers.getLogToken(newTile)}
                             on ${helpers.getCoordinatesByIndex(newTile.index)}`
                     }, { root: true })
                 }
@@ -294,7 +294,7 @@ const actions = {
                 commit('resetBoardTileHighlights')
                 commit('log/logActionMessage', {
                     playerId: rootGetters['game/currentActionPlayerId'],
-                    text: `retrieved a Treasure from ${helpers.getCoordinatesByIndex(clickedTile.index)}`
+                    text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(clickedTile.index)}`
                 }, { root: true })
 
                 dispatch('checkForTreasureToTake', clickedTile)
@@ -578,8 +578,8 @@ const actions = {
                     commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
                     commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
                     commit('log/logActionMessage', {
-                        text: `A Revolt has begun between ${helpers.getLogToken(tile.playerId, tile.tileType)}
-                            and ${helpers.getLogToken(matchingDefenderLeader.playerId, matchingDefenderLeader.tileType)}`
+                        text: `A Revolt has begun between ${helpers.getLogToken(tile)}
+                            and ${helpers.getLogToken(matchingDefenderLeader)}`
                     }, { root: true })
                 }
             }

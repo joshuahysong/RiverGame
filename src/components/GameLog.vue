@@ -38,12 +38,15 @@ export default {
             return helpers.getPlayerIconNameById(message.playerId)
         },
         getMessageIcon(word) {
+            const properties = { icon: '', class: '' };
             word = word.replace(/\r?\n|\r/g, '')
             const wordParts = word.substring(1, word.length - 1).split('|')
-            const properties = {
-                icon: helpers.getPlayerIconNameById(wordParts[0] * 1),
-                class: ''
-            };
+            if (wordParts[0] === 'treasure') {
+                properties.icon = 'circle-fill'
+                properties.class = 'treasure'
+            } else {
+                properties.icon = helpers.getPlayerIconNameById(wordParts[0] * 1)
+            }
             if (wordParts.length === 2) {
                 const isLeader = leaderTileTypes.includes(wordParts[1] * 1)
                 if (!isLeader) properties.icon = 'square-fill'
@@ -87,5 +90,9 @@ export default {
 
     .farm, .farmer {
         color: $color-farm;
+    }
+
+    .treasure {
+        color: $color-treasure
     }
 </style>
