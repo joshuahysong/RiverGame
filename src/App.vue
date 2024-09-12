@@ -26,9 +26,9 @@
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
             <action-bar />
-            <div class="row no-gutters mt-2">
+            <div v-if="showWarBoard" class="row no-gutters mt-2">
                 <div class="col-12 col-xl-10 offset-xl-1">
-                    <war-board v-if="showWarBoard" class="m-1" />
+                    <war-board class="m-1" />
                 </div>
             </div>
             <div class="row no-gutters mt-2">

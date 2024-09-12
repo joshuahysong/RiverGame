@@ -2,7 +2,7 @@
     <div>
         <b-iconstack class="tile-monument" :style="monumentStyle" :class="monumentClass">
             <b-icon stacked icon="octagon-fill" :class="primaryTileClass"></b-icon>
-            <b-icon stacked icon="circle-fill" scale="0.4" :class="secondaryTileClass"></b-icon>
+            <b-icon stacked icon="octagon-fill" scale="0.4" :class="secondaryTileClass"></b-icon>
         </b-iconstack>
     </div>
 </template>

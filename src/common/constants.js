@@ -38,12 +38,12 @@ export const actionTypes = {
     revoltDefend: 7
 }
 
-export const playerIcons = {
-    diamond: 1,
-    club: 2,
-    heart: 3,
-    spade: 4
-}
+export const playerIcons = [
+    'suit-diamond-fill',
+    'star-fill',
+    'suit-heart-fill',
+    'circle-fill'
+]
 
 export const boardStats = {
     columns: 16,
