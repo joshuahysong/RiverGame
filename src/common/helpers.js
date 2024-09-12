@@ -21,7 +21,9 @@ const helpers = {
         return string && string[0].toUpperCase() + string.slice(1);
     },
     getMonumentNameByType(monumentType) {
-        return this.capitalizeFirstLetter(pascalToProper(Object.keys(monumentTypes).find(key => monumentTypes[key] === monumentType)));
+        return this.capitalizeFirstLetter(
+            pascalToProper(Object.keys(monumentTypes).find(key => monumentTypes[key] === monumentType))
+        ).replace(' ', ' & ');
     },
     getLogToken(playerId, tileType) {
         return `{${playerId}|${tileType}}`

@@ -42,7 +42,7 @@ export const playerIcons = [
     'suit-diamond-fill',
     'star-fill',
     'suit-heart-fill',
-    'circle-fill'
+    'egg-fill'
 ]
 
 export const boardStats = {

@@ -258,14 +258,9 @@ const actions = {
                 const neighborKingdoms = getters.neighborRegions(newTile).filter(x => x.isKingdom)
                 commit('addTile', newTile)
                 dispatch('setRegions')
-                dispatch('checkForDisplacedLeader')
                 if (neighborKingdoms.length <= 1 && playerHasSelectedTiles) dispatch('checkForTileScore', newTile)
-                dispatch('checkForTreasureToTake', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
-                dispatch('checkForRevolt', newTile)
-
-                if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
                 if (selectedBoardLeader) {
                     commit('log/logActionMessage', {
@@ -282,10 +277,13 @@ const actions = {
                     }, { root: true })
                 }
 
-                if (playerHasSelectedTiles) dispatch('checkForMonument', newTile)
+                dispatch('checkForRevolt', newTile)
+                dispatch('checkForMonument', newTile)
 
-                if (rootGetters['game/currentActionType'] === actionTypes.playTile)
+                if (rootGetters['game/currentActionType'] === actionTypes.playTile) {
                     commit('game/actionCompleted', null, { root: true })
+                    dispatch('checkForTreasureToTake', newTile)
+                }
             }
         }
         if (currentActionType === actionTypes.takeTreasure) {
@@ -301,7 +299,6 @@ const actions = {
 
                 dispatch('checkForTreasureToTake', clickedTile)
                 if (getters.treasuresToTake < 1) {
-                    commit('game/actionCompleted', null, { root: true })
                     commit('game/setCurrentActionPlayerId', { playerId: rootGetters['game/activeTurnPlayerId'] }, { root: true })
                     commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
                 }
@@ -502,14 +499,17 @@ const actions = {
         commit('game/removeFromRemainingMonuments', payload, { root: true })
         commit('resetAvailableMonumentLocations')
         commit('game/resetSelectedMonumentType', null, { root: true })
-        dispatch('checkForDisplacedLeader')
-        dispatch('setRegions')
-        commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
-        commit('game/actionCompleted', null, { root: true })
+
         commit('log/logActionMessage', {
             playerId: rootGetters['game/currentActionPlayerId'],
             text: `built ${helpers.getMonumentNameByType(payload.monumentType)} monument at ${helpers.getCoordinatesByIndex(payload.index)}`
         }, { root: true })
+
+        dispatch('checkForDisplacedLeader')
+        dispatch('setRegions')
+        commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
+        commit('game/actionCompleted', null, { root: true })
+        dispatch('checkForTreasureToTake', target)
     },
     checkForMonumentScore({getters, rootGetters, commit}) {
         let playerId = rootGetters['game/currentActionPlayerId']
@@ -578,9 +578,8 @@ const actions = {
                     commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
                     commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
                     commit('log/logActionMessage', {
-                        playerId: tile.playerId,
-                        text: `placed  ${helpers.getLogToken(tile.playerId, tile.tileType)}
-                            on ${helpers.getCoordinatesByIndex(tile.index)} starting a Revolt`
+                        text: `A Revolt has begun between ${helpers.getLogToken(tile.playerId, tile.tileType)}
+                            and ${helpers.getLogToken(matchingDefenderLeader.playerId, matchingDefenderLeader.tileType)}`
                     }, { root: true })
                 }
             }

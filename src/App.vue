@@ -8,7 +8,7 @@
                     <template #button-content>
                         <b-icon-gear-fill />
                     </template>
-                    <b-dropdown-form form-class="px-3" style="width: 170px">
+                    <b-dropdown-form form-class="px-3" style="width: 200px">
                         <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
                             Show Coordinates
                         </b-form-checkbox>
@@ -17,6 +17,9 @@
                         </b-form-checkbox>
                         <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">
                             Show Kingdoms
+                        </b-form-checkbox>
+                        <b-form-checkbox v-model="showLogTimestamps" class="small" @change="saveSettings">
+                            Show Log Timestamps
                         </b-form-checkbox>
                     </b-dropdown-form>
                 </b-nav-item-dropdown>
@@ -220,6 +223,14 @@ export default {
             },
             set (value) {
                 this.$store.commit('settings/setShowKingdoms', value)
+            }
+        },
+        showLogTimestamps: {
+            get () {
+                return this.$store.getters['settings/showLogTimestamps']
+            },
+            set (value) {
+                this.$store.commit('settings/setShowLogTimestamps', value)
             }
         },
         showMonumentsAboveHand() {

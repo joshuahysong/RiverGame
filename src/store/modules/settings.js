@@ -1,7 +1,8 @@
 const state = () => ({
     showCoordinates: true,
     showIndexes: false,
-    showKingdoms: true
+    showKingdoms: true,
+    showLogTimestamps: true
 })
 
 const getters = {
@@ -16,6 +17,9 @@ const getters = {
     },
     showKingdoms(state) {
         return state.showKingdoms
+    },
+    showLogTimestamps(state) {
+        return state.showLogTimestamps
     }
 }
 
@@ -43,6 +47,9 @@ const mutations = {
     },
     setShowKingdoms(state, payload) {
         state.showKingdoms = payload
+    },
+    setShowLogTimestamps(state, payload) {
+        state.showLogTimestamps = payload
     }
 }
 

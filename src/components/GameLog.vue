@@ -4,7 +4,7 @@
         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
             <div class="scroll border text-left p-2 small">
                 <div v-for="(message, index) in messages" :key="index" class="log" :class="getClass(message)">
-                    {{ message.timestamp }}: <b-icon v-if="message.playerId >= 0" :icon="getLeaderIcon(message)" class="mr-1" />
+                    <span v-if="showLogTimestamps">{{ message.timestamp }}: </span><b-icon v-if="message.playerId >= 0" :icon="getLeaderIcon(message)" class="mr-1" />
                     <span v-for="(word, index) in message.text.split(' ')" :key="index">
                         <span v-if="word[0] === '{'"><b-icon v-bind="getMessageIcon(word)" />&nbsp;</span>
                         <span v-else-if="word">{{ word }} </span>
@@ -25,7 +25,10 @@ export default {
     computed: {
         ...mapGetters('log', [
             'messages'
-        ])
+        ]),
+        ...mapGetters('settings', [
+            'showLogTimestamps'
+        ]),
     },
     methods: {
         getTimestamp(message) {
