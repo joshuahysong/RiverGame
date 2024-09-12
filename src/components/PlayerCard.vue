@@ -35,16 +35,16 @@
             </div>
             <div v-if="showScore || debug" class="row no-gutters mt-1 justify-content-center justify-content-lg-start">
                 <div class="col-auto align-self-center">
-                    <b-badge pill class="temple-score mr-2">{{player.score.temple}}</b-badge>
+                    <b-badge pill class="settlement-score mr-2">{{player.score.settlement}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <b-badge pill class="market-score mr-2">{{player.score.market}}</b-badge>
+                    <b-badge pill class="temple-score mr-2">{{player.score.temple}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
                     <b-badge pill class="farm-score mr-2">{{player.score.farm}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
-                    <b-badge pill class="settlement-score mr-2">{{player.score.settlement}}</b-badge>
+                    <b-badge pill class="market-score mr-2">{{player.score.market}}</b-badge>
                 </div>
                 <div class="col-auto align-self-center">
                     <b-badge pill class="treasure-score mr-2">{{player.score.treasure}}</b-badge>
