@@ -18,7 +18,7 @@
                 {{playerName}}: Select tiles to discard and redraw.
             </div>
             <div v-if="showRevoltAttackMessage || showRevoltDefendMessage" class="d-inline-block">
-                {{playerName}}: Select Temples to commit for support.
+                {{playerName}}: Select<b-icon icon="square-fill" class="temple mx-2" />to commit for support.
             </div>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
@@ -237,8 +237,24 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .action-bar {
         min-height: 50px;
+    }
+
+    .temple {
+        color: $color-temple;
+    }
+
+    .market {
+        color: $color-market;
+    }
+
+    .settlement {
+        color: $color-settlement;
+    }
+
+    .farm {
+        color: $color-farm;
     }
 </style>

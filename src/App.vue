@@ -12,7 +12,7 @@
                         <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
                             Show Coordinates
                         </b-form-checkbox>
-                        <b-form-checkbox v-model="showIndexes" class="small" @change="saveSettings">
+                        <b-form-checkbox v-if="debug" v-model="showIndexes" class="small" @change="saveSettings">
                             Show Indexes
                         </b-form-checkbox>
                         <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">

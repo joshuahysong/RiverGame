@@ -1,5 +1,5 @@
 const state = () => ({
-    showCoordinates: false,
+    showCoordinates: true,
     showIndexes: false,
     showKingdoms: true
 })

@@ -9,7 +9,8 @@
         <leader-tile v-if="hasTile && tile.isLeaderTile"
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"
-            :player="getPlayer()" />
+            :player="getPlayer()"
+            :show-pointer="showLeaderPointer" />
         <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
@@ -20,12 +21,12 @@
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
         <div v-if="showCoordinates"
             class="coordinates coordinates-text-size"
-            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            :class="{'text-white': hasTile, 'pointer': (tile && tile.isHighlighted)}" >
             {{coordinates}}
         </div>
-        <div v-if="showIndexes"
+        <div v-if="showIndexes && debug"
             class="coordinates coordinates-text-size d-flex justify-content-center"
-            :class="{'text-white': hasTile, 'pointer': tile.isHighlighted}">
+            :class="{'text-white': hasTile, 'pointer': (tile && tile.isHighlighted)}">
             <span class="align-self-end">{{index}}</span>
         </div>
     </div>
@@ -37,7 +38,7 @@ import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import MonumentTile from './MonumentTile.vue'
 import helpers from '../common/helpers'
-import { mapTypes, tileTypes } from '../common/constants'
+import { mapTypes, tileTypes, actionTypes } from '../common/constants'
 
 export default {
     name: 'MapSquare',
@@ -57,9 +58,13 @@ export default {
             'showCoordinates',
             'showIndexes'
         ]),
-        ...mapGetters('players', {
-            currentPlayer: 'currentPlayer'
-        }),
+        ...mapGetters('players', [
+            'currentPlayer'
+        ]),
+        ...mapGetters('game', [
+            'debug',
+            'currentActionType'
+        ]),
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
         },
@@ -120,6 +125,10 @@ export default {
         },
         tileTypes() {
             return tileTypes
+        },
+        showLeaderPointer() {
+            return this.currentPlayer.id === this.tile.playerId &&
+                this.currentActionType === actionTypes.playTile
         }
     }, 
     methods: {
@@ -135,7 +144,7 @@ export default {
         },
         getPlayer() {
             return this.$store.getters['players/getPlayer'](this.tile.playerId)
-        }
+        },
     }
 }
 </script>

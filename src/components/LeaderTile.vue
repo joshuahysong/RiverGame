@@ -22,7 +22,7 @@ export default {
         tileClass() {
             let cssClass = this.selected ? 'selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
-            cssClass += (this.showPointer && !this.isEmpty) || this.highlight ? ' pointer' : ''
+            cssClass += this.showPointer && !this.isEmpty || (this.isEmpty && this.highlight) ? ' pointer' : ''
             return cssClass
         },
         tileStyle() {
