@@ -201,6 +201,7 @@ export default {
             })
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
             this.$store.commit('game/actionCompleted')
+            this.$store.commit('board/checkForTreasureToTake')
         },
         beginSwapTiles(){
             this.$store.commit('board/resetAvailableTileLocations')
@@ -250,6 +251,7 @@ export default {
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
                 this.$store.commit('game/actionCompleted')
+                this.$store.dispatch('board/checkForTreasureToTake')
             }
         }
     }

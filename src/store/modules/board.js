@@ -50,6 +50,9 @@ const getters = {
     tile: (state) => (index) => {
         return state.tiles[index]
     },
+    regions: (state) => {
+        return state.regions
+    },
     initialTreasures: (state) => {
         return state.initialTreasures
     },
@@ -307,7 +310,7 @@ const actions = {
                 if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
                 commit('game/actionCompleted', null, { root: true })
-                dispatch('checkForTreasureToTake', newTile)
+                dispatch('checkForTreasureToTake')
             }
         }
         if (currentActionType === actionTypes.takeTreasure) {
@@ -321,7 +324,7 @@ const actions = {
                     text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(clickedTile.index)}`
                 }, { root: true })
 
-                dispatch('checkForTreasureToTake', clickedTile)
+                dispatch('checkForTreasureToTake')
                 if (getters.treasuresToTake < 1) {
                     commit('game/setCurrentActionPlayerId', { playerId: rootGetters['game/activeTurnPlayerId'] }, { root: true })
                     commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
@@ -455,30 +458,31 @@ const actions = {
             }
         }
     },
-    checkForTreasureToTake({state, getters, commit}, payload) {
-        let tilesWithTreasure = []
-        let region = getters.getRegion(payload.index)
-        if (region && region.isKingdom) {
-            let matchingTrader = null
-            for (let i = 0; i < region.tileIndexes.length; i++) {
-                let matchingTile = state.tiles[region.tileIndexes[i]]
-                if (matchingTile) {
-                    if (matchingTile.hasTreasure)
-                        tilesWithTreasure.push(matchingTile)
-                    if (matchingTile.tileType === tileTypes.trader) {
-                        matchingTrader = matchingTile
+    checkForTreasureToTake({getters, commit}) {
+        for (const region of getters.regions) {
+            let tilesWithTreasure = []
+            if (region && region.isKingdom) {
+                let matchingTrader = null
+                for (let i = 0; i < region.tileIndexes.length; i++) {
+                    let matchingTile = getters.tile(region.tileIndexes[i])
+                    if (matchingTile) {
+                        if (matchingTile.hasTreasure)
+                            tilesWithTreasure.push(matchingTile)
+                        if (matchingTile.tileType === tileTypes.trader) {
+                            matchingTrader = matchingTile
+                        }
                     }
                 }
-            }
-            if (tilesWithTreasure.length > 1 && matchingTrader !== null) {
-                for (let i = 0; i < tilesWithTreasure.length; i++) {
-                    commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
+                if (tilesWithTreasure.length > 1 && matchingTrader !== null) {
+                    for (let i = 0; i < tilesWithTreasure.length; i++) {
+                        commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
+                    }
+                    commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
+                    commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
                 }
-                commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
-                commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
             }
+            commit('setTreasuresToTake', tilesWithTreasure.length - 1)
         }
-        commit('setTreasuresToTake', tilesWithTreasure.length - 1)
     },
     checkForMonument({getters, commit}, payload) {
         commit('resetAvailableMonumentLocations')
@@ -535,7 +539,7 @@ const actions = {
         dispatch('setRegions')
         commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
         commit('game/actionCompleted', null, { root: true })
-        dispatch('checkForTreasureToTake', target)
+        dispatch('checkForTreasureToTake')
     },
     checkForMonumentScore({getters, rootGetters, commit}) {
         let playerId = rootGetters['game/currentActionPlayerId']
