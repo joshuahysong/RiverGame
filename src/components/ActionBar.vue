@@ -20,6 +20,9 @@
             <div v-if="showWarMessage" class="d-inline-block">
                 {{playerName}}: Select<b-icon icon="square-fill" :class="warTileType" class="mx-2" />to commit for support.
             </div>
+            <div v-if="showWarChooseLeaderMessage" class="d-inline-block">
+                {{playerName}}: Select which leaders must battle first.
+            </div>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
             <b-button
@@ -152,6 +155,7 @@ export default {
         showRevoltDefendMessage() { return this.currentActionType === actionTypes.revoltDefend },
         showWarAttackMessage() { return this.currentActionType === actionTypes.warAttack },
         showWarDefendMessage() { return this.currentActionType === actionTypes.warDefend },
+        showWarChooseLeaderMessage() { return this.currentActionType === actionTypes.warChooseLeader },
         showWarMessage() {
             return this.showRevoltAttackMessage ||
                 this.showRevoltDefendMessage ||
@@ -247,11 +251,13 @@ export default {
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.dispatch('game/resolveConflict')
                 this.$store.dispatch('board/checkForWar', this.conflictTile)
-                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.activeTurnPlayerId })
-                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
-                this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
-                this.$store.commit('game/actionCompleted')
-                this.$store.dispatch('board/checkForTreasureToTake')
+                if (this.currentActionType !== actionTypes.warAttack && this.currentActionType !== actionTypes.warChooseLeader) {
+                    this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.activeTurnPlayerId })
+                    this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
+                    this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                    this.$store.commit('game/actionCompleted')
+                    this.$store.dispatch('board/checkForTreasureToTake')
+                }
             }
         }
     }

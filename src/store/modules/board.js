@@ -23,7 +23,8 @@ const state = () => ({
     initialTreasures: 0,
     remainingTreasures: 0,
     treasuresToTake: 0,
-    conflictTile: null
+    conflictTile: null,
+    leaderGroupsAtWar: []
 })
 
 const initialTiles = [
@@ -224,6 +225,9 @@ const getters = {
                 boardStrength.push({ ...tile })
         }
         return boardStrength
+    },
+    leaderGroupsAtWar: (state) => {
+        return state.leaderGroupsAtWar
     }
 }
 
@@ -334,6 +338,16 @@ const actions = {
         if (currentActionType === actionTypes.buildMonumentMultiple) {
             let monumentType = rootGetters['game/selectedMonumentType']
             dispatch('buildMonument', { ...clickedTile, monumentType: monumentType })
+        }
+        if (currentActionType === actionTypes.warChooseLeader) {
+            if (clickedTile.isHighlighted &&
+                clickedTile.isLeaderTile &&
+                getters.leaderGroupsAtWar.length > 0
+            ) {
+                const chosenLeaderGroup = getters.leaderGroupsAtWar.filter(x => x[0].tileType === clickedTile.tileType)
+                if (chosenLeaderGroup && chosenLeaderGroup.length > 0)
+                dispatch('triggerWar', { attacker: chosenLeaderGroup[0][0], defender: chosenLeaderGroup[0][1] })
+            }
         }
     },
     calculateAvailableTileLocations({state, getters, commit}, selectedTile) {
@@ -618,6 +632,7 @@ const actions = {
     checkForWar({getters, commit, dispatch}, tile) {
         if (!tile || tile.isLeaderTile || tile.tileType === tileTypes.catastrophe) return
         if (!getters.conflictTile) commit('setConflictTile', tile)
+        commit('resetLeaderGroupsAtWar')
         let redLeaders = []
         let blackLeaders = []
         let greenLeaders = []
@@ -649,10 +664,12 @@ const actions = {
                 }
             }
         }
+
         if (leaderGroupsAtWar.length == 0) {
             commit('resetConflictTile')
         // if there is more than one group the active player has to choose who fights
         } else if (leaderGroupsAtWar.length > 1) {
+            commit('setLeaderGroupsAtWar', leaderGroupsAtWar)
             commit('game/setActionType', { actionType: actionTypes.warChooseLeader }, { root: true })
         // if only one group then trigger a war immediately
         } else if (leaderGroupsAtWar.length === 1) {
@@ -754,6 +771,12 @@ const mutations = {
     },
     resetConflictTile(state) {
         state.conflictTile = null
+    },
+    setLeaderGroupsAtWar(state, payload) {
+        state.leaderGroupsAtWar = [...payload]
+    },
+    resetLeaderGroupsAtWar(state) {
+        state.leaderGroupsAtWar = []
     }
 }
 
