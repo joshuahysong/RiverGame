@@ -22,12 +22,12 @@
         <div v-if="showKingdoms" class="kingdom" :style="kingdomStyle"></div>
         <div v-if="showCoordinates"
             class="coordinates coordinates-text-size"
-            :class="{'text-white': hasTile, 'pointer': (tile && tile.isHighlighted)}" >
+            :class="{'text-white': hasTile, 'pointer': ((tile && tile.isHighlighted || showLeaderPointer))}" >
             {{coordinates}}
         </div>
         <div v-if="showIndexes && debug"
             class="coordinates coordinates-text-size d-flex justify-content-center"
-            :class="{'text-white': hasTile, 'pointer': (tile && tile.isHighlighted)}">
+            :class="{'text-white': hasTile, 'pointer': ((tile && tile.isHighlighted || showLeaderPointer))}">
             <span class="align-self-end">{{index}}</span>
         </div>
     </div>

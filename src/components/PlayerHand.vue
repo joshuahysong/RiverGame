@@ -15,6 +15,7 @@
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index, tileType)"
                                 :highlight="isHighlightedLeader(tileType)"
+                                :disabled="isDisabled(tileType)"
                                 @click.native="selectTile(index, tileType)"
                                 :show-pointer="!isInConflict"
                                 show-empty />
@@ -29,6 +30,7 @@
                                 :class="(index !== 3 ? 'mr-1 mr-md-2' : '')"
                                 :selected="isSelectedTile(index + 2, tileType)"
                                 :highlight="isHighlightedLeader(tileType)"
+                                :disabled="isDisabled(tileType)"
                                 @click.native="selectTile(index + 2, tileType)"
                                 :show-pointer="!isInConflict"
                                 show-empty />
@@ -154,7 +156,8 @@ export default {
                 selectedBoardLeader.tileType === tileType
         },
         isDisabled(tileType) {
-            return this.isInConflict && this.conflictTileType !== tileType
+            return (this.isInConflict && this.conflictTileType !== tileType) ||
+                this.remainingActions === 0
         },
         selectTile(index, tileType) {
             if (!this.selectable) return

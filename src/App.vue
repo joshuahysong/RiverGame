@@ -55,7 +55,7 @@
                         <div v-if="showMonumentsAboveHand" class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none">
                             <monument-card />
                         </div>
-                        <div class="col-12 col-md-10 col-lg-8 col-xl-12 pr-xl-3 px-1">
+                        <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pr-xl-3">
                             <player-hand v-if="getPlayer(currentHandDisplayPlayerId)?.isHuman"
                                 :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
                             <div v-else class="card">

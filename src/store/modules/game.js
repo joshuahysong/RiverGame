@@ -1,7 +1,7 @@
 import { actionTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
 import helpers from '../../common/helpers'
 
-const DEBUG = true
+const DEBUG = false
 
 const state = () => ({
     activeTurnPlayerId: 0,

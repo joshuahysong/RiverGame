@@ -14,6 +14,7 @@ export default {
         player: Object,
         selected: Boolean,
         highlight: Boolean,
+        disabled: Boolean,
         showPointer: Boolean,
         size: Number,
         showEmpty: Boolean
@@ -23,6 +24,7 @@ export default {
             let cssClass = this.selected ? 'selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
             cssClass += this.showPointer && !this.isEmpty || (this.isEmpty && this.highlight) ? ' pointer' : ''
+            cssClass += this.disabled ? ' disabled' : ''
             return cssClass
         },
         tileStyle() {
