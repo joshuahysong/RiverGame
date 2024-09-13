@@ -44,6 +44,7 @@
                                 :size="size"
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index, tileType)"
+                                :disabled="isDisabled(tileType)"
                                 @click.native="selectTile(index, tileType)"
                                 class="d-inline-block mr-2"
                                 show-pointer />
@@ -55,6 +56,7 @@
                                 :size="size"
                                 :tile-type="tileType"
                                 :selected="isSelectedTile(index + 3, tileType)"
+                                :disabled="isDisabled(tileType)"
                                 @click.native="selectTile(index + 3, tileType)"
                                 class="d-inline-block mr-2"
                                 show-pointer />
@@ -68,6 +70,7 @@
                         :size="size"
                         :tile-type="tileTypes.catastrophe"
                         :selected="isSelectedTile(index, tileTypes.catastrophe)"
+                        :disabled="isDisabled(tileTypes.catastrophe)"
                         @click.native="selectTile(index, tileTypes.catastrophe)"
                         class="d-inline-block mr-2"
                         show-pointer />
@@ -132,6 +135,12 @@ export default {
             if (this.player.hand.length < 4) return []
             var max = this.player.hand.length < 6 ? this.player.hand.length : 6
             return this.player.hand.slice(3, max)
+        },
+        isInConflict() {
+            return this.currentActionType === actionTypes.revoltAttack ||
+                this.currentActionType === actionTypes.revoltDefend ||
+                this.currentActionType === actionTypes.warAttack ||
+                this.currentActionType === actionTypes.warDefend
         }
     },
     methods:{
@@ -144,16 +153,18 @@ export default {
                 selectedBoardLeader &&
                 selectedBoardLeader.tileType === tileType
         },
+        isDisabled(tileType) {
+            return this.isInConflict && this.conflictTileType !== tileType
+        },
         selectTile(index, tileType) {
             if (!this.selectable) return
 
             let isLeaderTile = leaderTileTypes.includes(tileType)
-            let isRevolt = this.currentActionType === actionTypes.revoltAttack  || this.currentActionType === actionTypes.revoltDefend
             let allowTileSelection = false
             if (this.remainingActions > 0 &&
                 this.currentActionType === actionTypes.playTile &&
                 (!isLeaderTile || (isLeaderTile && this.player.leaders.includes(tileType)))) allowTileSelection = true
-            if (isRevolt && this.player.hand[index] === tileTypes.temple) allowTileSelection = true
+            if (this.isInConflict && this.player.hand[index] === this.conflictTileType) allowTileSelection = true
             if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
 
             // Selecting a tile in hand
@@ -161,7 +172,7 @@ export default {
                 if (this.isSelectedTile(index, tileType)) {
                     this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 } else {
-                    if (!isRevolt) this.$store.commit('board/resetBoardTileHighlights')
+                    if (!this.isInConflict) this.$store.commit('board/resetBoardTileHighlights')
                     this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
                 }
             // Moving a leader from board to hand

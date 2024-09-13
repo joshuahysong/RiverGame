@@ -151,7 +151,9 @@ const mutations = {
         playerLeaders = playerLeaders.sort((a,b) => a - b);
     },
     incrementScore(state, payload) {
-        state.players.filter(x => x.id === payload.playerId)[0].score[payload.scoreName]++
+        let scoreCount = 1
+        if (payload.scoreCount) scoreCount = payload.scoreCount
+        state.players.filter(x => x.id === payload.playerId)[0].score[payload.scoreName] += scoreCount
     }
 }
 

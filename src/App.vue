@@ -329,4 +329,8 @@ export default {
     .pointer {
         cursor: pointer !important;
     }
+    .disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
 </style>

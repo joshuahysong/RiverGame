@@ -14,6 +14,7 @@ export default {
         tileType: Number,
         selected: Boolean,
         highlight: Boolean,
+        disabled: Boolean,
         hasTreasure: Boolean,
         showPointer: Boolean,
         size: Number
@@ -36,6 +37,7 @@ export default {
             cssClass += this.selected ? ' selected' : ''
             cssClass += this.highlight ? ' highlight' : ''
             cssClass += this.showPointer || this.highlight ? ' pointer' : ''
+            cssClass += this.disabled ? ' disabled' : ''
             return cssClass
         },
         tileStyle() {

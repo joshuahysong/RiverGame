@@ -165,40 +165,58 @@ const actions = {
         }
     },
     resolveConflict({getters, rootGetters, commit, dispatch}) {
-        let isRevolt = getters.currentActionType === actionTypes.revoltDefend
+        const isRevolt = getters.currentActionType === actionTypes.revoltDefend
         let winner = null
         let loser = null
         let winnerStrength = 0
         let loserStrength = 0
-        let attackerBoardStrength = isRevolt
-            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader).length
-            : rootGetters['board/getWarBoardStrength'](getters.conflictAttackerLeader).length
-        let attackerStrength = attackerBoardStrength + getters.conflictAttackerTiles.length
-        let defenderBoardStrength = isRevolt
-            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader).length
-            : rootGetters['board/getWarBoardStrength'](getters.conflictDefenderLeader).length
-        let defenderStrength = defenderBoardStrength + getters.conflictDefenderTiles.length
+        let loserTiles = []
+        const attackerBoardStrength = isRevolt
+            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader)
+            : rootGetters['board/getWarBoardStrength'](getters.conflictAttackerLeader)
+        const attackerStrength = attackerBoardStrength.length + getters.conflictAttackerTiles.length
+        const defenderBoardStrength = isRevolt
+            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader)
+            : rootGetters['board/getWarBoardStrength'](getters.conflictDefenderLeader)
+        const defenderStrength = defenderBoardStrength.length + getters.conflictDefenderTiles.length
         if (attackerStrength > defenderStrength) {
             winnerStrength = attackerStrength
             loserStrength = defenderStrength
             winner = { ...getters.conflictAttackerLeader }
             loser = { ...getters.conflictDefenderLeader }
+            loserTiles = [...defenderBoardStrength]
         } else {
             winnerStrength = defenderStrength
             loserStrength = attackerStrength
             winner = { ...getters.conflictDefenderLeader }
             loser = { ...getters.conflictAttackerLeader }
+            loserTiles = [...attackerBoardStrength]
         }
         if (isRevolt) {
             commit('players/incrementScore', {
                 playerId: winner.playerId,
                 scoreName: helpers.getTileNameByType(tileTypes.temple)
             }, { root: true })
+        } else {
+            let scoreCount = 0
+            for (const loserTile of loserTiles) {
+                if (loserTile.hasTreasure) continue
+                if (loserTile.tileType === getters.conflictTileType) {
+                    scoreCount++
+                    commit('board/removeTile', { index: loserTile.index }, { root: true })
+                }
+            }
+            commit('players/incrementScore', {
+                playerId: winner.playerId,
+                scoreName: helpers.getTileNameByType(getters.conflictTileType),
+                scoreCount: scoreCount
+            }, { root: true })
         }
         commit('players/addLeaderToPlayer', loser, { root: true })
         commit('board/removeTile', { index: loser.index }, { root: true })
         commit('resetConflictData')
         commit('board/resetBoardTileHighlights', null, { root:true })
+        dispatch('board/checkForDisplacedLeader', null, { root: true })
         dispatch('board/setRegions', null, { root: true })
         commit('log/logActionMessage', {
             text: `${helpers.getLogToken(winner)} (${winnerStrength})
