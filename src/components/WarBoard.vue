@@ -14,7 +14,7 @@
                             <strong>Board</strong>
                         </div>
                         <div class="col-5 small">
-                            <strong>Support</strong>
+                            <strong>Committed</strong>
                         </div>
                     </div>
                     <div class="row no-gutters align-items-center pr-sm-1">
@@ -59,7 +59,7 @@
                     </div>
                     <div class="row no-gutters align-items-center pb-2 pl-sm-1">
                         <div class="col-5 order-3 order-sm-1 small">
-                            <strong>Support</strong>
+                            <strong>Committed</strong>
                         </div>
                         <div class="col-5 order-2 small">
                             <strong>Board</strong>
@@ -155,6 +155,10 @@ export default {
                 this.currentActionType === actionTypes.revoltDefend
             ) {
                 return this.$store.getters['board/getRevoltBoardStrength'](leader)
+            } else if(this.currentActionType === actionTypes.warAttack ||
+                this.currentActionType === actionTypes.warDefend
+            ) {
+                return this.$store.getters['board/getWarBoardStrength'](leader)
             }
             return []
         }

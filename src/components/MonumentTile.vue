@@ -85,10 +85,6 @@ export default {
         border-radius: 4px;
         box-shadow: 0 0 0 2px white, 0 0 0 5px red;
     }
-    .disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
     .tile-monument {
         height: 100%;
         width: 100%;
