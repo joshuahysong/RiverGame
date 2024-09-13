@@ -17,8 +17,8 @@
             <div v-if="showSwapTilesMessage" class="d-inline-block">
                 {{playerName}}: Select tiles to discard and redraw.
             </div>
-            <div v-if="showRevoltAttackMessage || showRevoltDefendMessage" class="d-inline-block">
-                {{playerName}}: Select<b-icon icon="square-fill" class="temple mx-2" />to commit for support.
+            <div v-if="showWarMessage" class="d-inline-block">
+                {{playerName}}: Select<b-icon icon="square-fill" :class="warTileType" class="mx-2" />to commit for support.
             </div>
         </div>
         <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
@@ -77,7 +77,7 @@
                 Discard {{ player.selectedTiles.length }} Tile{{ player.selectedTiles.length === 1 ? '' : 's' }}
             </b-button>
         </div>
-        <div v-if="showRevoltAttackMessage || showRevoltDefendMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
+        <div v-if="showWarMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
             <b-button
                 v-if="showRevoltAttackMessage"
                 variant="warning"
@@ -107,11 +107,13 @@ export default {
     computed: {
         ...mapGetters('game', [
             'remainingActions',
+            'activeTurnPlayerId',
             'currentActionType',
             'currentActionPlayerId',
             'hasSnapshot',
             'conflictAttackerLeader',
-            'conflictDefenderLeader'
+            'conflictDefenderLeader',
+            'conflictTileType'
         ]),
         ...mapGetters('board', [
             'availableMonumentLocations',
@@ -137,13 +139,24 @@ export default {
                 ? `must select 1 of ${this.treasuresToTake} Treasures to acquire.`
                 : 'must select a Treasure to acquire.'
         },
+        warTileType() {
+            return helpers.getTileNameByType(this.conflictTileType)
+        },
         showCurrentPlayerMessage() { return this.currentActionType === actionTypes.playTile },
         showTakeTreasureMessage() { return this.currentActionType === actionTypes.takeTreasure },
         showBuildMonumentMessage() { return this.currentActionType === actionTypes.buildMonument },
         showBuildMonumentMultipleMessage() { return this.currentActionType === actionTypes.buildMonumentMultiple },
         showSwapTilesMessage() { return this.currentActionType === actionTypes.swapTiles },
         showRevoltAttackMessage() { return this.currentActionType === actionTypes.revoltAttack },
-        showRevoltDefendMessage() { return this.currentActionType === actionTypes.revoltDefend }
+        showRevoltDefendMessage() { return this.currentActionType === actionTypes.revoltDefend },
+        showWarAttackMessage() { return this.currentActionType === actionTypes.warAttack },
+        showWarDefendMessage() { return this.currentActionType === actionTypes.warDefend },
+        showWarMessage() {
+            return this.showRevoltAttackMessage ||
+                this.showRevoltDefendMessage ||
+                this.showWarAttackMessage ||
+                this.showWarDefendMessage
+        }
     },
     methods: {
         async doEndTurn() {
@@ -213,22 +226,26 @@ export default {
             this.$store.commit('board/resetBoardTileHighlights')
         },
         commitTilesToConflict() {
-            if (this.currentActionType === actionTypes.revoltAttack) {
+            if (this.currentActionType === actionTypes.revoltAttack ||
+                this.currentActionType === actionTypes.warAttack
+            ) {
                 this.$store.commit('game/clearSnapshot')
                 this.$store.commit('game/setConflictAttackerTiles', { tiles: this.player.selectedTiles })
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderLeader.playerId })
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderLeader.playerId })
-                this.$store.commit('game/setActionType', { actionType: actionTypes.revoltDefend })
-            } else if (this.currentActionType === actionTypes.revoltDefend) {
-                var attackerPlayerId = this.conflictAttackerLeader.playerId
+                let newActionType = this.currentActionType === actionTypes.revoltAttack ? actionTypes.revoltDefend : actionTypes.warDefend
+                this.$store.commit('game/setActionType', { actionType: newActionType })
+            } else if (this.currentActionType === actionTypes.revoltDefend ||
+                this.currentActionType === actionTypes.warDefend
+            ) {
                 this.$store.commit('game/setConflictDefenderTiles', { tiles: this.player.selectedTiles })
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.dispatch('game/resolveConflict')
-                this.$store.commit('game/setCurrentActionPlayerId', { playerId: attackerPlayerId })
-                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: attackerPlayerId })
+                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.activeTurnPlayerId })
+                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
                 this.$store.commit('game/actionCompleted')
             }

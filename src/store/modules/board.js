@@ -201,6 +201,22 @@ const getters = {
         if (leaderNeighbors.left && leaderNeighbors.left.tileType === tileTypes.temple)
             boardStrength.push({ ...leaderNeighbors.left })
         return boardStrength
+    },
+    getWarBoardStrength: (state, getters) => (leader) => {
+        let boardStrength = []
+        let leaderRegion = getters.getRegion(leader.index)
+        for (const tileIndex of leaderRegion.tileIndexes) {
+            const tile = getters.tile(tileIndex)
+            if (leader.tileType === tileTypes.priest && tile.tileType === tileTypes.temple)
+                boardStrength.push({ ...tile })
+            if (leader.tileType === tileTypes.king && tile.tileType === tileTypes.settlement)
+                boardStrength.push({ ...tile })
+            if (leader.tileType === tileTypes.trader && tile.tileType === tileTypes.market)
+                boardStrength.push({ ...tile })
+            if (leader.tileType === tileTypes.farmer && tile.tileType === tileTypes.farm)
+                boardStrength.push({ ...tile })
+        }
+        return boardStrength
     }
 }
 
@@ -257,8 +273,6 @@ const actions = {
                 }
                 const neighborKingdoms = getters.neighborRegions(newTile).filter(x => x.isKingdom)
                 commit('addTile', newTile)
-                dispatch('setRegions')
-                if (neighborKingdoms.length <= 1 && playerHasSelectedTiles) dispatch('checkForTileScore', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
 
@@ -277,13 +291,19 @@ const actions = {
                     }, { root: true })
                 }
 
-                dispatch('checkForRevolt', newTile)
-                dispatch('checkForMonument', newTile)
+                dispatch('checkForWar', { tile: newTile, neighborKingdoms: [...neighborKingdoms]})
+                if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
-                if (rootGetters['game/currentActionType'] === actionTypes.playTile) {
-                    commit('game/actionCompleted', null, { root: true })
-                    dispatch('checkForTreasureToTake', newTile)
-                }
+                dispatch('setRegions')
+                if (neighborKingdoms.length <= 1 && playerHasSelectedTiles) dispatch('checkForTileScore', newTile)
+                dispatch('checkForRevolt', newTile)
+                if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
+
+                dispatch('checkForMonument', newTile)
+                if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
+
+                commit('game/actionCompleted', null, { root: true })
+                dispatch('checkForTreasureToTake', newTile)
             }
         }
         if (currentActionType === actionTypes.takeTreasure) {
@@ -556,34 +576,89 @@ const actions = {
         }
     },
     checkForRevolt({state, getters, commit}, tile) {
-        if (tile && tile.isLeaderTile) {
-            const region = getters.getRegion(tile.index)
-            if (region && region.isKingdom) {
-                let matchingDefenderLeader = null
-                for (let i = 0; i < region.tileIndexes.length; i++) {
-                    var matchingTile = state.tiles[region.tileIndexes[i]]
-                    if (matchingTile &&
-                        matchingTile.isLeaderTile &&
-                        matchingTile.tileType === tile.tileType &&
-                        matchingTile.playerId !== tile.playerId) {
-                            matchingDefenderLeader = { ...matchingTile }
-                            break
-                    }
+        if (!tile || !tile.isLeaderTile) return
+        const region = getters.getRegion(tile.index)
+        if (region && region.isKingdom) {
+            let matchingDefenderLeader = null
+            for (let i = 0; i < region.tileIndexes.length; i++) {
+                var matchingTile = state.tiles[region.tileIndexes[i]]
+                if (matchingTile &&
+                    matchingTile.isLeaderTile &&
+                    matchingTile.tileType === tile.tileType &&
+                    matchingTile.playerId !== tile.playerId) {
+                        matchingDefenderLeader = { ...matchingTile }
+                        break
                 }
-                if (matchingDefenderLeader) {
-                    commit('updateTile', { ...tile, isHighlighted: true })
-                    commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
-                    commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
-                    commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
-                    commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
-                    commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
-                    commit('log/logActionMessage', {
-                        text: `A Revolt has begun between ${helpers.getLogToken(tile)}
-                            and ${helpers.getLogToken(matchingDefenderLeader)}`
-                    }, { root: true })
+            }
+            if (matchingDefenderLeader) {
+                commit('updateTile', { ...tile, isHighlighted: true })
+                commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
+                commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
+                commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
+                commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
+                commit('game/setConflictTileType', tileTypes.temple, {root: true })
+                commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
+                commit('log/logActionMessage', {
+                    text: `A Revolt has begun between ${helpers.getLogToken(tile)}
+                        and ${helpers.getLogToken(matchingDefenderLeader)}`
+                }, { root: true })
+            }
+        }
+    },
+    checkForWar({getters, commit, dispatch}, payload) {
+        if (!payload || !payload.tile || !payload.neighborKingdoms ||
+            payload.tile.isLeaderTile || payload.tile.tileType === tileTypes.catastrophe) return
+        let redLeaders = []
+        let blackLeaders = []
+        let greenLeaders = []
+        let blueLeaders = []
+        for (const neighborKingdom of payload.neighborKingdoms) {
+            for (const tileIndex of neighborKingdom.tileIndexes) {
+                const tile = getters.tile(tileIndex)
+                if (!tile.isLeaderTile) continue
+                if (tile.tileType === tileTypes.priest) redLeaders.push({...tile})
+                if (tile.tileType === tileTypes.king) blackLeaders.push({...tile})
+                if (tile.tileType === tileTypes.trader) greenLeaders.push({...tile})
+                if (tile.tileType === tileTypes.farmer) blueLeaders.push({...tile})
+            }
+        }
+        let leaderGroups = [redLeaders, blackLeaders, greenLeaders, blueLeaders]
+        let leaderGroupsAtWar = []
+        // Find which groups have more than one leader to trigger a war
+        for (const leaderGroup of leaderGroups) {
+            if (leaderGroup.length >= 2) {
+                leaderGroup.sort((a, b) => a.playerId - b.playerId)
+                leaderGroupsAtWar.push(leaderGroup)
+                for (const leader of leaderGroup) {
+                    commit('updateTile', { ...leader, isHighlighted: true })
                 }
             }
         }
+        // if there is more than one group the active player has to choose who fights
+        if (leaderGroupsAtWar.length > 1) {
+            commit('game/setActionType', { actionType: actionTypes.warChooseLeader }, { root: true })
+        // if only one group then trigger a war immediately
+        } else if (leaderGroupsAtWar.length === 1) {
+            dispatch('triggerWar', { attacker: leaderGroupsAtWar[0][0], defender: leaderGroupsAtWar[0][1] })
+        }
+    },
+    triggerWar({commit}, payload) {
+        if (!payload || !payload.attacker || !payload.defender) return
+        if (payload.attacker.tileType === tileTypes.priest) commit('game/setConflictTileType', tileTypes.temple, {root: true })
+        if (payload.attacker.tileType === tileTypes.king) commit('game/setConflictTileType', tileTypes.settlement, {root: true })
+        if (payload.attacker.tileType === tileTypes.trader) commit('game/setConflictTileType', tileTypes.market, {root: true })
+        if (payload.attacker.tileType === tileTypes.farmer) commit('game/setConflictTileType', tileTypes.farm, {root: true })
+        commit('updateTile', { ...payload.attacker, isHighlighted: true })
+        commit('updateTile', { ...payload.defender, isHighlighted: true })
+        commit('game/setCurrentActionPlayerId', { playerId: payload.attacker.playerId }, { root: true })
+        commit('game/setCurrentHandDisplayPlayerId', { playerId: payload.attacker.playerId }, { root: true })
+        commit('game/setConflictAttackerLeader', { ...payload.attacker }, { root: true })
+        commit('game/setConflictDefenderLeader', { ...payload.defender }, {root: true })
+        commit('game/setActionType', { actionType: actionTypes.warAttack }, { root: true })
+        commit('log/logActionMessage', {
+            text: `A War has begun between ${helpers.getLogToken(payload.attacker)}
+                and ${helpers.getLogToken(payload.defender)}`
+        }, { root: true })
     }
 }
 

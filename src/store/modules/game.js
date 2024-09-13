@@ -1,7 +1,7 @@
 import { actionTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
 import helpers from '../../common/helpers'
 
-const DEBUG = false
+const DEBUG = true
 
 const state = () => ({
     activeTurnPlayerId: 0,
@@ -14,6 +14,7 @@ const state = () => ({
     conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
+    conflictTileType: 0,
     remainingMonuments: [],
     selectedMonumentType: 0,
     snapshot: null
@@ -30,6 +31,7 @@ const defaultState = {
     conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
+    conflictTileType: 0,
     remainingMonuments: [
         monumentTypes.redBlue,
         monumentTypes.blueGreen,
@@ -82,6 +84,9 @@ const getters = {
     },
     conflictDefenderTiles: (state) => {
         return state.conflictDefenderTiles
+    },
+    conflictTileType: (state) => {
+        return state.conflictTileType
     },
     remainingMonuments: (state) => {
         return state.remainingMonuments
@@ -165,29 +170,33 @@ const actions = {
         let loser = null
         let winnerStrength = 0
         let loserStrength = 0
+        let attackerBoardStrength = isRevolt
+            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader).length
+            : rootGetters['board/getWarBoardStrength'](getters.conflictAttackerLeader).length
+        let attackerStrength = attackerBoardStrength + getters.conflictAttackerTiles.length
+        let defenderBoardStrength = isRevolt
+            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader).length
+            : rootGetters['board/getWarBoardStrength'](getters.conflictDefenderLeader).length
+        let defenderStrength = defenderBoardStrength + getters.conflictDefenderTiles.length
+        if (attackerStrength > defenderStrength) {
+            winnerStrength = attackerStrength
+            loserStrength = defenderStrength
+            winner = { ...getters.conflictAttackerLeader }
+            loser = { ...getters.conflictDefenderLeader }
+        } else {
+            winnerStrength = defenderStrength
+            loserStrength = attackerStrength
+            winner = { ...getters.conflictDefenderLeader }
+            loser = { ...getters.conflictAttackerLeader }
+        }
         if (isRevolt) {
-            let attackerStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader).length +
-                getters.conflictAttackerTiles.length
-            let defenderStrength = rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader).length +
-                getters.conflictDefenderTiles.length
-            if (attackerStrength > defenderStrength) {
-                winnerStrength = attackerStrength
-                loserStrength = defenderStrength
-                winner = { ...getters.conflictAttackerLeader }
-                loser = { ...getters.conflictDefenderLeader }
-            } else {
-                winnerStrength = defenderStrength
-                loserStrength = attackerStrength
-                winner = { ...getters.conflictDefenderLeader }
-                loser = { ...getters.conflictAttackerLeader }
-            }
             commit('players/incrementScore', {
                 playerId: winner.playerId,
                 scoreName: helpers.getTileNameByType(tileTypes.temple)
             }, { root: true })
-            commit('players/addLeaderToPlayer', loser, { root: true })
-            commit('board/removeTile', { index: loser.index }, { root: true })
         }
+        commit('players/addLeaderToPlayer', loser, { root: true })
+        commit('board/removeTile', { index: loser.index }, { root: true })
         commit('resetConflictData')
         commit('board/resetBoardTileHighlights', null, { root:true })
         dispatch('board/setRegions', null, { root: true })
@@ -240,6 +249,9 @@ const mutations = {
     },
     setConflictDefenderTiles(state, payload) {
         state.conflictDefenderTiles = [...payload.tiles]
+    },
+    setConflictTileType(state, tileType) {
+        state.conflictTileType = tileType
     },
     resetConflictData(state) {
         state.conflictAttackerLeader = null

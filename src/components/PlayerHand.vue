@@ -112,7 +112,8 @@ export default {
     computed: {
         ...mapGetters('game', [
             'remainingActions',
-            'currentActionType'
+            'currentActionType',
+            'conflictTileType'
         ]),
         ...mapGetters('board', [
             'tiles',
