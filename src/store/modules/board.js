@@ -634,7 +634,11 @@ const actions = {
         // Find which groups have more than one leader to trigger a war
         for (const leaderGroup of leaderGroups) {
             if (leaderGroup.length >= 2) {
-                leaderGroup.sort((a, b) => a.playerId - b.playerId)
+                leaderGroup.sort((a, b) => {
+                    if (a.playerId === tile.playerId && b.playerId !== tile.playerId) return -1
+                    if (a.playerId !== tile.playerId && b.playerId === tile.playerId) return 1
+                    return a.playerId - b.playerId
+                })
                 leaderGroupsAtWar.push(leaderGroup)
                 for (const leader of leaderGroup) {
                     commit('updateTile', { ...leader, isHighlighted: true })
