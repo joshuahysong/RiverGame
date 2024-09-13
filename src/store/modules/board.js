@@ -22,7 +22,8 @@ const state = () => ({
     availableMonumentLocations: [],
     initialTreasures: 0,
     remainingTreasures: 0,
-    treasuresToTake: 0
+    treasuresToTake: 0,
+    conflictTile: null
 })
 
 const initialTiles = [
@@ -189,6 +190,9 @@ const getters = {
     treasuresToTake: (state) => {
         return state.treasuresToTake
     },
+    conflictTile: (state) => {
+        return state.conflictTile
+    },
     getRevoltBoardStrength: (state, getters) => (leader) => {
         let boardStrength = []
         let leaderNeighbors = getters.getNeighbors(leader.index)
@@ -271,7 +275,6 @@ const actions = {
                     tileType: selectedTile.tileType,
                     playerId: currentPlayer.id
                 }
-                const neighborKingdoms = getters.neighborRegions(newTile).filter(x => x.isKingdom)
                 commit('addTile', newTile)
                 dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
                 commit('resetAvailableTileLocations')
@@ -291,9 +294,10 @@ const actions = {
                     }, { root: true })
                 }
 
-                dispatch('checkForWar', { tile: newTile, neighborKingdoms: [...neighborKingdoms]})
+                dispatch('checkForWar', { ...newTile })
                 if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
+                const neighborKingdoms = getters.neighborRegions(newTile).filter(x => x.isKingdom)
                 dispatch('setRegions')
                 if (neighborKingdoms.length <= 1 && playerHasSelectedTiles) dispatch('checkForTileScore', newTile)
                 dispatch('checkForRevolt', newTile)
@@ -371,7 +375,9 @@ const actions = {
     setRegions({state, getters, commit}) {
         commit('resetRegions')
         let indexesToCheck = [...state.tiles
-            .filter(x => x.tileType !== tileTypes.empty && x.tileType !== tileTypes.catastrophe)
+            .filter(x => x.tileType !== tileTypes.empty &&
+                x.tileType !== tileTypes.catastrophe &&
+                (!getters.conflictTile || getters.conflictTile.index !== x.index))
             .map(x => x.index)]
         let checkedIndexes = []
         for (let i = 0; i < indexesToCheck.length; i++) {
@@ -605,14 +611,15 @@ const actions = {
             }
         }
     },
-    checkForWar({getters, commit, dispatch}, payload) {
-        if (!payload || !payload.tile || !payload.neighborKingdoms ||
-            payload.tile.isLeaderTile || payload.tile.tileType === tileTypes.catastrophe) return
+    checkForWar({getters, commit, dispatch}, tile) {
+        if (!tile || tile.isLeaderTile || tile.tileType === tileTypes.catastrophe) return
+        if (!getters.conflictTile) commit('setConflictTile', tile)
         let redLeaders = []
         let blackLeaders = []
         let greenLeaders = []
         let blueLeaders = []
-        for (const neighborKingdom of payload.neighborKingdoms) {
+        const neighborKingdoms = getters.neighborRegions(tile).filter(x => x.isKingdom)
+        for (const neighborKingdom of neighborKingdoms) {
             for (const tileIndex of neighborKingdom.tileIndexes) {
                 const tile = getters.tile(tileIndex)
                 if (!tile.isLeaderTile) continue
@@ -634,8 +641,10 @@ const actions = {
                 }
             }
         }
+        if (leaderGroupsAtWar.length == 0) {
+            commit('resetConflictTile')
         // if there is more than one group the active player has to choose who fights
-        if (leaderGroupsAtWar.length > 1) {
+        } else if (leaderGroupsAtWar.length > 1) {
             commit('game/setActionType', { actionType: actionTypes.warChooseLeader }, { root: true })
         // if only one group then trigger a war immediately
         } else if (leaderGroupsAtWar.length === 1) {
@@ -644,10 +653,10 @@ const actions = {
     },
     triggerWar({commit}, payload) {
         if (!payload || !payload.attacker || !payload.defender) return
-        if (payload.attacker.tileType === tileTypes.priest) commit('game/setConflictTileType', tileTypes.temple, {root: true })
-        if (payload.attacker.tileType === tileTypes.king) commit('game/setConflictTileType', tileTypes.settlement, {root: true })
-        if (payload.attacker.tileType === tileTypes.trader) commit('game/setConflictTileType', tileTypes.market, {root: true })
-        if (payload.attacker.tileType === tileTypes.farmer) commit('game/setConflictTileType', tileTypes.farm, {root: true })
+        if (payload.attacker.tileType === tileTypes.priest) commit('game/setConflictTileType', tileTypes.temple, { root: true })
+        if (payload.attacker.tileType === tileTypes.king) commit('game/setConflictTileType', tileTypes.settlement, { root: true })
+        if (payload.attacker.tileType === tileTypes.trader) commit('game/setConflictTileType', tileTypes.market, { root: true })
+        if (payload.attacker.tileType === tileTypes.farmer) commit('game/setConflictTileType', tileTypes.farm, { root: true })
         commit('updateTile', { ...payload.attacker, isHighlighted: true })
         commit('updateTile', { ...payload.defender, isHighlighted: true })
         commit('game/setCurrentActionPlayerId', { playerId: payload.attacker.playerId }, { root: true })
@@ -731,6 +740,12 @@ const mutations = {
     },
     setTreasuresToTake(state, payload) {
         state.treasuresToTake = payload
+    },
+    setConflictTile(state, tile) {
+        state.conflictTile = { ...tile }
+    },
+    resetConflictTile(state) {
+        state.conflictTile = null
     }
 }
 

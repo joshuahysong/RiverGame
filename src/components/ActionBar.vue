@@ -117,7 +117,8 @@ export default {
         ]),
         ...mapGetters('board', [
             'availableMonumentLocations',
-            'treasuresToTake'
+            'treasuresToTake',
+            'conflictTile'
         ]),
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.currentActionPlayerId)
@@ -244,6 +245,7 @@ export default {
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.dispatch('game/resolveConflict')
+                this.$store.dispatch('board/checkForWar', this.conflictTile)
                 this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.activeTurnPlayerId })
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
                 this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })

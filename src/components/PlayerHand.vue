@@ -16,7 +16,7 @@
                                 :selected="isSelectedTile(index, tileType)"
                                 :highlight="isHighlightedLeader(tileType)"
                                 @click.native="selectTile(index, tileType)"
-                                show-pointer
+                                :show-pointer="!isInConflict"
                                 show-empty />
                         </div>
                         <div class="col-auto col-xl-12 text-left text-xl-center">
@@ -30,7 +30,7 @@
                                 :selected="isSelectedTile(index + 2, tileType)"
                                 :highlight="isHighlightedLeader(tileType)"
                                 @click.native="selectTile(index + 2, tileType)"
-                                show-pointer
+                                :show-pointer="!isInConflict"
                                 show-empty />
                         </div>
                     </div>
@@ -164,7 +164,7 @@ export default {
             if (this.remainingActions > 0 &&
                 this.currentActionType === actionTypes.playTile &&
                 (!isLeaderTile || (isLeaderTile && this.player.leaders.includes(tileType)))) allowTileSelection = true
-            if (this.isInConflict && this.player.hand[index] === this.conflictTileType) allowTileSelection = true
+            if (this.isInConflict && !isLeaderTile && this.player.hand[index] === this.conflictTileType) allowTileSelection = true
             if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
 
             // Selecting a tile in hand

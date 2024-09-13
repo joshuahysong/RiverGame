@@ -5,7 +5,8 @@
         <civilization-tile v-if="hasTile && !tile.isLeaderTile"
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"
-            :has-treasure="tile.hasTreasure" />
+            :has-treasure="tile.hasTreasure"
+            :is-conflict-tile="isConflictTile" />
         <leader-tile v-if="hasTile && tile.isLeaderTile"
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"
@@ -64,6 +65,9 @@ export default {
         ...mapGetters('game', [
             'debug',
             'currentActionType'
+        ]),
+        ...mapGetters('board', [
+            'conflictTile'
         ]),
         coordinates() {
             return helpers.getCoordinatesByIndex(this.index)
@@ -129,6 +133,9 @@ export default {
         showLeaderPointer() {
             return this.currentPlayer.id === this.tile.playerId &&
                 this.currentActionType === actionTypes.playTile
+        },
+        isConflictTile() {
+            return this.conflictTile && this.conflictTile.index === this.index
         }
     }, 
     methods: {

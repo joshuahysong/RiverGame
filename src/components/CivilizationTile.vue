@@ -1,6 +1,7 @@
 <template>
     <div class="tile" :class="tileClass" :style="tileStyle">
         <div v-if="hasTreasure" class="treasure-icon" :style="treasureStyle"></div>
+        <div v-if="isConflictTile" class="conflict-tile text-dark bg-warning"><b-icon icon="x-square" class="w-100 h-100 light" /></div>
     </div>
 </template>
 
@@ -17,6 +18,7 @@ export default {
         disabled: Boolean,
         hasTreasure: Boolean,
         showPointer: Boolean,
+        isConflictTile: Boolean,
         size: Number
     },
     data() {
@@ -121,6 +123,13 @@ export default {
         width: 35%;
         background-color: gold;
         border-radius: 50%;
+        position: absolute;
+    }
+
+    .conflict-tile {
+        height: 90%;
+        width: 90%;
+        border-radius: 4px;
         position: absolute;
     }
 
