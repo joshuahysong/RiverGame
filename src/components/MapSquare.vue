@@ -131,7 +131,8 @@ export default {
             return tileTypes
         },
         showLeaderPointer() {
-            return this.currentPlayer.id === this.tile.playerId &&
+            return this.currentPlayer && this.tile &&
+                this.currentPlayer.id === this.tile.playerId &&
                 this.currentActionType === actionTypes.playTile
         },
         isConflictTile() {
