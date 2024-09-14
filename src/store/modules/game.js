@@ -1,4 +1,4 @@
-import { actionTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
+import { actionTypes, conflictTypes, messageTypes, monumentTypes, tileTypes } from '../../common/constants'
 import helpers from '../../common/helpers'
 
 const DEBUG = false
@@ -9,12 +9,16 @@ const state = () => ({
     currentHandDisplayPlayerId: 0,
     numberOfPlayers: 0,
     remainingActions: 0,
-    currentActionType: 0,
+    currentActionType: actionTypes.loading,
+    conflictType: conflictTypes.none,
     conflictAttackerLeader: null,
     conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
-    conflictTileType: 0,
+    conflictAttackerBoardTiles: [],
+    conflictDefenderBoardTiles: [],
+    conflictTileType: tileTypes.empty,
+    conflictWinnerPlayerId: 0,
     remainingMonuments: [],
     selectedMonumentType: 0,
     snapshot: null
@@ -27,11 +31,15 @@ const defaultState = {
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
+    conflictType: conflictTypes.none,
     conflictAttackerLeader: null,
     conflictDefenderLeader: null,
     conflictAttackerTiles: [],
     conflictDefenderTiles: [],
-    conflictTileType: 0,
+    conflictAttackerBoardTiles: [],
+    conflictDefenderBoardTiles: [],
+    conflictTileType: tileTypes.empty,
+    conflictWinnerPlayerId: 0,
     remainingMonuments: [
         monumentTypes.redBlue,
         monumentTypes.blueGreen,
@@ -85,6 +93,12 @@ const getters = {
     conflictDefenderTiles: (state) => {
         return state.conflictDefenderTiles
     },
+    conflictAttackerBoardTiles: (state) => {
+        return state.conflictAttackerBoardTiles
+    },
+    conflictDefenderBoardTiles: (state) => {
+        return state.conflictDefenderBoardTiles
+    },
     conflictTileType: (state) => {
         return state.conflictTileType
     },
@@ -96,6 +110,12 @@ const getters = {
     },
     hasSnapshot: (state) => {
         return !!state.snapshot
+    },
+    conflictType: (state) => {
+        return state.conflictType
+    },
+    conflictWinnerPlayerId: (state) => {
+        return state.conflictWinnerPlayerId
     }
 }
 
@@ -164,35 +184,28 @@ const actions = {
             commit('setState', { ...state, ...state.snapshot.game })
         }
     },
-    resolveConflict({getters, rootGetters, commit, dispatch}) {
-        const isRevolt = getters.currentActionType === actionTypes.revoltDefend
+    resolveConflict({getters, commit, dispatch}) {
         let winner = null
         let loser = null
         let winnerStrength = 0
         let loserStrength = 0
         let loserTiles = []
-        const attackerBoardStrength = isRevolt
-            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictAttackerLeader)
-            : rootGetters['board/getWarBoardStrength'](getters.conflictAttackerLeader)
-        const attackerStrength = attackerBoardStrength.length + getters.conflictAttackerTiles.length
-        const defenderBoardStrength = isRevolt
-            ? rootGetters['board/getRevoltBoardStrength'](getters.conflictDefenderLeader)
-            : rootGetters['board/getWarBoardStrength'](getters.conflictDefenderLeader)
-        const defenderStrength = defenderBoardStrength.length + getters.conflictDefenderTiles.length
+        const attackerStrength = getters.conflictAttackerBoardTiles.length + getters.conflictAttackerTiles.length
+        const defenderStrength = getters.conflictDefenderBoardTiles.length + getters.conflictDefenderTiles.length
         if (attackerStrength > defenderStrength) {
             winnerStrength = attackerStrength
             loserStrength = defenderStrength
             winner = { ...getters.conflictAttackerLeader }
             loser = { ...getters.conflictDefenderLeader }
-            loserTiles = [...defenderBoardStrength]
+            loserTiles = [...getters.conflictDefenderBoardTiles]
         } else {
             winnerStrength = defenderStrength
             loserStrength = attackerStrength
             winner = { ...getters.conflictDefenderLeader }
             loser = { ...getters.conflictAttackerLeader }
-            loserTiles = [...attackerBoardStrength]
+            loserTiles = [...getters.conflictAttackerBoardTiles]
         }
-        if (isRevolt) {
+        if (getters.conflictType === conflictTypes.revolt) {
             commit('players/incrementScore', {
                 playerId: winner.playerId,
                 scoreName: helpers.getTileNameByType(tileTypes.temple)
@@ -214,13 +227,13 @@ const actions = {
         }
         commit('players/addLeaderToPlayer', loser, { root: true })
         commit('board/removeTile', { index: loser.index }, { root: true })
-        commit('resetConflictData')
         commit('board/resetBoardTileHighlights', null, { root:true })
         dispatch('board/checkForDisplacedLeader', null, { root: true })
         dispatch('board/setRegions', null, { root: true })
+        commit('setConflictWinnerPlayerId', winner.playerId)
         commit('log/logActionMessage', {
             text: `${helpers.getLogToken(winner)} (${winnerStrength})
-                wins the ${(isRevolt ? 'Revolt' : 'War')}
+                wins the ${(getters.conflictType === conflictTypes.revolt ? 'Revolt' : 'War')}
                 against ${helpers.getLogToken(loser)} (${loserStrength})`
         }, { root: true })
     }
@@ -233,8 +246,6 @@ const mutations = {
         state.activeTurnPlayerId = activeTurnPlayerId
         state.currentActionPlayerId = activeTurnPlayerId
         state.currentHandDisplayPlayerId = activeTurnPlayerId
-        state.conflictAttackerLeader = null
-        state.conflictDefenderLeader = null
         state.remainingActions = 2
         state.currentActionType = actionTypes.playTile
     },
@@ -268,6 +279,12 @@ const mutations = {
     setConflictDefenderTiles(state, payload) {
         state.conflictDefenderTiles = [...payload.tiles]
     },
+    setConflictAttackerBoardTiles(state, payload) {
+        state.conflictAttackerBoardTiles = [...payload]
+    },
+    setConflictDefenderBoardTiles(state, payload) {
+        state.conflictDefenderBoardTiles = [...payload]
+    },
     setConflictTileType(state, tileType) {
         state.conflictTileType = tileType
     },
@@ -276,6 +293,11 @@ const mutations = {
         state.conflictDefenderLeader = null
         state.conflictAttackerTiles = []
         state.conflictDefenderTiles = []
+        state.conflictAttackerBoardTiles = [],
+        state.conflictDefenderBoardTiles = [],
+        state.conflictTileType = tileTypes.empty
+        state.conflictWinnerPlayerId = 0
+        state.conflictType = conflictTypes.none
     },
     removeFromRemainingMonuments(state, payload) {
         let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)
@@ -292,6 +314,12 @@ const mutations = {
     },
     clearSnapshot(state) {
         state.snapshot = null
+    },
+    setConflictType(state, conflictType) {
+        state.conflictType = conflictType
+    },
+    setConflictWinnerPlayerId(state, playerId) {
+        state.conflictWinnerPlayerId = playerId
     }
 }
 

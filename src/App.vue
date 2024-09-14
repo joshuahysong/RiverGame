@@ -147,7 +147,7 @@ import PlayerCard from './components/PlayerCard.vue'
 import ProgressCard from './components/ProgressCard.vue'
 import WarBoard from './components/WarBoard.vue'
 import helpers from './common/helpers'
-import { actionTypes } from './common/constants'
+import { actionTypes, conflictTypes } from './common/constants'
 
 export default {
     name: 'App',
@@ -195,7 +195,8 @@ export default {
             'activeTurnPlayerId',
             'currentActionType',
             'currentHandDisplayPlayerId',
-            'currentActionPlayerId'
+            'currentActionPlayerId',
+            'conflictType'
         ]),
         actionTypeName() {
             return helpers.getActionNameByType(this.currentActionType)
@@ -248,10 +249,7 @@ export default {
                 this.currentActionType === actionTypes.buildMonumentMultiple
         },
         showWarBoard() {
-            return this.currentActionType === actionTypes.revoltAttack ||
-                this.currentActionType === actionTypes.revoltDefend ||
-                this.currentActionType === actionTypes.warAttack ||
-                this.currentActionType === actionTypes.warDefend
+            return this.conflictType !== conflictTypes.none
         }
     },
     methods: {

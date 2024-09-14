@@ -34,11 +34,9 @@ export const actionTypes = {
     takeTreasure: 3,
     buildMonument: 4,
     buildMonumentMultiple: 5,
-    revoltAttack: 6,
-    revoltDefend: 7,
-    warAttack: 8,
-    warDefend: 9,
-    warChooseLeader: 10
+    conflictAttack: 6,
+    conflictDefend: 7,
+    conflictChooseLeader: 8
 }
 
 export const playerIcons = [
@@ -76,4 +74,10 @@ export const monumentTypes = {
 export const messageTypes = {
     system: 0,
     action: 1
+}
+
+export const conflictTypes = {
+    none: 0,
+    revolt: 1,
+    war: 2
 }

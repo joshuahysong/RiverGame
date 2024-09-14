@@ -139,10 +139,8 @@ export default {
             return this.player.hand.slice(3, max)
         },
         isInConflict() {
-            return this.currentActionType === actionTypes.revoltAttack ||
-                this.currentActionType === actionTypes.revoltDefend ||
-                this.currentActionType === actionTypes.warAttack ||
-                this.currentActionType === actionTypes.warDefend
+            return this.currentActionType === actionTypes.conflictAttack ||
+                this.currentActionType === actionTypes.conflictDefend
         }
     },
     methods:{

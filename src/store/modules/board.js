@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes } from '../../common/constants'
+import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes, conflictTypes } from '../../common/constants'
 import helpers from '../../common/helpers'
 
 const state = () => ({
@@ -212,7 +212,9 @@ const getters = {
     },
     getWarBoardStrength: (state, getters) => (leader) => {
         let boardStrength = []
+        if (!leader) return boardStrength
         let leaderRegion = getters.getRegion(leader.index)
+        if (!leaderRegion || !leaderRegion?.tileIndexes) return boardStrength
         for (const tileIndex of leaderRegion.tileIndexes) {
             const tile = getters.tile(tileIndex)
             if (leader.tileType === tileTypes.priest && tile.tileType === tileTypes.temple)
@@ -617,11 +619,15 @@ const actions = {
             if (matchingDefenderLeader) {
                 commit('updateTile', { ...tile, isHighlighted: true })
                 commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
+                commit('game/resetConflictData', null, { root: true })
                 commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
                 commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
                 commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
+                commit('game/setConflictAttackerBoardTiles', [...getters.getRevoltBoardStrength(tile)], { root: true })
+                commit('game/setConflictDefenderBoardTiles', [...getters.getRevoltBoardStrength(matchingDefenderLeader)], {root: true })
                 commit('game/setConflictTileType', tileTypes.temple, {root: true })
-                commit('game/setActionType', { actionType: actionTypes.revoltAttack }, { root: true })
+                commit('game/setActionType', { actionType: actionTypes.conflictAttack }, { root: true })
+                commit('game/setConflictType', conflictTypes.revolt, { root: true })
                 commit('log/logActionMessage', {
                     text: `A Revolt has begun between ${helpers.getLogToken(tile)}
                         and ${helpers.getLogToken(matchingDefenderLeader)}`
@@ -642,10 +648,10 @@ const actions = {
             for (const tileIndex of neighborKingdom.tileIndexes) {
                 const tile = getters.tile(tileIndex)
                 if (!tile.isLeaderTile) continue
-                if (tile.tileType === tileTypes.priest) redLeaders.push({...tile})
-                if (tile.tileType === tileTypes.king) blackLeaders.push({...tile})
-                if (tile.tileType === tileTypes.trader) greenLeaders.push({...tile})
-                if (tile.tileType === tileTypes.farmer) blueLeaders.push({...tile})
+                if (tile.tileType === tileTypes.priest) redLeaders.push({ ...tile })
+                if (tile.tileType === tileTypes.king) blackLeaders.push({ ...tile })
+                if (tile.tileType === tileTypes.trader) greenLeaders.push({ ...tile })
+                if (tile.tileType === tileTypes.farmer) blueLeaders.push({ ...tile })
             }
         }
         let leaderGroups = [redLeaders, blackLeaders, greenLeaders, blueLeaders]
@@ -676,22 +682,29 @@ const actions = {
             dispatch('triggerWar', { attacker: leaderGroupsAtWar[0][0], defender: leaderGroupsAtWar[0][1] })
         }
     },
-    triggerWar({commit}, payload) {
+    triggerWar({commit, getters}, payload) {
         if (!payload || !payload.attacker || !payload.defender) return
+        commit('game/resetConflictData', null, { root: true })
         if (payload.attacker.tileType === tileTypes.priest) commit('game/setConflictTileType', tileTypes.temple, { root: true })
         if (payload.attacker.tileType === tileTypes.king) commit('game/setConflictTileType', tileTypes.settlement, { root: true })
         if (payload.attacker.tileType === tileTypes.trader) commit('game/setConflictTileType', tileTypes.market, { root: true })
         if (payload.attacker.tileType === tileTypes.farmer) commit('game/setConflictTileType', tileTypes.farm, { root: true })
-        commit('updateTile', { ...payload.attacker, isHighlighted: true })
-        commit('updateTile', { ...payload.defender, isHighlighted: true })
-        commit('game/setCurrentActionPlayerId', { playerId: payload.attacker.playerId }, { root: true })
-        commit('game/setCurrentHandDisplayPlayerId', { playerId: payload.attacker.playerId }, { root: true })
-        commit('game/setConflictAttackerLeader', { ...payload.attacker }, { root: true })
-        commit('game/setConflictDefenderLeader', { ...payload.defender }, {root: true })
-        commit('game/setActionType', { actionType: actionTypes.warAttack }, { root: true })
+        const attacker = { ...payload.attacker }
+        const defender = { ...payload.defender }
+        commit('updateTile', { ...attacker, isHighlighted: true })
+        commit('updateTile', { ...defender, isHighlighted: true })
+        commit('game/setCurrentActionPlayerId', { playerId: attacker.playerId }, { root: true })
+        commit('game/setCurrentHandDisplayPlayerId', { playerId: attacker.playerId }, { root: true })
+        commit('game/setConflictAttackerLeader', { ...attacker }, { root: true })
+        commit('game/setConflictDefenderLeader', { ...defender }, {root: true })
+        commit('game/setConflictAttackerBoardTiles', [...getters.getWarBoardStrength(attacker)], { root: true })
+        commit('game/setConflictDefenderBoardTiles', [...getters.getWarBoardStrength(defender)], {root: true })
+        commit('game/setActionType', { actionType: actionTypes.conflictAttack }, { root: true })
+        commit('game/setConflictType', conflictTypes.war, { root: true })
+        commit('game/setConflictWinnerPlayerId', 0, { root: true })
         commit('log/logActionMessage', {
-            text: `A War has begun between ${helpers.getLogToken(payload.attacker)}
-                and ${helpers.getLogToken(payload.defender)}`
+            text: `A War has begun between ${helpers.getLogToken(attacker)}
+                and ${helpers.getLogToken(defender)}`
         }, { root: true })
     }
 }
