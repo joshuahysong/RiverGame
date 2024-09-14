@@ -2,8 +2,8 @@
     <div class="card">
         <div class="card-body px-2 py-0">
             <div class="row no-gutters align-items-center">
-                <div v-if="conflictAttackerLeader" class="col-12 col-sm-6 text-left border-bottom border-right hide-border py-2">
-                    <div class="row no-gutters text-center py-2">
+                <div v-if="conflictAttackerLeader" class="col-12 col-sm-6 text-left border-bottom border-right hide-border pb-1 pb-md-2">
+                    <div class="row no-gutters text-center pt-2">
                         <div class="col">
                             <strong>Attacker</strong>
                         </div>
@@ -51,8 +51,8 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="conflictDefenderLeader" class="col-12 col-sm-6 text-left text-sm-right py-2">
-                    <div class="row no-gutters text-center py-2">
+                <div v-if="conflictDefenderLeader" class="col-12 col-sm-6 text-left text-sm-right pb-1 pb-md-2">
+                    <div class="row no-gutters text-center pt-2">
                         <div class="col">
                             <strong>Defender</strong>
                         </div>

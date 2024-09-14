@@ -11,7 +11,8 @@
             :tile-type="tile.tileType"
             :highlight="tile.isHighlighted"
             :player="getPlayer()"
-            :show-pointer="showLeaderPointer" />
+            :show-pointer="showLeaderPointer"
+            :show-strength="showLeaderStrength" />
         <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
         <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
         <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
@@ -57,7 +58,8 @@ export default {
         ...mapGetters('settings', [
             'showKingdoms',
             'showCoordinates',
-            'showIndexes'
+            'showIndexes',
+            'showLeaderStrength'
         ]),
         ...mapGetters('players', [
             'currentPlayer'

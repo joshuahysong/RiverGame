@@ -2,7 +2,8 @@ const state = () => ({
     showCoordinates: true,
     showIndexes: false,
     showKingdoms: true,
-    showLogTimestamps: true
+    showLogTimestamps: true,
+    showLeaderStrength: true
 })
 
 const getters = {
@@ -20,6 +21,9 @@ const getters = {
     },
     showLogTimestamps(state) {
         return state.showLogTimestamps
+    },
+    showLeaderStrength(state) {
+        return state.showLeaderStrength
     }
 }
 
@@ -50,6 +54,9 @@ const mutations = {
     },
     setShowLogTimestamps(state, payload) {
         state.showLogTimestamps = payload
+    },
+    setShowLeaderStrength(state, payload) {
+        state.showLeaderStrength = payload
     }
 }
 

@@ -21,6 +21,9 @@
                         <b-form-checkbox v-model="showLogTimestamps" class="small" @change="saveSettings">
                             Show Log Timestamps
                         </b-form-checkbox>
+                        <b-form-checkbox v-model="showLeaderStrength" class="small" @change="saveSettings">
+                            Show Leader Strength
+                        </b-form-checkbox>
                     </b-dropdown-form>
                 </b-nav-item-dropdown>
                 <b-button v-if="debug" size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
@@ -230,6 +233,14 @@ export default {
             },
             set (value) {
                 this.$store.commit('settings/setShowLogTimestamps', value)
+            }
+        },
+        showLeaderStrength: {
+            get () {
+                return this.$store.getters['settings/showLeaderStrength']
+            },
+            set (value) {
+                this.$store.commit('settings/setShowLeaderStrength', value)
             }
         },
         showMonumentsAboveHand() {
