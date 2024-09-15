@@ -46,13 +46,23 @@ const actions = {
         commit('createNewPlayer', newPlayer)
         commit('game/incrementPlayerCount', null, { root: true })
     },
-    async refillPlayerHands({commit, state, dispatch}) {
+    async refillPlayerHands({commit, state, dispatch, rootGetters}) {
         for (const player of state.players) {
             if (player.hand.length < 6) {
                 let missingTiles = 6 - player.hand.length
                 let drawnTiles = await dispatch('bag/drawTiles', { numberOfTiles: missingTiles }, { root: true })
+                if (rootGetters['game/currentActionType'] === actionTypes.gameOver) break
                 commit('addTilesToPlayerHand', { playerId: player.id, tilesToAdd: drawnTiles })
             }
+        }
+    },
+    async swapTiles({commit, dispatch}, player) {
+        if (player) {
+            const tilesToRemove = [...player.selectedTiles]
+            commit('clearTileSelection', { playerId: player.id })
+            commit('removeTilesFromHand', { playerId: player.id, tilesToRemove: tilesToRemove })
+            let drawnTiles = await dispatch('bag/drawTiles', { numberOfTiles: tilesToRemove.length }, { root: true })
+            commit('addTilesToPlayerHand', { playerId: player.id, tilesToAdd: drawnTiles })
         }
     },
     addTileSelection({commit, rootGetters, dispatch}, payload) {

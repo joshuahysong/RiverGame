@@ -36,7 +36,8 @@ export const actionTypes = {
     buildMonumentMultiple: 5,
     conflictAttack: 6,
     conflictDefend: 7,
-    conflictChooseLeader: 8
+    conflictChooseLeader: 8,
+    gameOver: 9
 }
 
 export const playerIcons = [

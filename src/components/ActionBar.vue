@@ -219,10 +219,7 @@ export default {
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
         },
         async doSwapTiles() {
-            let tilesToRemove = [...this.player.selectedTiles]
-            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
-            this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: tilesToRemove })
-            await this.$store.dispatch('players/refillPlayerHands')
+            await this.$store.dispatch('players/swapTiles', {...this.player})
             this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
             this.$store.commit('game/actionCompleted')
         },

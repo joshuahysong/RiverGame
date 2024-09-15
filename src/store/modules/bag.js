@@ -1,4 +1,4 @@
-import { tileTypes } from '../../common/constants'
+import { actionTypes, tileTypes } from '../../common/constants'
 
 const state = () => ({
     bag: [],
@@ -16,6 +16,14 @@ const defaultState = {
     settlements: 30,
     farms: 36
 }
+
+// const defaultState = {
+//     bag: [],
+//     temples: 25,
+//     markets: 0,
+//     settlements: 0,
+//     farms: 0
+// }
 
 const getters = {
     all(state) {
@@ -41,9 +49,17 @@ const actions = {
         commit('fillBag')
         commit('shuffleBag')
     },
-    drawTiles ({state, commit}, payload) {
+    drawTiles ({state, commit, dispatch}, payload) {
         if (payload) {
             commit('shuffleBag')
+            if (payload.numberOfTiles > state.bag.length) {
+                commit('log/logActionMessage', {
+                    text: `Game has ended due to running out of tiles`
+                }, { root: true })
+                dispatch('game/save', null, { root: true })
+                commit('game/setActionType', { actionType: actionTypes.gameOver }, { root:true })
+                return []
+            }
             let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
             commit('removeTiles', {...payload, drawnTiles})
             return drawnTiles

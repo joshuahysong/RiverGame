@@ -32,6 +32,11 @@
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
             <action-bar />
+            <div v-if="showGameEnd" class="row no-gutters mt-1">
+                <div class="col-12 col-xl-10 offset-xl-1">
+                    <game-end class="m-1" />
+                </div>
+            </div>
             <div v-if="showWarBoard" class="row no-gutters mt-2">
                 <div class="col-12 col-xl-10 offset-xl-1">
                     <war-board class="m-1" />
@@ -139,6 +144,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import ActionBar from './components/ActionBar.vue'
+import GameEnd from './components/GameEnd.vue'
 import GameLog from './components/GameLog.vue'
 import MapSquare from './components/MapSquare.vue'
 import MonumentCard from './components/MonumentCard.vue'
@@ -153,6 +159,7 @@ export default {
     name: 'App',
     components: {
         ActionBar,
+        GameEnd,
         GameLog,
         MapSquare,
         MonumentCard,
@@ -250,6 +257,9 @@ export default {
         },
         showWarBoard() {
             return this.conflictType !== conflictTypes.none
+        },
+        showGameEnd() {
+            return this.currentActionType === actionTypes.gameOver
         }
     },
     methods: {
