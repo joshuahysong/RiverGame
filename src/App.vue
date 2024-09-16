@@ -31,7 +31,7 @@
         </b-navbar>
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
-            <action-bar />
+            <action-bar v-if="!showGameEnd" />
             <div v-if="showGameEnd" class="row no-gutters mt-1">
                 <div class="col-12 col-xl-10 offset-xl-1">
                     <game-end class="m-1" />
@@ -110,7 +110,6 @@
                         <div class="card-header bg-transparent py-2"><strong>Missing MVP Features</strong></div>
                         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Game End</li>
                                 <li class="list-group-item">Bots</li>
                                 <li class="list-group-item">Game Setup Screen</li>
                             </ul>

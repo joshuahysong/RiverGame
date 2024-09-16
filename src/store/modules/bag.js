@@ -17,14 +17,6 @@ const defaultState = {
     farms: 36
 }
 
-// const defaultState = {
-//     bag: [],
-//     temples: 25,
-//     markets: 0,
-//     settlements: 0,
-//     farms: 0
-// }
-
 const getters = {
     all(state) {
         return state
@@ -58,7 +50,6 @@ const actions = {
                 }, { root: true })
                 dispatch('game/save', null, { root: true })
                 commit('game/setActionType', { actionType: actionTypes.gameOver }, { root:true })
-                return []
             }
             let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
             commit('removeTiles', {...payload, drawnTiles})

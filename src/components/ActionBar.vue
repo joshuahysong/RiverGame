@@ -122,7 +122,8 @@ export default {
         ...mapGetters('board', [
             'availableMonumentLocations',
             'treasuresToTake',
-            'conflictTile'
+            'conflictTile',
+            'remainingTreasures'
         ]),
         leaderIcon() {
             return helpers.getPlayerIconNameById(this.currentActionPlayerId)
@@ -170,9 +171,17 @@ export default {
             this.$store.commit('board/resetBoardTileHighlights')
             this.$store.commit('board/resetAvailableTileLocations')
             this.$store.dispatch('board/checkForMonumentScore')
+            if (this.remainingTreasures <= 2) {
+                this.$store.commit('log/logActionMessage', {
+                    text: `Game has ended due to ${this.remainingTreasures.remainingTreasures} treasure remaining on the board`
+                }, { root: true })
+                this.$store.commit('game/setActionType', { actionType: actionTypes.gameOver })
+            }
             await this.$store.dispatch('players/refillPlayerHands')
-            this.$store.commit('game/nextActivePlayer')
             this.$store.dispatch('game/save')
+            if (this.currentActionType !== actionTypes.gameOver) {
+                this.$store.commit('game/nextActivePlayer')
+            }
         },
         async showPassTurnMessageBox() {
             this.$store.commit('board/resetAvailableTileLocations')
@@ -220,8 +229,12 @@ export default {
         },
         async doSwapTiles() {
             await this.$store.dispatch('players/swapTiles', {...this.player})
-            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
-            this.$store.commit('game/actionCompleted')
+            if (this.currentActionType !== actionTypes.gameOver) {
+                this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                this.$store.commit('game/actionCompleted')
+            } else {
+                this.$store.dispatch('game/save')
+            }
         },
         undoLastAction() {
             this.$store.dispatch('game/restoreSnapshot')
