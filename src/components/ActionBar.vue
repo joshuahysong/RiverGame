@@ -220,8 +220,12 @@ export default {
         },
         async doSwapTiles() {
             await this.$store.dispatch('players/swapTiles', {...this.player})
-            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
-            this.$store.commit('game/actionCompleted')
+            if (this.currentActionType !== actionTypes.gameOver) {
+                this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                this.$store.commit('game/actionCompleted')
+            } else {
+                this.$store.dispatch('game/save')
+            }
         },
         undoLastAction() {
             this.$store.dispatch('game/restoreSnapshot')

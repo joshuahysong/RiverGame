@@ -9,21 +9,21 @@ const state = () => ({
     startingBag: []
 })
 
-const defaultState = {
-    bag: [],
-    temples: 47,
-    markets: 30,
-    settlements: 30,
-    farms: 36
-}
-
 // const defaultState = {
 //     bag: [],
-//     temples: 25,
-//     markets: 0,
-//     settlements: 0,
-//     farms: 0
+//     temples: 47,
+//     markets: 30,
+//     settlements: 30,
+//     farms: 36
 // }
+
+const defaultState = {
+    bag: [],
+    temples: 25,
+    markets: 0,
+    settlements: 0,
+    farms: 0
+}
 
 const getters = {
     all(state) {
@@ -58,7 +58,6 @@ const actions = {
                 }, { root: true })
                 dispatch('game/save', null, { root: true })
                 commit('game/setActionType', { actionType: actionTypes.gameOver }, { root:true })
-                return []
             }
             let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
             commit('removeTiles', {...payload, drawnTiles})

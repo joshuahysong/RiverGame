@@ -3,21 +3,16 @@
         <div v-for="index in confettiInstances" :key="index" :class="'confetti-' + index"></div>
         <div class="card-header bg-transparent border-0 py-2"><strong>Game Over</strong></div>
         <div class="card-body pt-0 pb-2 px-2">
-            <div class="row no-gutters align-items-center">
+            <div class="row no-gutters align-items-center pb-2">
                 <div class="col">
-                    Player 1 is the winner
+                    {{ getScores()[0].player.name }} is the Winner!
                 </div>
             </div>
-            <div class="row no-gutters align-items-center">
-                <div class="col">
-                    Scores
-                </div>
-            </div>
-            <div v-for="playerScore in playerScores"
-                :key="playerScore.player.id"
-                class="row no-gutters align-items-center">
-                <div class="col">
-                    Scores
+            <div v-for="(playerScore, index) in getScores()"
+                :key="index"
+                class="row no-gutters align-items-center justify-content-center small">
+                <div class="col-auto">
+                    #{{ index + 1 }}: {{ playerScore.player.name }} ({{ playerScore.finalScore }} points)
                 </div>
             </div>
         </div>
@@ -25,14 +20,12 @@
 </template>
 
 <script>
-import { actionTypes } from '@/common/constants';
 import { mapGetters } from 'vuex'
 
 export default {
     name: 'GameEnd',
     data() {
         return {
-            playerScores: [],
             confettiInstances: []
         }
     },
@@ -47,25 +40,30 @@ export default {
             allPlayers: 'all'
         }),
     },
-    watch: {
-      currentActionType(newActionType) {
-        if (newActionType === actionTypes.gameOver) {
-            for (const player of this.allPlayers) {
-                let treasureScore = player.score.treasureScore
-                let scored = [
-                    player.score.temple,
-                    player.score.farm,
-                    player.score.settlement,
-                    player.score.market
-                ]
-                let minimumScore = Math.min(scored)
-                this.playerScores = {
-                    player: { ...player },
-                    finalScore: minimumScore + treasureScore
-                }
+    methods: {
+      getScores() {
+        let playerScores = []
+        for (const player of this.allPlayers) {
+            let treasureScore = player.score.treasure
+            let scored = [
+                player.score.temple,
+                player.score.farm,
+                player.score.settlement,
+                player.score.market
+            ]
+            for (let i = 0; i < treasureScore; i++) {
+                let minimumScore = Math.min(...scored)
+                let index = scored.indexOf(minimumScore)
+                scored.splice(index, 1)
+                scored.push(++minimumScore)
             }
-            this.playerScores.sort((a, b) => a.minimumScore - b.minimumScore)
+            playerScores.push({
+                player: { ...player },
+                finalScore: Math.min(...scored)
+            })
         }
+        playerScores.sort((a, b) => b.finalScore - a.finalScore)
+        return playerScores
       }
     }
 }
