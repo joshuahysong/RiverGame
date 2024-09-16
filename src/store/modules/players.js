@@ -35,11 +35,11 @@ const actions = {
             selectedTiles: [],
             catastropheTiles: 2,
             score: {
-                temple: Math.floor(Math.random() * 10) + 1,
-                market: Math.floor(Math.random() * 10) + 1,
-                farm: Math.floor(Math.random() * 10) + 1,
-                settlement: Math.floor(Math.random() * 10) + 1,
-                treasure: Math.floor(Math.random() * 10) + 1
+                temple: 0,
+                market: 0,
+                farm: 0,
+                settlement: 0,
+                treasure: 0
             },
             isHuman: payload.isHuman
         }

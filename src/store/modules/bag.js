@@ -9,20 +9,12 @@ const state = () => ({
     startingBag: []
 })
 
-// const defaultState = {
-//     bag: [],
-//     temples: 47,
-//     markets: 30,
-//     settlements: 30,
-//     farms: 36
-// }
-
 const defaultState = {
     bag: [],
-    temples: 25,
-    markets: 0,
-    settlements: 0,
-    farms: 0
+    temples: 47,
+    markets: 30,
+    settlements: 30,
+    farms: 36
 }
 
 const getters = {
