@@ -49,7 +49,7 @@ const actions = {
                     text: `Game has ended due to running out of tiles`
                 }, { root: true })
                 dispatch('game/save', null, { root: true })
-                commit('game/setActionType', { actionType: actionTypes.gameOver }, { root:true })
+                commit('game/setActionType', actionTypes.gameOver, { root: true })
             }
             let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
             commit('removeTiles', {...payload, drawnTiles})

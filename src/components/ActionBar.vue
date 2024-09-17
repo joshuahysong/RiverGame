@@ -175,7 +175,7 @@ export default {
                 this.$store.commit('log/logActionMessage', {
                     text: `Game has ended due to ${this.remainingTreasures.remainingTreasures} treasure remaining on the board`
                 }, { root: true })
-                this.$store.commit('game/setActionType', { actionType: actionTypes.gameOver })
+                this.$store.commit('game/setActionType', actionTypes.gameOver)
             }
             await this.$store.dispatch('players/refillPlayerHands')
             this.$store.dispatch('game/save')
@@ -212,7 +212,7 @@ export default {
                 let tile = this.$store.getters['board/tile'](location.index)
                 this.$store.commit('board/updateTile', { ...tile, isHighlighted: false })
             })
-            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+            this.$store.commit('game/setActionType', actionTypes.playTile)
             this.$store.commit('game/actionCompleted')
             this.$store.commit('board/checkForTreasureToTake')
         },
@@ -220,17 +220,17 @@ export default {
             this.$store.commit('board/resetAvailableTileLocations')
             this.$store.commit('board/resetBoardTileHighlights')
             this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
-            this.$store.commit('game/setActionType', { actionType: actionTypes.swapTiles })
+            this.$store.commit('game/setActionType', actionTypes.swapTiles)
         },
         stopSwapTiles() {
             this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
             this.$store.commit('game/clearSnapshot')
-            this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+            this.$store.commit('game/setActionType', actionTypes.playTile)
         },
         async doSwapTiles() {
             await this.$store.dispatch('players/swapTiles', {...this.player})
             if (this.currentActionType !== actionTypes.gameOver) {
-                this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                this.$store.commit('game/setActionType', actionTypes.playTile)
                 this.$store.commit('game/actionCompleted')
             } else {
                 this.$store.dispatch('game/save')
@@ -244,22 +244,22 @@ export default {
         commitTilesToConflict() {
             if (this.currentActionType === actionTypes.conflictAttack) {
                 this.$store.commit('game/clearSnapshot')
-                this.$store.commit('game/setConflictAttackerTiles', { tiles: this.player.selectedTiles })
+                this.$store.commit('game/setConflictAttackerTiles', this.player.selectedTiles)
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
-                this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.conflictDefenderLeader.playerId })
-                this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.conflictDefenderLeader.playerId })
-                this.$store.commit('game/setActionType', { actionType: actionTypes.conflictDefend })
+                this.$store.commit('game/setCurrentActionPlayerId', this.conflictDefenderLeader.playerId)
+                this.$store.commit('game/setCurrentHandDisplayPlayerId', this.conflictDefenderLeader.playerId)
+                this.$store.commit('game/setActionType', actionTypes.conflictDefend)
             } else if (this.currentActionType === actionTypes.conflictDefend) {
-                this.$store.commit('game/setConflictDefenderTiles', { tiles: this.player.selectedTiles })
+                this.$store.commit('game/setConflictDefenderTiles', this.player.selectedTiles)
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
                 this.$store.dispatch('game/resolveConflict')
                 this.$store.dispatch('board/checkForWar', this.conflictTile)
                 if (this.currentActionType !== actionTypes.conflictAttack && this.currentActionType !== actionTypes.conflictChooseLeader) {
-                    this.$store.commit('game/setCurrentActionPlayerId', { playerId: this.activeTurnPlayerId })
-                    this.$store.commit('game/setCurrentHandDisplayPlayerId', { playerId: this.activeTurnPlayerId })
-                    this.$store.commit('game/setActionType', { actionType: actionTypes.playTile })
+                    this.$store.commit('game/setCurrentActionPlayerId', this.activeTurnPlayerId)
+                    this.$store.commit('game/setCurrentHandDisplayPlayerId', this.activeTurnPlayerId)
+                    this.$store.commit('game/setActionType', actionTypes.playTile)
                     this.$store.commit('game/actionCompleted')
                     this.$store.dispatch('board/checkForTreasureToTake')
                 }

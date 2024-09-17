@@ -146,7 +146,7 @@ const getters = {
     getRegion: (state) => (index) => {
         let regionIndex = null
         for (let i = 0; i < state.regions.length; i++) {
-            if (state.regions[i].tileIndexes.includes(index)){
+            if (state.regions[i].tileIndexes.includes(index)) {
                 regionIndex = i
                 break;
             }
@@ -332,8 +332,8 @@ const actions = {
 
                 dispatch('checkForTreasureToTake')
                 if (getters.treasuresToTake < 1) {
-                    commit('game/setCurrentActionPlayerId', { playerId: rootGetters['game/activeTurnPlayerId'] }, { root: true })
-                    commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
+                    commit('game/setCurrentActionPlayerId', rootGetters['game/activeTurnPlayerId'], { root: true })
+                    commit('game/setActionType', actionTypes.playTile, { root: true })
                 }
             }
         }
@@ -493,8 +493,8 @@ const actions = {
                     for (let i = 0; i < tilesWithTreasure.length; i++) {
                         commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
                     }
-                    commit('game/setCurrentActionPlayerId', {playerId: matchingTrader.playerId}, {root: true})
-                    commit('game/setActionType', {actionType: actionTypes.takeTreasure}, {root: true})
+                    commit('game/setCurrentActionPlayerId', matchingTrader.playerId, { root: true })
+                    commit('game/setActionType', actionTypes.takeTreasure, { root: true })
                 }
             }
             commit('setTreasuresToTake', tilesWithTreasure.length - 1)
@@ -524,7 +524,7 @@ const actions = {
 
         if (foundAvailableMonumentLocations && foundAvailableMonumentLocations.length > 0) {
             commit('setAvailableMonumentLocations', foundAvailableMonumentLocations)
-            commit('game/setActionType', { actionType: actionTypes.buildMonument }, { root: true })
+            commit('game/setActionType', actionTypes.buildMonument, { root: true })
         }
     },
     buildMonument({getters, commit, dispatch, rootGetters}, payload) {
@@ -542,7 +542,7 @@ const actions = {
             let tile = getters.tile(location.index)
             commit('updateTile', { ...tile, isHighlighted: false })
         })
-        commit('game/removeFromRemainingMonuments', payload, { root: true })
+        commit('game/removeFromRemainingMonuments', payload.monumentType, { root: true })
         commit('resetAvailableMonumentLocations')
         commit('game/resetSelectedMonumentType', null, { root: true })
 
@@ -553,7 +553,7 @@ const actions = {
 
         dispatch('checkForDisplacedLeader')
         dispatch('setRegions')
-        commit('game/setActionType', { actionType: actionTypes.playTile }, { root: true })
+        commit('game/setActionType', actionTypes.playTile, { root: true })
         commit('game/actionCompleted', null, { root: true })
         dispatch('checkForTreasureToTake')
     },
@@ -620,13 +620,13 @@ const actions = {
                 commit('updateTile', { ...tile, isHighlighted: true })
                 commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
                 commit('game/resetConflictData', null, { root: true })
-                commit('game/setCurrentActionPlayerId', { playerId: tile.playerId }, { root: true })
+                commit('game/setCurrentActionPlayerId', tile.playerId, { root: true })
                 commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
-                commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, {root: true })
-                commit('game/setConflictAttackerBoardTiles', [...getters.getRevoltBoardStrength(tile)], { root: true })
-                commit('game/setConflictDefenderBoardTiles', [...getters.getRevoltBoardStrength(matchingDefenderLeader)], {root: true })
-                commit('game/setConflictTileType', tileTypes.temple, {root: true })
-                commit('game/setActionType', { actionType: actionTypes.conflictAttack }, { root: true })
+                commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, { root: true })
+                commit('game/setConflictAttackerBoardTiles', getters.getRevoltBoardStrength(tile), { root: true })
+                commit('game/setConflictDefenderBoardTiles', getters.getRevoltBoardStrength(matchingDefenderLeader), { root: true })
+                commit('game/setConflictTileType', tileTypes.temple, { root: true })
+                commit('game/setActionType', actionTypes.conflictAttack, { root: true })
                 commit('game/setConflictType', conflictTypes.revolt, { root: true })
                 commit('log/logActionMessage', {
                     text: `A Revolt has begun between ${helpers.getLogToken(tile)}
@@ -676,7 +676,7 @@ const actions = {
         // if there is more than one group the active player has to choose who fights
         } else if (leaderGroupsAtWar.length > 1) {
             commit('setLeaderGroupsAtWar', leaderGroupsAtWar)
-            commit('game/setActionType', { actionType: actionTypes.warChooseLeader }, { root: true })
+            commit('game/setActionType', actionTypes.warChooseLeader, { root: true })
         // if only one group then trigger a war immediately
         } else if (leaderGroupsAtWar.length === 1) {
             dispatch('triggerWar', { attacker: leaderGroupsAtWar[0][0], defender: leaderGroupsAtWar[0][1] })
@@ -693,13 +693,13 @@ const actions = {
         const defender = { ...payload.defender }
         commit('updateTile', { ...attacker, isHighlighted: true })
         commit('updateTile', { ...defender, isHighlighted: true })
-        commit('game/setCurrentActionPlayerId', { playerId: attacker.playerId }, { root: true })
-        commit('game/setCurrentHandDisplayPlayerId', { playerId: attacker.playerId }, { root: true })
+        commit('game/setCurrentActionPlayerId', attacker.playerId, { root: true })
+        commit('game/setCurrentHandDisplayPlayerId', attacker.playerId, { root: true })
         commit('game/setConflictAttackerLeader', { ...attacker }, { root: true })
         commit('game/setConflictDefenderLeader', { ...defender }, {root: true })
-        commit('game/setConflictAttackerBoardTiles', [...getters.getWarBoardStrength(attacker)], { root: true })
-        commit('game/setConflictDefenderBoardTiles', [...getters.getWarBoardStrength(defender)], {root: true })
-        commit('game/setActionType', { actionType: actionTypes.conflictAttack }, { root: true })
+        commit('game/setConflictAttackerBoardTiles', getters.getWarBoardStrength(attacker), { root: true })
+        commit('game/setConflictDefenderBoardTiles', getters.getWarBoardStrength(defender), {root: true })
+        commit('game/setActionType', actionTypes.conflictAttack, { root: true })
         commit('game/setConflictType', conflictTypes.war, { root: true })
         commit('game/setConflictWinnerPlayerId', 0, { root: true })
         commit('log/logActionMessage', {

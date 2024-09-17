@@ -105,7 +105,7 @@ export default {
         selectMonument(monumentType) {
             if (this.isBuildingMonument &&
                 this.isAvailableMonument(monumentType)) {
-                this.$store.commit('game/setSelectedMonumentType', { monumentType: monumentType })
+                this.$store.commit('game/setSelectedMonumentType', monumentType)
                 if (this.availableMonumentLocations.length === 1) {
                     this.$store.dispatch('board/buildMonument', {
                         index: this.availableMonumentLocations[0].index,
@@ -115,7 +115,7 @@ export default {
                     this.availableMonumentLocations.forEach(location => {
                         let tile = this.$store.getters['board/tile'](location.index)
                         this.$store.commit('board/updateTile', { ...tile, isHighlighted: true })
-                        this.$store.commit('game/setActionType', { actionType: actionTypes.buildMonumentMultiple })
+                        this.$store.commit('game/setActionType', actionTypes.buildMonumentMultiple)
                     })
                 }
             }

@@ -135,7 +135,7 @@ const actions = {
         localStorage.gameState = JSON.stringify(gameState);
     },
     load({commit, dispatch}) {
-        commit('setActionType', { actionType: actionTypes.loading })
+        commit('setActionType', actionTypes.loading)
         if (localStorage.gameState) {
             let gameState = JSON.parse(localStorage.gameState);
             commit('players/loadPlayers', gameState.players, { root: true })
@@ -255,35 +255,35 @@ const mutations = {
     actionCompleted(state) {
         state.remainingActions--
     },
-    setActionType(state, payload) {
-        state.currentActionType = payload.actionType
+    setActionType(state, actionType) {
+        state.currentActionType = actionType
     },
     setState(state, payload) {
         Object.assign(state, payload)
     },
-    setCurrentActionPlayerId(state, payload) {
-        state.currentActionPlayerId = payload.playerId
+    setCurrentActionPlayerId(state, playerId) {
+        state.currentActionPlayerId = playerId
     },
-    setCurrentHandDisplayPlayerId(state, payload) {
-        state.currentHandDisplayPlayerId = payload.playerId
+    setCurrentHandDisplayPlayerId(state, playerId) {
+        state.currentHandDisplayPlayerId = playerId
     },
-    setConflictAttackerLeader(state, payload) {
-        state.conflictAttackerLeader = { ...payload }
+    setConflictAttackerLeader(state, leader) {
+        state.conflictAttackerLeader = { ...leader }
     },
-    setConflictDefenderLeader(state, payload) {
-        state.conflictDefenderLeader = { ...payload }
+    setConflictDefenderLeader(state, leader) {
+        state.conflictDefenderLeader = { ...leader }
     },
-    setConflictAttackerTiles(state, payload) {
-        state.conflictAttackerTiles = [...payload.tiles]
+    setConflictAttackerTiles(state, tiles) {
+        state.conflictAttackerTiles = [...tiles]
     },
-    setConflictDefenderTiles(state, payload) {
-        state.conflictDefenderTiles = [...payload.tiles]
+    setConflictDefenderTiles(state, tiles) {
+        state.conflictDefenderTiles = [...tiles]
     },
-    setConflictAttackerBoardTiles(state, payload) {
-        state.conflictAttackerBoardTiles = [...payload]
+    setConflictAttackerBoardTiles(state, tiles) {
+        state.conflictAttackerBoardTiles = [...tiles]
     },
-    setConflictDefenderBoardTiles(state, payload) {
-        state.conflictDefenderBoardTiles = [...payload]
+    setConflictDefenderBoardTiles(state, tiles) {
+        state.conflictDefenderBoardTiles = [...tiles]
     },
     setConflictTileType(state, tileType) {
         state.conflictTileType = tileType
@@ -299,18 +299,18 @@ const mutations = {
         state.conflictWinnerPlayerId = 0
         state.conflictType = conflictTypes.none
     },
-    removeFromRemainingMonuments(state, payload) {
-        let monumentToRemoveIndex = state.remainingMonuments.findIndex(monumentType => monumentType === payload.monumentType)
+    removeFromRemainingMonuments(state, monumentType) {
+        let monumentToRemoveIndex = state.remainingMonuments.findIndex(m => m === monumentType)
         state.remainingMonuments.splice(monumentToRemoveIndex, 1)
     },
     resetSelectedMonumentType(state) {
         state.selectedMonumentType = 0;
     },
-    setSelectedMonumentType(state, payload) {
-        state.selectedMonumentType = payload.monumentType
+    setSelectedMonumentType(state, monumentType) {
+        state.selectedMonumentType = monumentType
     },
     setSnapshot(state, snapshot) {
-        state.snapshot = {...snapshot}
+        state.snapshot = { ...snapshot }
     },
     clearSnapshot(state) {
         state.snapshot = null

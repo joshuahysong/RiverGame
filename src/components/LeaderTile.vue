@@ -1,7 +1,7 @@
 <template>
     <div class="tile d-inline-block" :class="tileClass" :style="tileStyle">
         <b-icon class="h-100 w-100" :icon="icon" :class="iconClass" />
-        <div v-if="showStrength" class="strength strength-text-size">1</div>
+        <div v-if="showStrength" class="strength strength-text-size">{{ boardStrength }}</div>
     </div>
 </template>
 
@@ -13,13 +13,14 @@ export default {
     props: {
         tileType: Number,
         player: Object,
+        mapIndex: Number,
         selected: Boolean,
         highlight: Boolean,
         disabled: Boolean,
         showPointer: Boolean,
         size: Number,
         showStrength: Boolean,
-        showEmpty: Boolean
+        showEmpty: Boolean,
     },
     computed: {
         tileClass() {
@@ -42,6 +43,12 @@ export default {
         },
         isEmpty() {
             return !this.player.leaders.includes(this.tileType) && this.showEmpty
+        },
+        boardStrength() {
+            if (this.mapIndex >= 0) {
+                return this.$store.getters['board/getWarBoardStrength']({ tileType: this.tileType, index: this.mapIndex }).length
+            }
+            return null
         }
     }
 }

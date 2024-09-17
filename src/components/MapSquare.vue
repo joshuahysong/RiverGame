@@ -9,6 +9,7 @@
             :is-conflict-tile="isConflictTile" />
         <leader-tile v-if="hasTile && tile.isLeaderTile"
             :tile-type="tile.tileType"
+            :map-index="index"
             :highlight="tile.isHighlighted"
             :player="getPlayer()"
             :show-pointer="showLeaderPointer"
