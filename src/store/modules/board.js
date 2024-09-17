@@ -263,8 +263,8 @@ const actions = {
                 clickedTile.playerId === currentPlayer.id &&
                 rootGetters['game/remainingActions'] > 0
             ) {
-                commit('players/clearTileSelection', { playerId: currentPlayer.id }, { root: true })
-                commit('updateTile', {...clickedTile, isHighlighted: !clickedTile.isHighlighted})
+                commit('players/clearTileSelection', currentPlayer.id, { root: true })
+                commit('updateTile', { ...clickedTile, isHighlighted: !clickedTile.isHighlighted })
                 let selectedLeaderTile = getters.tile(clickedTile.index)
                 if (selectedLeaderTile.isHighlighted) {
                     dispatch('calculateAvailableTileLocations', selectedLeaderTile)
@@ -285,7 +285,7 @@ const actions = {
                     playerId: currentPlayer.id
                 }
                 commit('addTile', newTile)
-                dispatch('players/removeSelectedTiles', { playerId: currentPlayer.id }, { root: true })
+                dispatch('players/removeSelectedTiles', currentPlayer.id, { root: true })
                 commit('resetAvailableTileLocations')
 
                 if (selectedBoardLeader) {
@@ -303,6 +303,7 @@ const actions = {
                     }, { root: true })
                 }
 
+                dispatch('checkForDisplacedLeader')
                 dispatch('checkForWar', { ...newTile })
                 if (rootGetters['game/currentActionType'] !== actionTypes.playTile) return
 
@@ -621,8 +622,8 @@ const actions = {
                 commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
                 commit('game/resetConflictData', null, { root: true })
                 commit('game/setCurrentActionPlayerId', tile.playerId, { root: true })
-                commit('game/setConflictAttackerLeader', { ...tile }, { root: true })
-                commit('game/setConflictDefenderLeader', { ...matchingDefenderLeader }, { root: true })
+                commit('game/setConflictAttackerLeader', tile, { root: true })
+                commit('game/setConflictDefenderLeader', matchingDefenderLeader, { root: true })
                 commit('game/setConflictAttackerBoardTiles', getters.getRevoltBoardStrength(tile), { root: true })
                 commit('game/setConflictDefenderBoardTiles', getters.getRevoltBoardStrength(matchingDefenderLeader), { root: true })
                 commit('game/setConflictTileType', tileTypes.temple, { root: true })
@@ -695,8 +696,8 @@ const actions = {
         commit('updateTile', { ...defender, isHighlighted: true })
         commit('game/setCurrentActionPlayerId', attacker.playerId, { root: true })
         commit('game/setCurrentHandDisplayPlayerId', attacker.playerId, { root: true })
-        commit('game/setConflictAttackerLeader', { ...attacker }, { root: true })
-        commit('game/setConflictDefenderLeader', { ...defender }, {root: true })
+        commit('game/setConflictAttackerLeader', attacker, { root: true })
+        commit('game/setConflictDefenderLeader', defender, {root: true })
         commit('game/setConflictAttackerBoardTiles', getters.getWarBoardStrength(attacker), { root: true })
         commit('game/setConflictDefenderBoardTiles', getters.getWarBoardStrength(defender), {root: true })
         commit('game/setActionType', actionTypes.conflictAttack, { root: true })

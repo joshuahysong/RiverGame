@@ -151,7 +151,7 @@ export default {
             return mapClass;
         },
         doMapSquareClick() {
-            this.$store.dispatch('board/handleBoardClick', { ...this.tile })
+            this.$store.dispatch('board/handleBoardClick', this.tile)
         },
         getPlayer() {
             return this.$store.getters['players/getPlayer'](this.tile.playerId)

@@ -219,11 +219,11 @@ export default {
         beginSwapTiles(){
             this.$store.commit('board/resetAvailableTileLocations')
             this.$store.commit('board/resetBoardTileHighlights')
-            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('players/clearTileSelection', this.player.id)
             this.$store.commit('game/setActionType', actionTypes.swapTiles)
         },
         stopSwapTiles() {
-            this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+            this.$store.commit('players/clearTileSelection', this.player.id)
             this.$store.commit('game/clearSnapshot')
             this.$store.commit('game/setActionType', actionTypes.playTile)
         },
@@ -246,14 +246,14 @@ export default {
                 this.$store.commit('game/clearSnapshot')
                 this.$store.commit('game/setConflictAttackerTiles', this.player.selectedTiles)
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
-                this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+                this.$store.commit('players/clearTileSelection', this.player.id)
                 this.$store.commit('game/setCurrentActionPlayerId', this.conflictDefenderLeader.playerId)
                 this.$store.commit('game/setCurrentHandDisplayPlayerId', this.conflictDefenderLeader.playerId)
                 this.$store.commit('game/setActionType', actionTypes.conflictDefend)
             } else if (this.currentActionType === actionTypes.conflictDefend) {
                 this.$store.commit('game/setConflictDefenderTiles', this.player.selectedTiles)
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
-                this.$store.commit('players/clearTileSelection', { playerId: this.player.id })
+                this.$store.commit('players/clearTileSelection', this.player.id)
                 this.$store.dispatch('game/resolveConflict')
                 this.$store.dispatch('board/checkForWar', this.conflictTile)
                 if (this.currentActionType !== actionTypes.conflictAttack && this.currentActionType !== actionTypes.conflictChooseLeader) {

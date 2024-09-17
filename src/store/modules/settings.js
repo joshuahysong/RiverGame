@@ -40,8 +40,8 @@ const actions = {
 }
 
 const mutations = {
-    setState(state, payload) {
-        Object.assign(state, payload)
+    setState(state, newState) {
+        Object.assign(state, newState)
     },
     setShowCoordinates(state, payload) {
         state.showCoordinates = payload

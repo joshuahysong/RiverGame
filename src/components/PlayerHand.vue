@@ -184,7 +184,7 @@ export default {
                     this.currentActionType === actionTypes.playTile
                 ) {
                     this.$store.dispatch('game/saveSnapshot')
-                    this.$store.commit('players/addLeaderToPlayer', { ...selectedBoardLeader })
+                    this.$store.commit('players/addLeaderToPlayer', selectedBoardLeader)
                     this.$store.commit('board/removeTile', { index: selectedBoardLeader.index })
                     this.$store.dispatch('board/setRegions')
                     this.$store.commit('board/resetAvailableTileLocations')

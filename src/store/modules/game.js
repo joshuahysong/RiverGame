@@ -258,8 +258,8 @@ const mutations = {
     setActionType(state, actionType) {
         state.currentActionType = actionType
     },
-    setState(state, payload) {
-        Object.assign(state, payload)
+    setState(state, newState) {
+        Object.assign(state, newState)
     },
     setCurrentActionPlayerId(state, playerId) {
         state.currentActionPlayerId = playerId

@@ -41,18 +41,18 @@ const actions = {
         commit('fillBag')
         commit('shuffleBag')
     },
-    drawTiles ({state, commit, dispatch}, payload) {
-        if (payload) {
+    drawTiles ({state, commit, dispatch}, numberOfTiles) {
+        if (numberOfTiles) {
             commit('shuffleBag')
-            if (payload.numberOfTiles > state.bag.length) {
+            if (numberOfTiles > state.bag.length) {
                 commit('log/logActionMessage', {
                     text: `Game has ended due to running out of tiles`
                 }, { root: true })
                 dispatch('game/save', null, { root: true })
                 commit('game/setActionType', actionTypes.gameOver, { root: true })
             }
-            let drawnTiles = state.bag.slice(0, payload.numberOfTiles);
-            commit('removeTiles', {...payload, drawnTiles})
+            let drawnTiles = state.bag.slice(0, numberOfTiles);
+            commit('removeTiles', { numberOfTiles, drawnTiles })
             return drawnTiles
         }
     },
@@ -92,8 +92,8 @@ const mutations = {
     setStartingBag(state) {
         state.startingBag = [...state.bag]
     },
-    setState(state, payload) {
-        Object.assign(state, payload)
+    setState(state, newState) {
+        Object.assign(state, newState)
     }
 }
 
