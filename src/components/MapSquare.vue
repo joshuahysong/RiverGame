@@ -15,8 +15,8 @@
             :show-pointer="showLeaderPointer"
             :show-strength="showLeaderStrength" />
         <monument-tile v-if="showMonument" :monumentType="tile.monumentType" class="monument"/>
-        <div v-if="isRiverTile && mapSquareType === '='" class="river river-horizontal"></div>
-        <div v-if="isRiverTile && mapSquareType === '║'" class="river river-vertical"></div>
+        <div v-if="isRiverTile && riverPath === '='" class="river river-horizontal"></div>
+        <div v-if="isRiverTile && riverPath === '║'" class="river river-vertical"></div>
         <div v-if="isRiverTile && showRiverHorizontalLeft" class="river river-horizontal-left"></div>
         <div v-if="isRiverTile && showRiverHorizontalRight" class="river river-horizontal-right"></div>
         <div v-if="isRiverTile && showRiverVerticalBottom" class="river river-vertical-bottom"></div>
@@ -51,9 +51,21 @@ export default {
         MonumentTile
     },
     props: {
-        mapSquareType: String,
+        mapSquareType: Number,
         index: Number,
         tile: Object
+    },
+    data() {
+        return {
+            isRiverTile: false,
+            riverPath: null
+        }
+    },
+    mounted() {
+        this.isRiverTile = this.mapSquareType === mapTypes.river
+        if (this.isRiverTile) {
+            this.riverPath = this.$store.getters['board/getRiverPath'](this.index)
+        }
     },
     computed: {
         ...mapGetters('settings', [
@@ -78,20 +90,17 @@ export default {
         hasTile() {
             return this.tile && this.tile.tileType !== tileTypes.empty
         },
-        isRiverTile() {
-            return this.mapSquareType !== mapTypes.ground
-        },
         showRiverHorizontalLeft() {
-            return this.mapSquareType === '╗' || this.mapSquareType  === '╝'
+            return this.riverPath === '╗' || this.riverPath  === '╝'
         },
         showRiverHorizontalRight() {
-            return this.mapSquareType === '╔' || this.mapSquareType  === '╚'
+            return this.riverPath === '╔' || this.riverPath  === '╚'
         },
         showRiverVerticalBottom() {
-            return this.mapSquareType === '╔' || this.mapSquareType  === '╗'
+            return this.riverPath === '╔' || this.riverPath  === '╗'
         },
         showRiverVerticalTop() {
-            return this.mapSquareType === '╚' || this.mapSquareType  === '╝'
+            return this.riverPath === '╚' || this.riverPath  === '╝'
         },
         kingdomStyle() {
             var blankCss = 'background-color: transparent;'

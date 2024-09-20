@@ -4,17 +4,17 @@ import helpers from '../../common/helpers'
 
 const state = () => ({
     map: [
-        '0','0','0','0','╔','=','=','=','╝','0','0','0','║','0','0','0',
-        '0','0','0','0','║','0','0','0','0','0','0','0','║','0','0','0',
-        '0','0','0','╔','╝','0','0','0','0','0','0','0','╚','╗','0','0',
-        '=','=','=','╝','0','0','0','0','0','0','0','0','0','╚','=','╗',
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','╔','╝',
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','║','0',
-        '=','=','=','╗','0','0','0','0','0','0','0','0','╔','=','╝','0',
-        '0','0','0','╚','=','=','╗','0','0','0','0','0','║','0','0','0',
-        '0','0','0','0','0','0','╚','=','=','=','=','=','╝','0','0','0',
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0',
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
+        0,0,0,0,1,1,1,1,1,0,2,0,1,0,0,0,
+        0,2,0,0,1,0,0,0,0,0,0,0,1,0,0,2,
+        0,0,0,1,1,2,0,0,0,0,0,0,1,1,0,0,
+        1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+        1,1,1,1,0,0,0,0,2,0,0,0,1,1,1,0,
+        0,2,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
+        0,0,0,0,0,0,1,1,1,1,1,1,1,0,2,0,
+        0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0
     ],
     tiles: [],
     regions: [],
@@ -27,23 +27,27 @@ const state = () => ({
     leaderGroupsAtWar: []
 })
 
-const initialTiles = [
-    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
-    0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+const riverPath = [
+    ' ',' ',' ',' ','╔','=','=','=','╝',' ',' ',' ','║',' ',' ',' ',
+    ' ',' ',' ',' ','║',' ',' ',' ',' ',' ',' ',' ','║',' ',' ',' ',
+    ' ',' ',' ','╔','╝',' ',' ',' ',' ',' ',' ',' ','╚','╗',' ',' ',
+    '=','=','=','╝',' ',' ',' ',' ',' ',' ',' ',' ',' ','╚','=','╗',
+    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','╔','╝',
+    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','║',' ',
+    '=','=','=','╗',' ',' ',' ',' ',' ',' ',' ',' ','╔','=','╝',' ',
+    ' ',' ',' ','╚','=','=','╗',' ',' ',' ',' ',' ','║',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ','╚','=','=','=','=','=','╝',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
 ]
 
 const getters = {
     map: (state) => {
         return state.map
+    },
+    getRiverPath: () => (index) => {
+        if (!riverPath && index < riverPath.length) return null
+        return riverPath[index]
     },
     tiles: (state) => {
         return state.tiles
@@ -234,15 +238,19 @@ const getters = {
 }
 
 const actions = {
-    init ({commit, dispatch}) {
+    init ({state, commit, dispatch}) {
         commit('resetAvailableTileLocations')
         let newTiles = []
-        for (let i = 0; i < initialTiles.length; i++) {
+        for (let i = 0; i < state.map.length; i++) {
+            const tileType = state.map[i] === mapTypes.treasure ||
+                    state.map[i] === mapTypes.priorityTreasure
+                ? tileTypes.temple
+                : tileTypes.empty
             newTiles.push({
                 index: i,
-                tileType: initialTiles[i],
+                tileType: tileType,
                 isLeaderTile: false,
-                hasTreasure: initialTiles[i] === tileTypes.temple,
+                hasTreasure: tileType === tileTypes.temple,
                 playerId: 0
             })
         }
@@ -370,7 +378,7 @@ const actions = {
                     if (!isJoiningKingdoms &&
                         hasTempleNeighbor &&
                         mapSquareTile.tileType == tileTypes.empty &&
-                        mapSquare === mapTypes.ground) {
+                        mapSquare !== mapTypes.river) {
                             eligibleTileLocations.push(i)
                         }
                 } else if (selectedTile.tileType === tileTypes.catastrophe) {
@@ -384,8 +392,8 @@ const actions = {
                         eligibleTileLocations.push(i)
                 } else {
                     if (mapSquareTile.tileType == tileTypes.empty &&
-                        ((mapSquare !== mapTypes.ground && selectedTile.tileType === tileTypes.farm) ||
-                         (mapSquare === mapTypes.ground && selectedTile.tileType !== tileTypes.farm)))
+                        ((mapSquare === mapTypes.river && selectedTile.tileType === tileTypes.farm) ||
+                         (mapSquare !== mapTypes.river && selectedTile.tileType !== tileTypes.farm)))
                         eligibleTileLocations.push(i)
                 }
             }
@@ -712,8 +720,9 @@ const actions = {
 
 const mutations = {
     setTreasureCounts(state) {
-        state.initialTreasures = initialTiles.filter(x => x === tileTypes.temple).length
-        state.remainingTreasures = state.tiles.filter(x => x.hasTreasure).length
+        const initialTreasureCount = state.map.filter(x => x === mapTypes.treasure || x === mapTypes.priorityTreasure).length
+        state.initialTreasures = initialTreasureCount
+        state.remainingTreasures = initialTreasureCount
     },
     removeTreasure(state) {
         state.remainingTreasures--

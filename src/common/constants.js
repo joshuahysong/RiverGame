@@ -24,7 +24,10 @@ export const leaderTileTypes = [
 ]
 
 export const mapTypes = {
-    ground: '0'
+    ground: 0,
+    river: 1,
+    treasure: 2,
+    priorityTreasure: 3
 }
 
 export const actionTypes = {
