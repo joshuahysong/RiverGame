@@ -5,14 +5,14 @@ import helpers from '../../common/helpers'
 const state = () => ({
     map: [
         0,0,0,0,1,1,1,1,1,0,2,0,1,0,0,0,
-        0,2,0,0,1,0,0,0,0,0,0,0,1,0,0,2,
+        0,3,0,0,1,0,0,0,0,0,0,0,1,0,0,3,
         0,0,0,1,1,2,0,0,0,0,0,0,1,1,0,0,
         1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,
         0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
         1,1,1,1,0,0,0,0,2,0,0,0,1,1,1,0,
-        0,2,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
-        0,0,0,0,0,0,1,1,1,1,1,1,1,0,2,0,
+        0,3,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
+        0,0,0,0,0,0,1,1,1,1,1,1,1,0,3,0,
         0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0
     ],
@@ -330,20 +330,7 @@ const actions = {
         }
         if (currentActionType === actionTypes.takeTreasure) {
             if (clickedTile.isHighlighted) {
-                commit('removeTreasure')
-                commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], scoreName: 'treasure' }, { root: true })
-                commit('updateTile', { ...clickedTile, hasTreasure: false, isHighlighted: false })
-                commit('resetBoardTileHighlights')
-                commit('log/logActionMessage', {
-                    playerId: rootGetters['game/currentActionPlayerId'],
-                    text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(clickedTile.index)}`
-                }, { root: true })
-
-                dispatch('checkForTreasureToTake')
-                if (getters.treasuresToTake < 1) {
-                    commit('game/setCurrentActionPlayerId', rootGetters['game/activeTurnPlayerId'], { root: true })
-                    commit('game/setActionType', actionTypes.playTile, { root: true })
-                }
+                dispatch('takeTreasure', clickedTile)
             }
         }
         if (currentActionType === actionTypes.buildMonumentMultiple) {
@@ -483,7 +470,7 @@ const actions = {
             }
         }
     },
-    checkForTreasureToTake({getters, commit}) {
+    checkForTreasureToTake({getters, commit, dispatch}) {
         for (const region of getters.regions) {
             let tilesWithTreasure = []
             if (region && region.isKingdom) {
@@ -499,11 +486,22 @@ const actions = {
                     }
                 }
                 if (tilesWithTreasure.length > 1 && matchingTrader !== null) {
-                    for (let i = 0; i < tilesWithTreasure.length; i++) {
-                        commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
-                    }
                     commit('game/setCurrentActionPlayerId', matchingTrader.playerId, { root: true })
-                    commit('game/setActionType', actionTypes.takeTreasure, { root: true })
+                    const priorityTiles = tilesWithTreasure.filter(tile => getters.map[tile.index] === mapTypes.priorityTreasure)
+                    if (priorityTiles.length === 1) {
+                        dispatch('takeTreasure', priorityTiles[0])
+                    } else if (priorityTiles.length > 1) {
+                        if (priorityTiles.length)
+                        for (let i = 0; i < priorityTiles.length; i++) {
+                            commit('updateTile', { ...priorityTiles[i], isHighlighted: true })
+                        }
+                        commit('game/setActionType', actionTypes.takeTreasure, { root: true })
+                    } else {
+                        for (let i = 0; i < tilesWithTreasure.length; i++) {
+                            commit('updateTile', { ...tilesWithTreasure[i], isHighlighted: true })
+                        }
+                        commit('game/setActionType', actionTypes.takeTreasure, { root: true })
+                    }
                 }
             }
             commit('setTreasuresToTake', tilesWithTreasure.length - 1)
@@ -715,6 +713,22 @@ const actions = {
             text: `A War has begun between ${helpers.getLogToken(attacker)}
                 and ${helpers.getLogToken(defender)}`
         }, { root: true })
+    },
+    takeTreasure({getters, rootGetters, commit, dispatch}, tile) {
+        commit('removeTreasure')
+        commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], scoreName: 'treasure' }, { root: true })
+        commit('updateTile', { ...tile, hasTreasure: false, isHighlighted: false })
+        commit('resetBoardTileHighlights')
+        commit('log/logActionMessage', {
+            playerId: rootGetters['game/currentActionPlayerId'],
+            text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(tile.index)}`
+        }, { root: true })
+
+        dispatch('checkForTreasureToTake')
+        if (getters.treasuresToTake < 1) {
+            commit('game/setCurrentActionPlayerId', rootGetters['game/activeTurnPlayerId'], { root: true })
+            commit('game/setActionType', actionTypes.playTile, { root: true })
+        }
     }
 }
 

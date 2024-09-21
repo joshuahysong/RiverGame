@@ -57,12 +57,14 @@ export default {
     },
     data() {
         return {
+            isPriorityTreasureSquare: false,
             isRiverTile: false,
             riverPath: null
         }
     },
     mounted() {
         this.isRiverTile = this.mapSquareType === mapTypes.river
+        this.isPriorityTreasureSquare = this.mapSquareType === mapTypes.priorityTreasure
         if (this.isRiverTile) {
             this.riverPath = this.$store.getters['board/getRiverPath'](this.index)
         }
@@ -157,6 +159,8 @@ export default {
             let availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
             if (availableTileLocations && availableTileLocations.includes(this.index))
                 mapClass += ' valid-location'
+            if (this.isPriorityTreasureSquare && this.tile && this.tile.hasTreasure)
+                mapClass += ' priority-treasure'
             return mapClass;
         },
         doMapSquareClick() {
@@ -173,15 +177,23 @@ export default {
     .ground {
         background: BurlyWood;
     }
+
     .water {
         background: PaleTurquoise;
     }
+
     .valid-location {
         box-shadow: inset -1px -1px 100px 100px rgb(0 255 255 / 35%);
     }
+
+    .priority-treasure {
+        box-shadow: inset 0px 0px 0px 10px white
+    }
+
     .map-square {
         position: relative;
     }
+
     .coordinates {
         cursor: default;
         height: 95%;
@@ -208,36 +220,43 @@ export default {
         position: absolute;
         z-index: 2;
     }
+
     .river-horizontal {
         top: 25%;
         height: 50%;
         width: 100%;
     }
+
     .river-vertical {
         left: 25%;
         height: 100%;
         width: 50%;
     }
+
     .river-horizontal-right {
         height: 50%;
         width: 75%;
         right: 0;
     }
+
     .river-horizontal-left {
         height: 50%;
         width: 75%;
         left: 0;
     }
+
     .river-vertical-top {
         height: 75%;
         width: 50%;
         top: 0;
     }
+
     .river-vertical-bottom {
         height: 75%;
         width: 50%;
         bottom: 0;
     }
+
     .kingdom {
         height: 100%;
         width: 100%;

@@ -176,11 +176,12 @@ export default {
                     text: `Game has ended due to ${this.remainingTreasures.remainingTreasures} treasure remaining on the board`
                 }, { root: true })
                 this.$store.commit('game/setActionType', actionTypes.gameOver)
+                this.$store.dispatch('game/save')
             }
             await this.$store.dispatch('players/refillPlayerHands')
-            this.$store.dispatch('game/save')
             if (this.currentActionType !== actionTypes.gameOver) {
                 this.$store.commit('game/nextActivePlayer')
+                this.$store.dispatch('game/save')
             }
         },
         async showPassTurnMessageBox() {
