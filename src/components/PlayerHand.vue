@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div v-if="player" class="card">
         <div class="card-header bg-transparent border-0 py-2"><strong>Hand</strong></div>
         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
             <div v-if="visiblePlayerId !== player.id" class="row no-gutters">

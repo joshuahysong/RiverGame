@@ -1,34 +1,6 @@
 <template>
     <div>
-        <!-- navbar -->
-        <b-navbar toggleable="sm" type="dark" variant="dark" sticky>
-            <b-button size="sm" @click="startNewGame">New Game</b-button>
-            <b-navbar-nav class="ml-auto">
-                <b-nav-item-dropdown right>
-                    <template #button-content>
-                        <b-icon-gear-fill />
-                    </template>
-                    <b-dropdown-form form-class="px-3" style="width: 200px">
-                        <b-form-checkbox v-model="showCoordinates" class="small" @change="saveSettings">
-                            Show Coordinates
-                        </b-form-checkbox>
-                        <b-form-checkbox v-if="debug" v-model="showIndexes" class="small" @change="saveSettings">
-                            Show Indexes
-                        </b-form-checkbox>
-                        <b-form-checkbox v-model="showKingdoms" class="small" @change="saveSettings">
-                            Show Kingdoms
-                        </b-form-checkbox>
-                        <b-form-checkbox v-model="showLogTimestamps" class="small" @change="saveSettings">
-                            Show Log Timestamps
-                        </b-form-checkbox>
-                        <b-form-checkbox v-model="showLeaderStrength" class="small" @change="saveSettings">
-                            Show Leader Strength
-                        </b-form-checkbox>
-                    </b-dropdown-form>
-                </b-nav-item-dropdown>
-                <b-button v-if="debug" size="sm" class="my-2 my-sm-0 mx-2" v-b-toggle.debug-sidebar>Debug</b-button>
-            </b-navbar-nav>
-        </b-navbar>
+        <nav-bar @new-game="startNewGame" />
         <!-- main page -->
         <div class="main-app container-fluid text-center mb-5 p-0">
             <action-bar v-if="!showGameEnd" />
@@ -64,15 +36,7 @@
                             <monument-card />
                         </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pr-xl-3">
-                            <player-hand v-if="getPlayer(actionPlayerId)?.isHuman"
-                                :player="getPlayer(actionPlayerId)" selectable/>
-                            <div v-else class="card">
-                                <div class="card-body">
-                                    <div class="row align-items-center justify-content-center hand-empty">
-                                        Player {{ actionPlayerId }}'s turn
-                                    </div>
-                                </div>
-                            </div>
+                            <player-hand :player="getPlayer(actionPlayerId)" selectable/>
                         </div>
                         <div class="col-12 mt-3 pr-3 d-none d-xl-block">
                             <monument-card />
@@ -103,33 +67,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Temprary feature list -->
-            <div class="row no-gutters mt-2">
-                <div class="col-12 col-sm-8 col-lg-4 offset-0 offset-sm-2 mt-2 px-1">
-                    <div class="card">
-                        <div class="card-header bg-transparent py-2"><strong>Missing MVP Features</strong></div>
-                        <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Bots</li>
-                                <li class="list-group-item">Game Setup Screen</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <b-sidebar
-                id="debug-sidebar"
-                right shadow no-header
-                sidebar-class="border-left border-dark text-left mt-5">
-                <div class="px-3 py-2">
-                    Number of Players: {{ numberOfPlayers }}<br />
-                    Current Action Type: {{ actionTypeName }}<br />
-                    Current Turn PlayerId: {{ turnPlayerId }}<br />
-                    Current Visible PlayerId: {{ visiblePlayerId }}<br />
-                    Current Action PlayerId: {{ actionPlayerId }}<br />
-                    Bag: {{ debugBagStats }}<br />
-                </div>
-            </b-sidebar>
         </div>
         <!-- footer -->
         <b-navbar type="light" variant="light" fixed="bottom" class="border-top py-0">
@@ -147,11 +84,11 @@ import GameEnd from './components/GameEnd.vue'
 import GameLog from './components/GameLog.vue'
 import MapSquare from './components/MapSquare.vue'
 import MonumentCard from './components/MonumentCard.vue'
+import NavBar from './components/NavBar.vue'
 import PlayerHand from './components/PlayerHand.vue'
 import PlayerCard from './components/PlayerCard.vue'
 import ProgressCard from './components/ProgressCard.vue'
 import WarBoard from './components/WarBoard.vue'
-import helpers from './common/helpers'
 import { actionTypes, conflictTypes } from './common/constants'
 
 export default {
@@ -162,18 +99,11 @@ export default {
         GameLog,
         MapSquare,
         MonumentCard,
+        NavBar,
         PlayerHand,
         PlayerCard,
         ProgressCard,
         WarBoard
-    },
-    data() {
-        return {
-            showPlayerMessage: false,
-            playerMessage: '',
-            showPlayerActionButton: false,
-            messagePlayerId: 0
-        }
     },
     async mounted() {
         if (this.isSaveValid) {
@@ -184,9 +114,6 @@ export default {
         this.$store.dispatch('settings/load')
     },
     computed: {
-        ...mapGetters('bag', [
-            'debugBagStats'
-        ]),
         ...mapGetters('board', [
             'map',
             'tiles'
@@ -195,60 +122,14 @@ export default {
             allPlayers: 'all'
         }),
         ...mapGetters('game', [
-            'debug',
             'isSaveValid',
-            'numberOfPlayers',
-            'turnPlayerId',
             'visiblePlayerId',
             'currentActionType',
             'actionPlayerId',
             'conflictType'
         ]),
-        actionTypeName() {
-            return helpers.getActionNameByType(this.currentActionType)
-        },
         appVersion() {
             return process.env.VUE_APP_VERSION
-        },
-        showCoordinates: {
-            get () {
-                return this.$store.getters['settings/showCoordinates']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowCoordinates', value)
-            }
-        },
-        showIndexes: {
-            get () {
-                return this.$store.getters['settings/showIndexes']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowIndexes', value)
-            }
-        },
-        showKingdoms: {
-            get () {
-                return this.$store.getters['settings/showKingdoms']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowKingdoms', value)
-            }
-        },
-        showLogTimestamps: {
-            get () {
-                return this.$store.getters['settings/showLogTimestamps']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowLogTimestamps', value)
-            }
-        },
-        showLeaderStrength: {
-            get () {
-                return this.$store.getters['settings/showLeaderStrength']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowLeaderStrength', value)
-            }
         },
         showMonumentsAboveHand() {
             return this.currentActionType === actionTypes.buildMonument ||
@@ -286,9 +167,6 @@ export default {
             this.$store.commit('bag/setStartingBag')
             this.$store.dispatch('game/save')
             this.$store.commit('log/logSystemMessage', 'New Game Started')
-        },
-        saveSettings() {
-            this.$store.dispatch('settings/save')
         }
     }
 }
@@ -336,10 +214,6 @@ export default {
         justify-content: center;
         align-items: center;
         display: flex;
-    }
-
-    .hand-empty {
-        height: 80px;
     }
 </style>
 
