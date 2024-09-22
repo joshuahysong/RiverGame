@@ -2,7 +2,25 @@
     <div class="card">
         <div class="card-header bg-transparent border-0 py-2"><strong>Hand</strong></div>
         <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-            <div class="row no-gutters">
+            <div v-if="visiblePlayerId !== player.id" class="row no-gutters">
+                <div class="col">
+                    <div class="row no-gutters justify-content-center align-items-center">
+                        <div class="col-auto col-xl-12">
+                            <b-icon :icon="leaderIcon" class="mr-2" />{{ player.name  }}'s Turn
+                        </div>
+                        <div v-if="player.isHuman" class="col-auto col-xl-12 pl-2 pl-xl-0">
+                            <b-button
+                                variant="success"
+                                size="sm"
+                                @click="setPlayerVisible"
+                                class="mt-0 mt-xl-2">
+                                Continue
+                            </b-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="row no-gutters">
                 <div class="col-auto col-xl-12 align-self-center justify-content-center">
                     <div class="row no-gutters">
                         <div class="col-auto col-xl-12 text-right text-xl-center">
@@ -116,6 +134,7 @@ export default {
     },
     computed: {
         ...mapGetters('game', [
+            'visiblePlayerId',
             'remainingActions',
             'currentActionType',
             'conflictTileType'
@@ -123,6 +142,9 @@ export default {
         ...mapGetters('board', [
             'tiles',
         ]),
+        leaderIcon() {
+            return helpers.getPlayerIconNameById(this.player.id)
+        },
         tileTypes() {
             return tileTypes
         },
@@ -144,6 +166,9 @@ export default {
         }
     },
     methods:{
+        setPlayerVisible() {
+            this.$store.commit('game/setVisiblePlayerId', this.player.id)
+        },
         isSelectedTile(index, tileType) {
             return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.tileType === tileType)
         },
@@ -206,3 +231,13 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+
+
+@media (min-width: 1200px) {
+    .card {
+        height: 335px;
+    }
+}
+</style>

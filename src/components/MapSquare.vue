@@ -81,7 +81,9 @@ export default {
         ]),
         ...mapGetters('game', [
             'debug',
-            'currentActionType'
+            'currentActionType',
+            'actionPlayerId',
+            'visiblePlayerId'
         ]),
         ...mapGetters('board', [
             'conflictTile'
@@ -164,7 +166,8 @@ export default {
             return mapClass;
         },
         doMapSquareClick() {
-            this.$store.dispatch('board/handleBoardClick', this.tile)
+            if (this.actionPlayerId === this.visiblePlayerId)
+                this.$store.dispatch('board/handleBoardClick', this.tile)
         },
         getPlayer() {
             return this.$store.getters['players/getPlayer'](this.tile.playerId)

@@ -486,7 +486,7 @@ const actions = {
                     }
                 }
                 if (tilesWithTreasure.length > 1 && matchingTrader !== null) {
-                    commit('game/setCurrentActionPlayerId', matchingTrader.playerId, { root: true })
+                    commit('game/setActionPlayerId', matchingTrader.playerId, { root: true })
                     const priorityTiles = tilesWithTreasure.filter(tile => getters.map[tile.index] === mapTypes.priorityTreasure)
                     if (priorityTiles.length === 1) {
                         dispatch('takeTreasure', priorityTiles[0])
@@ -554,7 +554,7 @@ const actions = {
         commit('game/resetSelectedMonumentType', null, { root: true })
 
         commit('log/logActionMessage', {
-            playerId: rootGetters['game/currentActionPlayerId'],
+            playerId: rootGetters['game/actionPlayerId'],
             text: `built ${helpers.getMonumentNameByType(payload.monumentType)} monument at ${helpers.getCoordinatesByIndex(payload.index)}`
         }, { root: true })
 
@@ -565,7 +565,7 @@ const actions = {
         dispatch('checkForTreasureToTake')
     },
     checkForMonumentScore({getters, rootGetters, commit}) {
-        let playerId = rootGetters['game/currentActionPlayerId']
+        let playerId = rootGetters['game/actionPlayerId']
         let kingdoms = getters.kingdoms
         kingdoms.forEach(kingdom => {
             let playerLeaders = []
@@ -627,7 +627,7 @@ const actions = {
                 commit('updateTile', { ...tile, isHighlighted: true })
                 commit('updateTile', { ...matchingDefenderLeader, isHighlighted: true })
                 commit('game/resetConflictData', null, { root: true })
-                commit('game/setCurrentActionPlayerId', tile.playerId, { root: true })
+                commit('game/setActionPlayerId', tile.playerId, { root: true })
                 commit('game/setConflictAttackerLeader', tile, { root: true })
                 commit('game/setConflictDefenderLeader', matchingDefenderLeader, { root: true })
                 commit('game/setConflictAttackerBoardTiles', getters.getRevoltBoardStrength(tile), { root: true })
@@ -700,8 +700,7 @@ const actions = {
         const defender = { ...payload.defender }
         commit('updateTile', { ...attacker, isHighlighted: true })
         commit('updateTile', { ...defender, isHighlighted: true })
-        commit('game/setCurrentActionPlayerId', attacker.playerId, { root: true })
-        commit('game/setCurrentHandDisplayPlayerId', attacker.playerId, { root: true })
+        commit('game/setActionPlayerId', attacker.playerId, { root: true })
         commit('game/setConflictAttackerLeader', attacker, { root: true })
         commit('game/setConflictDefenderLeader', defender, {root: true })
         commit('game/setConflictAttackerBoardTiles', getters.getWarBoardStrength(attacker), { root: true })
@@ -716,17 +715,17 @@ const actions = {
     },
     takeTreasure({getters, rootGetters, commit, dispatch}, tile) {
         commit('removeTreasure')
-        commit('players/incrementScore', { playerId: rootGetters['game/currentActionPlayerId'], scoreName: 'treasure' }, { root: true })
+        commit('players/incrementScore', { playerId: rootGetters['game/actionPlayerId'], scoreName: 'treasure' }, { root: true })
         commit('updateTile', { ...tile, hasTreasure: false, isHighlighted: false })
         commit('resetBoardTileHighlights')
         commit('log/logActionMessage', {
-            playerId: rootGetters['game/currentActionPlayerId'],
+            playerId: rootGetters['game/actionPlayerId'],
             text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(tile.index)}`
         }, { root: true })
 
         dispatch('checkForTreasureToTake')
         if (getters.treasuresToTake < 1) {
-            commit('game/setCurrentActionPlayerId', rootGetters['game/activeTurnPlayerId'], { root: true })
+            commit('game/setActionPlayerId', rootGetters['game/turnPlayerId'], { root: true })
             commit('game/setActionType', actionTypes.playTile, { root: true })
         }
     }

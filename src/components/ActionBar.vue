@@ -24,78 +24,80 @@
                 {{playerName}}: Select which leaders must battle first.
             </div>
         </div>
-        <div v-if="showCurrentPlayerMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
-            <b-button
-                variant="primary"
-                size="sm"
-                @click="beginSwapTiles"
-                :disabled="areActionsDepleted"
-                class="mr-2">
-                Swap Tiles
-            </b-button>
-            <b-button
-                variant="warning"
-                size="sm"
-                @click="undoLastAction"
-                :disabled="!hasSnapshot"
-                class="mr-2">
-                Undo
-            </b-button>
-            <b-button
-                variant="danger"
-                size="sm"
-                :hidden="areActionsDepleted"
-                @click="showPassTurnMessageBox"
-                class="mr-2">
-                Pass
-            </b-button>
-            <b-button
-                variant="success"
-                size="sm"
-                :hidden="!areActionsDepleted"
-                @click="doEndTurn">
-                End Turn
-            </b-button>
-        </div>
-        <div v-if="showBuildMonumentMessage || showBuildMonumentMultipleMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
-            <b-button
-                variant="warning"
-                size="sm"
-                @click="passMonumentBuilding">
-                Pass
-            </b-button>
-        </div>
-        <div v-if="showSwapTilesMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
-            <b-button
-                variant="warning"
-                size="sm"
-                @click="stopSwapTiles"
-                class="mr-2">
-                Cancel
-            </b-button>
-            <b-button
-                variant="danger"
-                size="sm"
-                @click="doSwapTiles">
-                Discard {{ player.selectedTiles.length }} Tile{{ player.selectedTiles.length === 1 ? '' : 's' }}
-            </b-button>
-        </div>
-        <div v-if="showWarMessage" class="col-12 col-sm-auto pt-1 pt-sm-0">
-            <b-button
-                v-if="showRevoltAttackMessage"
-                variant="warning"
-                size="sm"
-                @click="undoLastAction"
-                :disabled="!hasSnapshot"
-                class="mr-2">
-                Undo
-            </b-button>
-            <b-button
-                variant="success"
-                size="sm"
-                @click="commitTilesToConflict">
-                Commit {{ player.selectedTiles.length}} Tiles
-            </b-button>
+        <div v-if="showPlayerActionButtons" class="col-12 col-sm-auto pt-1 pt-sm-0">
+            <div v-if="showCurrentPlayerMessage">
+                <b-button
+                    variant="primary"
+                    size="sm"
+                    @click="beginSwapTiles"
+                    :disabled="areActionsDepleted"
+                    class="mr-2">
+                    Swap Tiles
+                </b-button>
+                <b-button
+                    variant="warning"
+                    size="sm"
+                    @click="undoLastAction"
+                    :disabled="!hasSnapshot"
+                    class="mr-2">
+                    Undo
+                </b-button>
+                <b-button
+                    variant="danger"
+                    size="sm"
+                    :hidden="areActionsDepleted"
+                    @click="showPassTurnMessageBox"
+                    class="mr-2">
+                    Pass
+                </b-button>
+                <b-button
+                    variant="success"
+                    size="sm"
+                    :hidden="!areActionsDepleted"
+                    @click="doEndTurn">
+                    End Turn
+                </b-button>
+            </div>
+            <div v-if="showBuildMonumentMessage || showBuildMonumentMultipleMessage">
+                <b-button
+                    variant="warning"
+                    size="sm"
+                    @click="passMonumentBuilding">
+                    Pass
+                </b-button>
+            </div>
+            <div v-if="showSwapTilesMessage">
+                <b-button
+                    variant="warning"
+                    size="sm"
+                    @click="stopSwapTiles"
+                    class="mr-2">
+                    Cancel
+                </b-button>
+                <b-button
+                    variant="danger"
+                    size="sm"
+                    @click="doSwapTiles">
+                    Discard {{ player.selectedTiles.length }} Tile{{ player.selectedTiles.length === 1 ? '' : 's' }}
+                </b-button>
+            </div>
+            <div v-if="showWarMessage">
+                <b-button
+                    v-if="showRevoltAttackMessage"
+                    variant="warning"
+                    size="sm"
+                    @click="undoLastAction"
+                    :disabled="!hasSnapshot"
+                    class="mr-2">
+                    Undo
+                </b-button>
+                <b-button
+                    variant="success"
+                    size="sm"
+                    @click="commitTilesToConflict">
+                    Commit {{ player.selectedTiles.length}} Tiles
+                </b-button>
+            </div>
         </div>
     </div>
 </template>
@@ -110,9 +112,10 @@ export default {
     computed: {
         ...mapGetters('game', [
             'remainingActions',
-            'activeTurnPlayerId',
+            'turnPlayerId',
+            'actionPlayerId',
+            'visiblePlayerId',
             'currentActionType',
-            'currentActionPlayerId',
             'hasSnapshot',
             'conflictAttackerLeader',
             'conflictDefenderLeader',
@@ -126,10 +129,10 @@ export default {
             'remainingTreasures'
         ]),
         leaderIcon() {
-            return helpers.getPlayerIconNameById(this.currentActionPlayerId)
+            return helpers.getPlayerIconNameById(this.actionPlayerId)
         },
         player() {
-            return this.$store.getters['players/getPlayer'](this.currentActionPlayerId)
+            return this.$store.getters['players/getPlayer'](this.actionPlayerId)
         },
         playerName() {
             return this.player?.name
@@ -147,6 +150,9 @@ export default {
         },
         warTileType() {
             return helpers.getTileNameByType(this.conflictTileType)
+        },
+        showPlayerActionButtons() {
+            return this.visiblePlayerId === this.actionPlayerId
         },
         showCurrentPlayerMessage() { return this.currentActionType === actionTypes.playTile },
         showTakeTreasureMessage() { return this.currentActionType === actionTypes.takeTreasure },
@@ -217,7 +223,7 @@ export default {
             this.$store.commit('game/actionCompleted')
             this.$store.commit('board/checkForTreasureToTake')
         },
-        beginSwapTiles(){
+        beginSwapTiles() {
             this.$store.commit('board/resetAvailableTileLocations')
             this.$store.commit('board/resetBoardTileHighlights')
             this.$store.commit('players/clearTileSelection', this.player.id)
@@ -248,8 +254,7 @@ export default {
                 this.$store.commit('game/setConflictAttackerTiles', this.player.selectedTiles)
                 this.$store.commit('players/removeTilesFromHand', { playerId: this.player.id, tilesToRemove: [...this.player.selectedTiles] })
                 this.$store.commit('players/clearTileSelection', this.player.id)
-                this.$store.commit('game/setCurrentActionPlayerId', this.conflictDefenderLeader.playerId)
-                this.$store.commit('game/setCurrentHandDisplayPlayerId', this.conflictDefenderLeader.playerId)
+                this.$store.commit('game/setActionPlayerId', this.conflictDefenderLeader.playerId)
                 this.$store.commit('game/setActionType', actionTypes.conflictDefend)
             } else if (this.currentActionType === actionTypes.conflictDefend) {
                 this.$store.commit('game/setConflictDefenderTiles', this.player.selectedTiles)
@@ -258,8 +263,7 @@ export default {
                 this.$store.dispatch('game/resolveConflict')
                 this.$store.dispatch('board/checkForWar', this.conflictTile)
                 if (this.currentActionType !== actionTypes.conflictAttack && this.currentActionType !== actionTypes.conflictChooseLeader) {
-                    this.$store.commit('game/setCurrentActionPlayerId', this.activeTurnPlayerId)
-                    this.$store.commit('game/setCurrentHandDisplayPlayerId', this.activeTurnPlayerId)
+                    this.$store.commit('game/setActionPlayerId', this.turnPlayerId)
                     this.$store.commit('game/setActionType', actionTypes.playTile)
                     this.$store.commit('game/actionCompleted')
                     this.$store.dispatch('board/checkForTreasureToTake')

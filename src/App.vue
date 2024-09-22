@@ -64,12 +64,12 @@
                             <monument-card />
                         </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pr-xl-3">
-                            <player-hand v-if="getPlayer(currentHandDisplayPlayerId)?.isHuman"
-                                :player="getPlayer(currentHandDisplayPlayerId)" selectable/>
+                            <player-hand v-if="getPlayer(actionPlayerId)?.isHuman"
+                                :player="getPlayer(actionPlayerId)" selectable/>
                             <div v-else class="card">
                                 <div class="card-body">
                                     <div class="row align-items-center justify-content-center hand-empty">
-                                        Player {{ currentActionPlayerId }}'s turn
+                                        Player {{ actionPlayerId }}'s turn
                                     </div>
                                 </div>
                             </div>
@@ -88,8 +88,8 @@
                             class="col-6 col-lg-12 px-1">
                             <player-card
                                 :player="getPlayer(player?.id)"
-                                :show-score="player?.id === currentActionPlayerId"
-                                :class="{'border-danger': player?.id === currentActionPlayerId}" />
+                                :show-score="player?.id === visiblePlayerId && player?.id === actionPlayerId"
+                                :class="{'border-danger': player?.id === actionPlayerId}" />
                         </div>
                         <div class="col-6 col-lg-12 px-1 mt-2 d-block d-xl-none">
                             <monument-card class="h-100" />
@@ -124,9 +124,9 @@
                 <div class="px-3 py-2">
                     Number of Players: {{ numberOfPlayers }}<br />
                     Current Action Type: {{ actionTypeName }}<br />
-                    Current Turn PlayerId: {{ activeTurnPlayerId }}<br />
-                    Current Hand PlayerId: {{ currentHandDisplayPlayerId }}<br />
-                    Current Action PlayerId: {{ currentActionPlayerId }}<br />
+                    Current Turn PlayerId: {{ turnPlayerId }}<br />
+                    Current Visible PlayerId: {{ visiblePlayerId }}<br />
+                    Current Action PlayerId: {{ actionPlayerId }}<br />
                     Bag: {{ debugBagStats }}<br />
                 </div>
             </b-sidebar>
@@ -198,10 +198,10 @@ export default {
             'debug',
             'isSaveValid',
             'numberOfPlayers',
-            'activeTurnPlayerId',
+            'turnPlayerId',
+            'visiblePlayerId',
             'currentActionType',
-            'currentHandDisplayPlayerId',
-            'currentActionPlayerId',
+            'actionPlayerId',
             'conflictType'
         ]),
         actionTypeName() {

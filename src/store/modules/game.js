@@ -4,9 +4,9 @@ import helpers from '../../common/helpers'
 const DEBUG = false
 
 const state = () => ({
-    activeTurnPlayerId: 0,
-    currentActionPlayerId: 0,
-    currentHandDisplayPlayerId: 0,
+    turnPlayerId: 0,
+    actionPlayerId: 0,
+    visiblePlayerId: 0,
     numberOfPlayers: 0,
     remainingActions: 0,
     currentActionType: actionTypes.loading,
@@ -25,9 +25,9 @@ const state = () => ({
 })
 
 const defaultState = {
-    activeTurnPlayerId: 1,
-    currentActionPlayerId: 1,
-    currentHandDisplayPlayerId: 1,
+    turnPlayerId: 1,
+    actionPlayerId: 1,
+    visiblePlayerId: 0,
     numberOfPlayers: 0,
     remainingActions: 2,
     currentActionType: actionTypes.playTile,
@@ -66,20 +66,20 @@ const getters = {
     currentActionType(state) {
         return state.currentActionType
     },
-    activeTurnPlayerId(state) {
-        return state.activeTurnPlayerId
+    turnPlayerId(state) {
+        return state.turnPlayerId
+    },
+    actionPlayerId: (state) => {
+        return state.actionPlayerId
+    },
+    visiblePlayerId: (state) => {
+        return state.visiblePlayerId
     },
     remainingActions(state) {
         return state.remainingActions
     },
     numberOfPlayers(state) {
         return state.numberOfPlayers
-    },
-    currentActionPlayerId: (state) => {
-        return state.currentActionPlayerId
-    },
-    currentHandDisplayPlayerId: (state) => {
-        return state.currentHandDisplayPlayerId
     },
     conflictAttackerLeader: (state) => {
         return state.conflictAttackerLeader
@@ -160,9 +160,9 @@ const actions = {
         snapshot.tiles = [...rootGetters['board/tiles']]
         snapshot.bag = rootGetters['bag/all']
         snapshot.game = {}
-        snapshot.game.activeTurnPlayerId = state.activeTurnPlayerId,
-        snapshot.game.currentActionPlayerId = state.currentActionPlayerId,
-        snapshot.game.currentHandDisplayPlayerId = state.currentHandDisplayPlayerId,
+        snapshot.game.turnPlayerId = state.turnPlayerId,
+        snapshot.game.actionPlayerId = state.actionPlayerId,
+        snapshot.game.visiblePlayerId = state.visiblePlayerId,
         snapshot.game.remainingActions = state.remainingActions,
         snapshot.game.currentActionType = state.currentActionType,
         snapshot.game.conflictAttackerLeader = { ...state.conflictAttackerLeader },
@@ -241,11 +241,10 @@ const actions = {
 
 const mutations = {
     nextActivePlayer(state) {
-        let activeTurnPlayerId = state.activeTurnPlayerId >= state.numberOfPlayers
-            ? 1 : state.activeTurnPlayerId + 1
-        state.activeTurnPlayerId = activeTurnPlayerId
-        state.currentActionPlayerId = activeTurnPlayerId
-        state.currentHandDisplayPlayerId = activeTurnPlayerId
+        let turnPlayerId = state.turnPlayerId >= state.numberOfPlayers
+            ? 1 : state.turnPlayerId + 1
+        state.turnPlayerId = turnPlayerId
+        state.actionPlayerId = turnPlayerId
         state.remainingActions = 2
         state.currentActionType = actionTypes.playTile
     },
@@ -261,11 +260,13 @@ const mutations = {
     setState(state, newState) {
         Object.assign(state, newState)
     },
-    setCurrentActionPlayerId(state, playerId) {
-        state.currentActionPlayerId = playerId
+    setActionPlayerId(state, playerId) {
+        if (state.visiblePlayerId !== playerId)
+            state.visiblePlayerId = 0
+        state.actionPlayerId = playerId
     },
-    setCurrentHandDisplayPlayerId(state, playerId) {
-        state.currentHandDisplayPlayerId = playerId
+    setVisiblePlayerId(state, playerId) {
+        state.visiblePlayerId = playerId
     },
     setConflictAttackerLeader(state, leader) {
         state.conflictAttackerLeader = { ...leader }
