@@ -6,7 +6,7 @@ const state = () => ({
 
 const getters = {
     currentPlayer: (state, getters, rootState, rootGetters) => {
-        let turnPlayerId = rootGetters['game/turnPlayerId']
+        let turnPlayerId = rootGetters['game/actionPlayerId']
         if (state.players.filter(x => x.id === turnPlayerId).length > 0){
             return state.players.filter(x => x.id === turnPlayerId)[0]
         }

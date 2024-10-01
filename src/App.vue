@@ -36,7 +36,7 @@
                             <monument-card />
                         </div>
                         <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pr-xl-3">
-                            <player-hand :player="getPlayer(actionPlayerId)" selectable/>
+                            <player-hand :player="getPlayer(actionPlayerId)" selectable />
                         </div>
                         <div class="col-12 mt-3 pr-3 d-none d-xl-block">
                             <monument-card />
@@ -50,10 +50,12 @@
                             :key="index"
                             :class="index != 0 ? 'mt-2' : 'mt-2 mt-lg-0'"
                             class="col-6 col-lg-12 px-1">
-                            <player-card
+                            <player-card v-if="player.isHuman"
                                 :player="getPlayer(player?.id)"
                                 :show-score="player?.id === visiblePlayerId && player?.id === actionPlayerId"
                                 :class="{'border-danger': player?.id === actionPlayerId}" />
+                            <bot-card v-else :player="getPlayer(player?.id)"
+                                :class="{'border-danger': player?.id === actionPlayerId}"  />
                         </div>
                         <div class="col-6 col-lg-12 px-1 mt-2 d-block d-xl-none">
                             <monument-card class="h-100" />
@@ -80,6 +82,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import ActionBar from './components/ActionBar.vue'
+import BotCard from './components/BotCard.vue'
 import GameEnd from './components/GameEnd.vue'
 import GameLog from './components/GameLog.vue'
 import MapSquare from './components/MapSquare.vue'
@@ -95,6 +98,7 @@ export default {
     name: 'App',
     components: {
         ActionBar,
+        BotCard,
         GameEnd,
         GameLog,
         MapSquare,
@@ -161,9 +165,9 @@ export default {
             this.$store.dispatch('bag/init')
             this.$store.commit('players/clearPlayers')
             await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 1', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 2', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 3', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: true })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 2', isHuman: false })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 3', isHuman: false })
+            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: false })
             this.$store.commit('bag/setStartingBag')
             this.$store.dispatch('game/save')
             this.$store.commit('log/logSystemMessage', 'New Game Started')

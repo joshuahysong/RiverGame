@@ -115,7 +115,7 @@ export default {
                     this.availableMonumentLocations.forEach(location => {
                         let tile = this.$store.getters['board/tile'](location.index)
                         this.$store.commit('board/updateTile', { ...tile, isHighlighted: true })
-                        this.$store.commit('game/setActionType', actionTypes.buildMonumentMultiple)
+                        this.$store.commit('game/setAction', { actionType: actionTypes.buildMonumentMultiple })
                     })
                 }
             }

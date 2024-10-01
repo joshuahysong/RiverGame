@@ -6,7 +6,7 @@
                 <div class="col">
                     <div class="row no-gutters justify-content-center align-items-center">
                         <div class="col-auto col-xl-12">
-                            <b-icon :icon="leaderIcon" class="mr-2" />{{ player.name  }}'s Turn
+                            <b-icon :icon="leaderIcon" class="mr-2" />{{ player.name }}'s Turn
                         </div>
                         <div v-if="player.isHuman" class="col-auto col-xl-12 pl-2 pl-xl-0">
                             <b-button

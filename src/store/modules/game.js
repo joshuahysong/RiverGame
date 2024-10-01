@@ -135,7 +135,7 @@ const actions = {
         localStorage.gameState = JSON.stringify(gameState);
     },
     load({commit, dispatch}) {
-        commit('setActionType', actionTypes.loading)
+        commit('setAction', { actionType: actionTypes.loading })
         if (localStorage.gameState) {
             let gameState = JSON.parse(localStorage.gameState);
             commit('players/loadPlayers', gameState.players, { root: true })
@@ -254,16 +254,16 @@ const mutations = {
     actionCompleted(state) {
         state.remainingActions--
     },
-    setActionType(state, actionType) {
-        state.currentActionType = actionType
+    setAction(state, payload) {
+        if (payload.playerId) {
+            if (state.visiblePlayerId !== payload.playerId)
+                state.visiblePlayerId = 0
+            state.actionPlayerId = payload.playerId
+        }
+        state.currentActionType = payload.actionType
     },
     setState(state, newState) {
         Object.assign(state, newState)
-    },
-    setActionPlayerId(state, playerId) {
-        if (state.visiblePlayerId !== playerId)
-            state.visiblePlayerId = 0
-        state.actionPlayerId = playerId
     },
     setVisiblePlayerId(state, playerId) {
         state.visiblePlayerId = playerId
