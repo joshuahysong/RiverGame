@@ -7,7 +7,13 @@ declare module '*.vue' {
 }
 
 interface ImportMetaEnv {
-  readonly VITE_APP_VERSION?: string
+  readonly VITE_APP_VERSION: string
+  readonly VITE_APP_TITLE?: string
+  readonly MODE: string
+  readonly BASE_URL: string
+  readonly PROD: boolean
+  readonly DEV: boolean
+  readonly SSR: boolean
 }
 
 interface ImportMeta {

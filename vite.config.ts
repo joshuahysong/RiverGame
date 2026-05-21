@@ -7,6 +7,7 @@ import { BootstrapVueNextResolver } from 'bootstrap-vue-next/resolvers'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  envPrefix: 'VITE_',
   plugins: [
     vue(),
     Components({
@@ -40,7 +41,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild',
   },
   define: {
     __VUE_OPTIONS_API__: false,

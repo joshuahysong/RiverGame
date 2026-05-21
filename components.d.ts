@@ -17,7 +17,6 @@ declare module 'vue' {
     BDropdownForm: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownForm']
     BFormCheckbox: typeof import('bootstrap-vue-next/components/BFormCheckbox')['BFormCheckbox']
     BIcon: typeof import('./src/components/stubs/BIcon.vue')['default']
-    BIconGearFill: typeof import('./src/components/stubs/BIconGearFill.vue')['default']
     BIconstack: typeof import('./src/components/stubs/BIconstack.vue')['default']
     BNavbar: typeof import('bootstrap-vue-next/components/BNavbar')['BNavbar']
     BNavbarNav: typeof import('bootstrap-vue-next/components/BNavbar')['BNavbarNav']
@@ -25,7 +24,6 @@ declare module 'vue' {
     BNavText: typeof import('bootstrap-vue-next/components/BNav')['BNavText']
     BOffcanvas: typeof import('bootstrap-vue-next/components/BOffcanvas')['BOffcanvas']
     BProgress: typeof import('bootstrap-vue-next/components/BProgress')['BProgress']
-    BSidebar: typeof import('./src/components/stubs/BSidebar.vue')['default']
     CivilizationTile: typeof import('./src/components/CivilizationTile.vue')['default']
     GameEnd: typeof import('./src/components/GameEnd.vue')['default']
     GameLog: typeof import('./src/components/GameLog.vue')['default']
@@ -39,8 +37,5 @@ declare module 'vue' {
     PlayerHand: typeof import('./src/components/PlayerHand.vue')['default']
     ProgressCard: typeof import('./src/components/ProgressCard.vue')['default']
     WarBoard: typeof import('./src/components/WarBoard.vue')['default']
-  }
-  export interface GlobalDirectives {
-    vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
   }
 }
