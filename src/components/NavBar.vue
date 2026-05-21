@@ -15,7 +15,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template #button-content>
-            <b-icon-gear-fill />
+            <i-bi-gear-fill />
           </template>
           <b-dropdown-form
             form-class="px-3"
@@ -61,21 +61,21 @@
         </b-nav-item-dropdown>
         <b-button
           v-if="debug"
-          v-b-toggle.debug-sidebar
           size="sm"
           class="my-2 my-sm-0 mx-2"
+          @click="showDebugSidebar = true"
         >
           Debug
         </b-button>
       </b-navbar-nav>
     </b-navbar>
-    <b-sidebar
-      id="debug-sidebar"
-      right
+    <b-offcanvas
+      v-model="showDebugSidebar"
+      placement="end"
       shadow
-      no-header
-      sidebar-class="border-left border-dark text-left mt-5"
+      class="text-left"
     >
+      <template #title>Debug Info</template>
       <div class="px-3 py-2">
         Number of Players: {{ numberOfPlayers }}<br>
         Current Action Type: {{ actionTypeName }}<br>
@@ -84,12 +84,12 @@
         Current Action PlayerId: {{ actionPlayerId }}<br>
         Bag: {{ debugBagStats }}<br>
       </div>
-    </b-sidebar>
+    </b-offcanvas>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useBagStore } from '@/stores/useBagStore'
 import { useGameStore } from '@/stores/useGameStore'
 import { useSettingsStore } from '@/stores/useSettingsStore'
@@ -99,6 +99,9 @@ import helpers from '@/common/helpers'
 const emit = defineEmits<{
   'new-game': []
 }>()
+
+// Local state
+const showDebugSidebar = ref(false)
 
 // Get stores
 const bagStore = useBagStore()

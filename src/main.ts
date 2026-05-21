@@ -2,11 +2,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 
-// Stub components for missing BootstrapVue-next components
+// Custom icon wrapper components for dynamic icons
 import BIcon from './components/stubs/BIcon.vue'
 import BIconstack from './components/stubs/BIconstack.vue'
-import BSidebar from './components/stubs/BSidebar.vue'
-import BIconGearFill from './components/stubs/BIconGearFill.vue'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
@@ -16,10 +14,9 @@ const app = createApp(App)
 
 app.use(createPinia())
 
-// Register stub components globally
+// Register custom icon components globally
+// These handle dynamic icon names that can't be auto-imported by unplugin-icons
 app.component('BIcon', BIcon)
 app.component('BIconstack', BIconstack)
-app.component('BSidebar', BSidebar)
-app.component('BIconGearFill', BIconGearFill)
 
 app.mount('#app')
