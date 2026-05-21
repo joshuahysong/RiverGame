@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { mapTypes, tileTypes, boardStats, actionTypes, monumentTypes, conflictTypes } from '@/common/constants'
+import {
+  mapTypes,
+  tileTypes,
+  boardStats,
+  actionTypes,
+  monumentTypes,
+  conflictTypes,
+} from '@/common/constants'
 import helpers from '@/common/helpers'
 import { useGameStore } from './useGameStore'
 import { usePlayersStore } from './usePlayersStore'
@@ -34,33 +41,193 @@ interface Neighbors {
 }
 
 const riverPath = [
-  ' ', ' ', ' ', ' ', '╔', '=', '=', '=', '╝', ' ', ' ', ' ', '║', ' ', ' ', ' ',
-  ' ', ' ', ' ', ' ', '║', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '║', ' ', ' ', ' ',
-  ' ', ' ', ' ', '╔', '╝', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '╚', '╗', ' ', ' ',
-  '=', '=', '=', '╝', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '╚', '=', '╗',
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '╔', '╝',
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '║', ' ',
-  '=', '=', '=', '╗', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '╔', '=', '╝', ' ',
-  ' ', ' ', ' ', '╚', '=', '=', '╗', ' ', ' ', ' ', ' ', ' ', '║', ' ', ' ', ' ',
-  ' ', ' ', ' ', ' ', ' ', ' ', '╚', '=', '=', '=', '=', '=', '╝', ' ', ' ', ' ',
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╔',
+  '=',
+  '=',
+  '=',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  '║',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '║',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '║',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╔',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╚',
+  '╗',
+  ' ',
+  ' ',
+  '=',
+  '=',
+  '=',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╚',
+  '=',
+  '╗',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╔',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '║',
+  ' ',
+  '=',
+  '=',
+  '=',
+  '╗',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╔',
+  '=',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╚',
+  '=',
+  '=',
+  '╗',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '║',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  '╚',
+  '=',
+  '=',
+  '=',
+  '=',
+  '=',
+  '╝',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
+  ' ',
 ]
 
 export const useBoardStore = defineStore('board', () => {
   // State
   const map = ref<number[]>([
-    0,0,0,0,1,1,1,1,1,0,2,0,1,0,0,0,
-    0,3,0,0,1,0,0,0,0,0,0,0,1,0,0,3,
-    0,0,0,1,1,2,0,0,0,0,0,0,1,1,0,0,
-    1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-    1,1,1,1,0,0,0,0,2,0,0,0,1,1,1,0,
-    0,3,0,1,1,1,1,0,0,0,0,0,1,0,0,0,
-    0,0,0,0,0,0,1,1,1,1,1,1,1,0,3,0,
-    0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0
+    0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 2, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 3,
+    0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+    1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1, 1, 0, 0, 3, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 3, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
   ])
   const tiles = ref<BoardTile[]>([])
   const regions = ref<Region[]>([])
@@ -89,9 +256,9 @@ export const useBoardStore = defineStore('board', () => {
 
   const getNeighbors = (index: number): Neighbors => {
     if (tiles.value.length === 0) return {}
-    
+
     const neighbors: Neighbors = {}
-    
+
     // top left corner
     if (index === 0) {
       neighbors.right = tiles.value[1]
@@ -159,7 +326,7 @@ export const useBoardStore = defineStore('board', () => {
       neighbors.left = tiles.value[index - 1]
       neighbors.topLeft = tiles.value[index - boardStats.columns - 1]
     }
-    
+
     return neighbors
   }
 
@@ -178,30 +345,48 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   const getSelectedBoardLeader = (playerId: number): BoardTile | undefined => {
-    return tiles.value.filter((tile) => tile.isLeaderTile && tile.playerId === playerId && tile.isHighlighted)[0]
+    return tiles.value.filter(
+      (tile) => tile.isLeaderTile && tile.playerId === playerId && tile.isHighlighted
+    )[0]
   }
 
   const neighborRegions = (tile: BoardTile): Region[] => {
     const neighbors = getNeighbors(tile.index)
     const neighborRegionsList: Region[] = []
-    
-    if (neighbors.left && neighbors.left.tileType !== tileTypes.empty && neighbors.left.tileType !== tileTypes.catastrophe) {
+
+    if (
+      neighbors.left &&
+      neighbors.left.tileType !== tileTypes.empty &&
+      neighbors.left.tileType !== tileTypes.catastrophe
+    ) {
       const region = getRegion(neighbors.left.index)
       if (region) neighborRegionsList.push(region)
     }
-    if (neighbors.top && neighbors.top.tileType !== tileTypes.empty && neighbors.top.tileType !== tileTypes.catastrophe) {
+    if (
+      neighbors.top &&
+      neighbors.top.tileType !== tileTypes.empty &&
+      neighbors.top.tileType !== tileTypes.catastrophe
+    ) {
       const region = getRegion(neighbors.top.index)
       if (region) neighborRegionsList.push(region)
     }
-    if (neighbors.right && neighbors.right.tileType !== tileTypes.empty && neighbors.right.tileType !== tileTypes.catastrophe) {
+    if (
+      neighbors.right &&
+      neighbors.right.tileType !== tileTypes.empty &&
+      neighbors.right.tileType !== tileTypes.catastrophe
+    ) {
       const region = getRegion(neighbors.right.index)
       if (region) neighborRegionsList.push(region)
     }
-    if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty && neighbors.bottom.tileType !== tileTypes.catastrophe) {
+    if (
+      neighbors.bottom &&
+      neighbors.bottom.tileType !== tileTypes.empty &&
+      neighbors.bottom.tileType !== tileTypes.catastrophe
+    ) {
       const region = getRegion(neighbors.bottom.index)
       if (region) neighborRegionsList.push(region)
     }
-    
+
     return Array.from(new Map(neighborRegionsList.map((item) => [item.regionIndex, item])).values())
   }
 
@@ -247,15 +432,16 @@ export const useBoardStore = defineStore('board', () => {
     resetAvailableTileLocations()
     const newTiles: BoardTile[] = []
     for (let i = 0; i < map.value.length; i++) {
-      const tileType = map.value[i] === mapTypes.treasure || map.value[i] === mapTypes.priorityTreasure
-        ? tileTypes.temple
-        : tileTypes.empty
+      const tileType =
+        map.value[i] === mapTypes.treasure || map.value[i] === mapTypes.priorityTreasure
+          ? tileTypes.temple
+          : tileTypes.empty
       newTiles.push({
         index: i,
         tileType: tileType,
         isLeaderTile: false,
         hasTreasure: tileType === tileTypes.temple,
-        playerId: 0
+        playerId: 0,
       })
     }
     setTiles(newTiles)
@@ -276,10 +462,12 @@ export const useBoardStore = defineStore('board', () => {
       if (!currentPlayer) return
 
       const selectedBoardLeader = getSelectedBoardLeader(currentPlayer.id)
-      const playerHasSelectedTiles = currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
+      const playerHasSelectedTiles =
+        currentPlayer.selectedTiles && currentPlayer.selectedTiles.length >= 1
 
       // Select/Deselect player leader tile
-      if (clickedTile.isLeaderTile &&
+      if (
+        clickedTile.isLeaderTile &&
         clickedTile.playerId === currentPlayer.id &&
         gameStore.remainingActions > 0
       ) {
@@ -293,18 +481,21 @@ export const useBoardStore = defineStore('board', () => {
         }
       }
       // Place a tile
-      else if ((playerHasSelectedTiles || selectedBoardLeader) &&
+      else if (
+        (playerHasSelectedTiles || selectedBoardLeader) &&
         isValidTileLocation(clickedTile.index)
       ) {
         gameStore.saveSnapshot()
         if (selectedBoardLeader) removeTile({ index: selectedBoardLeader.index })
 
-        const selectedTile = playerHasSelectedTiles ? currentPlayer.selectedTiles[0] : selectedBoardLeader
+        const selectedTile = playerHasSelectedTiles
+          ? currentPlayer.selectedTiles[0]
+          : selectedBoardLeader
         const newTile: BoardTile = {
           ...clickedTile,
           isLeaderTile: selectedTile.isLeaderTile,
           tileType: selectedTile.tileType,
-          playerId: currentPlayer.id
+          playerId: currentPlayer.id,
         }
 
         addTile(newTile)
@@ -316,13 +507,13 @@ export const useBoardStore = defineStore('board', () => {
             playerId: currentPlayer.id,
             text: `moved ${helpers.getLogToken(newTile)}
               from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)}
-              to ${helpers.getCoordinatesByIndex(newTile.index)}`
+              to ${helpers.getCoordinatesByIndex(newTile.index)}`,
           })
         } else {
           logStore.logActionMessage({
             playerId: currentPlayer.id,
             text: `placed ${helpers.getLogToken(newTile)}
-              on ${helpers.getCoordinatesByIndex(newTile.index)}`
+              on ${helpers.getCoordinatesByIndex(newTile.index)}`,
           })
         }
 
@@ -356,11 +547,14 @@ export const useBoardStore = defineStore('board', () => {
     }
 
     if (currentActionType === actionTypes.conflictChooseLeader) {
-      if (clickedTile.isHighlighted &&
+      if (
+        clickedTile.isHighlighted &&
         clickedTile.isLeaderTile &&
         leaderGroupsAtWar.value.length > 0
       ) {
-        const chosenLeaderGroup = leaderGroupsAtWar.value.filter((x) => x[0].tileType === clickedTile.tileType)
+        const chosenLeaderGroup = leaderGroupsAtWar.value.filter(
+          (x) => x[0].tileType === clickedTile.tileType
+        )
         if (chosenLeaderGroup && chosenLeaderGroup.length > 0)
           triggerWar({ attacker: chosenLeaderGroup[0][0], defender: chosenLeaderGroup[0][1] })
       }
@@ -377,7 +571,8 @@ export const useBoardStore = defineStore('board', () => {
       if (mapSquareTile) {
         if (selectedTile.isLeaderTile) {
           const neighboringRegions = neighborRegions(mapSquareTile)
-          const isJoiningKingdoms = neighboringRegions.filter((region) => region.isKingdom).length > 1
+          const isJoiningKingdoms =
+            neighboringRegions.filter((region) => region.isKingdom).length > 1
           const neighbors = getNeighbors(i)
           const hasTempleNeighbor =
             (neighbors.left && neighbors.left.tileType === tileTypes.temple) ||
@@ -385,7 +580,8 @@ export const useBoardStore = defineStore('board', () => {
             (neighbors.bottom && neighbors.bottom.tileType === tileTypes.temple) ||
             (neighbors.right && neighbors.right.tileType === tileTypes.temple)
 
-          if (!isJoiningKingdoms &&
+          if (
+            !isJoiningKingdoms &&
             hasTempleNeighbor &&
             mapSquareTile.tileType === tileTypes.empty &&
             mapSquare !== mapTypes.river
@@ -393,7 +589,8 @@ export const useBoardStore = defineStore('board', () => {
             eligibleTileLocations.push(i)
           }
         } else if (selectedTile.tileType === tileTypes.catastrophe) {
-          if (!mapSquareTile.hasTreasure &&
+          if (
+            !mapSquareTile.hasTreasure &&
             mapSquareTile.tileType !== tileTypes.catastrophe &&
             mapSquareTile.tileType !== tileTypes.monumentBottomLeft &&
             mapSquareTile.tileType !== tileTypes.monumentBottomRight &&
@@ -404,7 +601,8 @@ export const useBoardStore = defineStore('board', () => {
             eligibleTileLocations.push(i)
           }
         } else {
-          if (mapSquareTile.tileType === tileTypes.empty &&
+          if (
+            mapSquareTile.tileType === tileTypes.empty &&
             ((mapSquare === mapTypes.river && selectedTile.tileType === tileTypes.farm) ||
               (mapSquare !== mapTypes.river && selectedTile.tileType !== tileTypes.farm))
           ) {
@@ -420,11 +618,16 @@ export const useBoardStore = defineStore('board', () => {
   function setRegions() {
     resetRegions()
 
-    const indexesToCheck = [...tiles.value
-      .filter((x) => x.tileType !== tileTypes.empty &&
-        x.tileType !== tileTypes.catastrophe &&
-        (!conflictTile.value || conflictTile.value.index !== x.index))
-      .map((x) => x.index)]
+    const indexesToCheck = [
+      ...tiles.value
+        .filter(
+          (x) =>
+            x.tileType !== tileTypes.empty &&
+            x.tileType !== tileTypes.catastrophe &&
+            (!conflictTile.value || conflictTile.value.index !== x.index)
+        )
+        .map((x) => x.index),
+    ]
 
     const checkedIndexes: number[] = []
 
@@ -444,13 +647,29 @@ export const useBoardStore = defineStore('board', () => {
             if (indexContainsLeader && !isKingdom) isKingdom = indexContainsLeader
 
             const neighbors = getNeighbors(queueIndex)
-            if (neighbors.left && neighbors.left.tileType !== tileTypes.empty && neighbors.left.tileType !== tileTypes.catastrophe)
+            if (
+              neighbors.left &&
+              neighbors.left.tileType !== tileTypes.empty &&
+              neighbors.left.tileType !== tileTypes.catastrophe
+            )
               queue.push(neighbors.left.index)
-            if (neighbors.top && neighbors.top.tileType !== tileTypes.empty && neighbors.top.tileType !== tileTypes.catastrophe)
+            if (
+              neighbors.top &&
+              neighbors.top.tileType !== tileTypes.empty &&
+              neighbors.top.tileType !== tileTypes.catastrophe
+            )
               queue.push(neighbors.top.index)
-            if (neighbors.right && neighbors.right.tileType !== tileTypes.empty && neighbors.right.tileType !== tileTypes.catastrophe)
+            if (
+              neighbors.right &&
+              neighbors.right.tileType !== tileTypes.empty &&
+              neighbors.right.tileType !== tileTypes.catastrophe
+            )
               queue.push(neighbors.right.index)
-            if (neighbors.bottom && neighbors.bottom.tileType !== tileTypes.empty && neighbors.bottom.tileType !== tileTypes.catastrophe)
+            if (
+              neighbors.bottom &&
+              neighbors.bottom.tileType !== tileTypes.empty &&
+              neighbors.bottom.tileType !== tileTypes.catastrophe
+            )
               queue.push(neighbors.bottom.index)
           }
         }
@@ -474,10 +693,14 @@ export const useBoardStore = defineStore('board', () => {
         for (let i = 0; i < region.tileIndexes.length; i++) {
           const matchingTile = tiles.value[region.tileIndexes[i]]
           if (matchingTile && matchingTile.isLeaderTile) {
-            if ((matchingTile.tileType === tileTypes.priest && payload.tileType === tileTypes.temple) ||
-              (matchingTile.tileType === tileTypes.king && payload.tileType === tileTypes.settlement) ||
+            if (
+              (matchingTile.tileType === tileTypes.priest &&
+                payload.tileType === tileTypes.temple) ||
+              (matchingTile.tileType === tileTypes.king &&
+                payload.tileType === tileTypes.settlement) ||
               (matchingTile.tileType === tileTypes.farmer && payload.tileType === tileTypes.farm) ||
-              (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)) {
+              (matchingTile.tileType === tileTypes.trader && payload.tileType === tileTypes.market)
+            ) {
               matchingLeader = matchingTile
             } else if (matchingTile.tileType === tileTypes.king) {
               matchingKing = matchingTile
@@ -488,12 +711,12 @@ export const useBoardStore = defineStore('board', () => {
         if (matchingLeader !== null && matchingLeader.playerId !== undefined) {
           playersStore.incrementScore({
             playerId: matchingLeader.playerId,
-            scoreName: helpers.getTileNameByType(payload.tileType)
+            scoreName: helpers.getTileNameByType(payload.tileType),
           })
         } else if (matchingKing !== null && matchingKing.playerId !== undefined) {
           playersStore.incrementScore({
             playerId: matchingKing.playerId,
-            scoreName: helpers.getTileNameByType(payload.tileType)
+            scoreName: helpers.getTileNameByType(payload.tileType),
           })
         }
       }
@@ -522,7 +745,9 @@ export const useBoardStore = defineStore('board', () => {
           if (matchingTrader.playerId !== undefined) {
             gameStore.setActionPlayerId(matchingTrader.playerId)
           }
-          const priorityTiles = tilesWithTreasure.filter((tile) => map.value[tile.index] === mapTypes.priorityTreasure)
+          const priorityTiles = tilesWithTreasure.filter(
+            (tile) => map.value[tile.index] === mapTypes.priorityTreasure
+          )
 
           if (priorityTiles.length === 1) {
             takeTreasure(priorityTiles[0])
@@ -560,13 +785,22 @@ export const useBoardStore = defineStore('board', () => {
     const foundAvailableMonumentLocations: any[] = []
 
     if ([topLeft, top, left].every((x) => x === payload.tileType) && neighbors.topLeft)
-      foundAvailableMonumentLocations.push({ index: neighbors.topLeft.index, tileType: neighbors.topLeft.tileType })
+      foundAvailableMonumentLocations.push({
+        index: neighbors.topLeft.index,
+        tileType: neighbors.topLeft.tileType,
+      })
     if ([top, topRight, right].every((x) => x === payload.tileType) && neighbors.top)
-      foundAvailableMonumentLocations.push({ index: neighbors.top.index, tileType: neighbors.top.tileType })
+      foundAvailableMonumentLocations.push({
+        index: neighbors.top.index,
+        tileType: neighbors.top.tileType,
+      })
     if ([right, bottomRight, bottom].every((x) => x === payload.tileType))
       foundAvailableMonumentLocations.push({ index: payload.index, tileType: payload.tileType })
     if ([bottom, bottomLeft, left].every((x) => x === payload.tileType) && neighbors.left)
-      foundAvailableMonumentLocations.push({ index: neighbors.left.index, tileType: neighbors.left.tileType })
+      foundAvailableMonumentLocations.push({
+        index: neighbors.left.index,
+        tileType: neighbors.left.tileType,
+      })
 
     if (foundAvailableMonumentLocations && foundAvailableMonumentLocations.length > 0) {
       setAvailableMonumentLocations(foundAvailableMonumentLocations)
@@ -588,7 +822,7 @@ export const useBoardStore = defineStore('board', () => {
     updateTile({
       ...targetNeighbors.bottomRight!,
       tileType: tileTypes.monumentBottomRight,
-      monumentType: payload.monumentType
+      monumentType: payload.monumentType,
     })
 
     availableMonumentLocations.value.forEach((location) => {
@@ -602,7 +836,7 @@ export const useBoardStore = defineStore('board', () => {
 
     logStore.logActionMessage({
       playerId: gameStore.actionPlayerId,
-      text: `built ${helpers.getMonumentNameByType(payload.monumentType)} monument at ${helpers.getCoordinatesByIndex(payload.index)}`
+      text: `built ${helpers.getMonumentNameByType(payload.monumentType)} monument at ${helpers.getCoordinatesByIndex(payload.index)}`,
     })
 
     checkForDisplacedLeader()
@@ -624,33 +858,43 @@ export const useBoardStore = defineStore('board', () => {
 
       kingdom.tileIndexes.forEach((index) => {
         const tile = tiles.value[index]
-        if (tile.isLeaderTile && tile.playerId === playerId)
-          playerLeaders.push(tile.tileType)
-        if (tile.monumentType)
-          monuments.push(tile.monumentType)
+        if (tile.isLeaderTile && tile.playerId === playerId) playerLeaders.push(tile.tileType)
+        if (tile.monumentType) monuments.push(tile.monumentType)
       })
 
       if (playerLeaders.length > 0 && monuments.length > 0) {
         monuments.forEach((monument) => {
-          if (monumentTypes.redMonuments.includes(monument) && playerLeaders.includes(tileTypes.priest))
+          if (
+            monumentTypes.redMonuments.includes(monument) &&
+            playerLeaders.includes(tileTypes.priest)
+          )
             playersStore.incrementScore({
               playerId: playerId,
-              scoreName: helpers.getTileNameByType(tileTypes.temple)
+              scoreName: helpers.getTileNameByType(tileTypes.temple),
             })
-          if (monumentTypes.blueMonuments.includes(monument) && playerLeaders.includes(tileTypes.farmer))
+          if (
+            monumentTypes.blueMonuments.includes(monument) &&
+            playerLeaders.includes(tileTypes.farmer)
+          )
             playersStore.incrementScore({
               playerId: playerId,
-              scoreName: helpers.getTileNameByType(tileTypes.farm)
+              scoreName: helpers.getTileNameByType(tileTypes.farm),
             })
-          if (monumentTypes.greenMonuments.includes(monument) && playerLeaders.includes(tileTypes.trader))
+          if (
+            monumentTypes.greenMonuments.includes(monument) &&
+            playerLeaders.includes(tileTypes.trader)
+          )
             playersStore.incrementScore({
               playerId: playerId,
-              scoreName: helpers.getTileNameByType(tileTypes.market)
+              scoreName: helpers.getTileNameByType(tileTypes.market),
             })
-          if (monumentTypes.blackMonuments.includes(monument) && playerLeaders.includes(tileTypes.king))
+          if (
+            monumentTypes.blackMonuments.includes(monument) &&
+            playerLeaders.includes(tileTypes.king)
+          )
             playersStore.incrementScore({
               playerId: playerId,
-              scoreName: helpers.getTileNameByType(tileTypes.settlement)
+              scoreName: helpers.getTileNameByType(tileTypes.settlement),
             })
         })
       }
@@ -689,10 +933,12 @@ export const useBoardStore = defineStore('board', () => {
 
       for (let i = 0; i < region.tileIndexes.length; i++) {
         const matchingTile = tiles.value[region.tileIndexes[i]]
-        if (matchingTile &&
+        if (
+          matchingTile &&
           matchingTile.isLeaderTile &&
           matchingTile.tileType === tile.tileType &&
-          matchingTile.playerId !== tile.playerId) {
+          matchingTile.playerId !== tile.playerId
+        ) {
           matchingDefenderLeader = { ...matchingTile }
           break
         }
@@ -713,7 +959,7 @@ export const useBoardStore = defineStore('board', () => {
 
         logStore.logActionMessage({
           text: `A Revolt has begun between ${helpers.getLogToken(tile)}
-            and ${helpers.getLogToken(matchingDefenderLeader)}`
+            and ${helpers.getLogToken(matchingDefenderLeader)}`,
         })
       }
     }
@@ -728,10 +974,10 @@ export const useBoardStore = defineStore('board', () => {
 
     resetLeaderGroupsAtWar()
 
-    let redLeaders: BoardTile[] = []
-    let blackLeaders: BoardTile[] = []
-    let greenLeaders: BoardTile[] = []
-    let blueLeaders: BoardTile[] = []
+    const redLeaders: BoardTile[] = []
+    const blackLeaders: BoardTile[] = []
+    const greenLeaders: BoardTile[] = []
+    const blueLeaders: BoardTile[] = []
 
     const neighboringKingdoms = neighborRegions(tile).filter((x) => x.isKingdom)
 
@@ -781,10 +1027,14 @@ export const useBoardStore = defineStore('board', () => {
 
     gameStore.resetConflictData()
 
-    if (payload.attacker.tileType === tileTypes.priest) gameStore.setConflictTileType(tileTypes.temple)
-    if (payload.attacker.tileType === tileTypes.king) gameStore.setConflictTileType(tileTypes.settlement)
-    if (payload.attacker.tileType === tileTypes.trader) gameStore.setConflictTileType(tileTypes.market)
-    if (payload.attacker.tileType === tileTypes.farmer) gameStore.setConflictTileType(tileTypes.farm)
+    if (payload.attacker.tileType === tileTypes.priest)
+      gameStore.setConflictTileType(tileTypes.temple)
+    if (payload.attacker.tileType === tileTypes.king)
+      gameStore.setConflictTileType(tileTypes.settlement)
+    if (payload.attacker.tileType === tileTypes.trader)
+      gameStore.setConflictTileType(tileTypes.market)
+    if (payload.attacker.tileType === tileTypes.farmer)
+      gameStore.setConflictTileType(tileTypes.farm)
 
     const attacker = { ...payload.attacker }
     const defender = { ...payload.defender }
@@ -805,7 +1055,7 @@ export const useBoardStore = defineStore('board', () => {
 
     logStore.logActionMessage({
       text: `A War has begun between ${helpers.getLogToken(attacker)}
-        and ${helpers.getLogToken(defender)}`
+        and ${helpers.getLogToken(defender)}`,
     })
   }
 
@@ -821,7 +1071,7 @@ export const useBoardStore = defineStore('board', () => {
 
     logStore.logActionMessage({
       playerId: gameStore.actionPlayerId,
-      text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(tile.index)}`
+      text: `retreived a {treasure} from ${helpers.getCoordinatesByIndex(tile.index)}`,
     })
 
     checkForTreasureToTake()
@@ -852,7 +1102,7 @@ export const useBoardStore = defineStore('board', () => {
         tileType: payload.tileType,
         isLeaderTile: payload.isLeaderTile,
         playerId: payload.playerId ?? 0,
-        monumentType: payload.monumentType
+        monumentType: payload.monumentType,
       }
       tiles.value.splice(payload.index, 1, tile)
     }
@@ -863,7 +1113,7 @@ export const useBoardStore = defineStore('board', () => {
       index: payload.index,
       tileType: tileTypes.empty,
       isLeaderTile: false,
-      playerId: 0
+      playerId: 0,
     }
     tiles.value.splice(payload.index, 1, newTile)
   }
@@ -889,7 +1139,7 @@ export const useBoardStore = defineStore('board', () => {
     regions.value.push({
       regionIndex: regions.value.length,
       tileIndexes: [...payload.tileIndexes],
-      isKingdom: payload.isKingdom
+      isKingdom: payload.isKingdom,
     })
   }
 
@@ -999,6 +1249,6 @@ export const useBoardStore = defineStore('board', () => {
     setConflictTile,
     resetConflictTile,
     setLeaderGroupsAtWar,
-    resetLeaderGroupsAtWar
+    resetLeaderGroupsAtWar,
   }
 })

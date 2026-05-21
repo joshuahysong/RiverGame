@@ -1,35 +1,39 @@
 <template>
-    <div class="card">
-        <div class="card-header bg-transparent border-0 py-2"><strong>Monuments</strong></div>
-        <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-            <div class="row no-gutters align-items-center">
-                <div class="col-6 col-lg-12 text-right text-lg-center">
-                    <monument-tile
-                        v-for="monumentType in monumentTypes1"
-                        :key="monumentType"
-                        :size="size"
-                        :monument-type="monumentType"
-                        :selected="isSelectedMonument(monumentType)"
-                        :disabled="!isAvailableMonument(monumentType)"
-                        class="d-inline-block mr-2 mb-1"
-                        :show-pointer="isBuildingMonument"
-                        @click.native="selectMonument(monumentType)" />
-                </div>
-                <div class="col-6 col-lg-12 text-left text-lg-center">
-                    <monument-tile
-                        v-for="monumentType in monumentTypes2"
-                        :key="monumentType"
-                        :size="size"
-                        :monument-type="monumentType"
-                        :selected="isSelectedMonument(monumentType)"
-                        :disabled="!isAvailableMonument(monumentType)"
-                        class="d-inline-block mr-2 mb-1"
-                        :show-pointer="isBuildingMonument"
-                        @click.native="selectMonument(monumentType)" />
-                </div>
-            </div>
-        </div>
+  <div class="card">
+    <div class="card-header bg-transparent border-0 py-2">
+      <strong>Monuments</strong>
     </div>
+    <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
+      <div class="row no-gutters align-items-center">
+        <div class="col-6 col-lg-12 text-right text-lg-center">
+          <monument-tile
+            v-for="monumentType in monumentTypes1"
+            :key="monumentType"
+            :size="size"
+            :monument-type="monumentType"
+            :selected="isSelectedMonument(monumentType)"
+            :disabled="!isAvailableMonument(monumentType)"
+            class="d-inline-block mr-2 mb-1"
+            :show-pointer="isBuildingMonument"
+            @click="selectMonument(monumentType)"
+          />
+        </div>
+        <div class="col-6 col-lg-12 text-left text-lg-center">
+          <monument-tile
+            v-for="monumentType in monumentTypes2"
+            :key="monumentType"
+            :size="size"
+            :monument-type="monumentType"
+            :selected="isSelectedMonument(monumentType)"
+            :disabled="!isAvailableMonument(monumentType)"
+            class="d-inline-block mr-2 mb-1"
+            :show-pointer="isBuildingMonument"
+            @click="selectMonument(monumentType)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -64,9 +68,10 @@ const monumentTypes2 = computed(() => {
   return remainingMonuments.value.slice(3, max)
 })
 
-const isBuildingMonument = computed(() =>
-  currentActionType.value === actionTypes.buildMonument ||
-  currentActionType.value === actionTypes.buildMonumentMultiple
+const isBuildingMonument = computed(
+  () =>
+    currentActionType.value === actionTypes.buildMonument ||
+    currentActionType.value === actionTypes.buildMonumentMultiple
 )
 
 // Methods
@@ -76,33 +81,41 @@ function isSelectedMonument(monumentType: number): boolean {
 
 function isAvailableMonument(monumentType: number): boolean {
   if (!isBuildingMonument.value) return true
-  
+
   if (availableMonumentLocations.value && availableMonumentLocations.value.length > 0) {
-    if (monumentTypes.redMonuments.some((x: number) => x === monumentType) &&
-        availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.temple))
+    if (
+      monumentTypes.redMonuments.some((x: number) => x === monumentType) &&
+      availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.temple)
+    )
       return true
-    if (monumentTypes.blueMonuments.some((x: number) => x === monumentType) &&
-        availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.farm))
+    if (
+      monumentTypes.blueMonuments.some((x: number) => x === monumentType) &&
+      availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.farm)
+    )
       return true
-    if (monumentTypes.greenMonuments.some((x: number) => x === monumentType) &&
-        availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.market))
+    if (
+      monumentTypes.greenMonuments.some((x: number) => x === monumentType) &&
+      availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.market)
+    )
       return true
-    if (monumentTypes.blackMonuments.some((x: number) => x === monumentType) &&
-        availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.settlement))
+    if (
+      monumentTypes.blackMonuments.some((x: number) => x === monumentType) &&
+      availableMonumentLocations.value.some((x: any) => x.tileType === tileTypes.settlement)
+    )
       return true
   }
-  
+
   return false
 }
 
 function selectMonument(monumentType: number) {
   if (isBuildingMonument.value && isAvailableMonument(monumentType)) {
     gameStore.setSelectedMonumentType(monumentType)
-    
+
     if (availableMonumentLocations.value.length === 1) {
       boardStore.buildMonument({
         index: availableMonumentLocations.value[0].index,
-        monumentType: monumentType
+        monumentType: monumentType,
       })
     } else if (availableMonumentLocations.value.length > 1) {
       availableMonumentLocations.value.forEach((location: any) => {

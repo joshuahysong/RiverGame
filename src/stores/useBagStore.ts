@@ -17,7 +17,7 @@ export const useBagStore = defineStore('bag', () => {
     temples: 47,
     markets: 30,
     settlements: 30,
-    farms: 36
+    farms: 36,
   }
 
   // Getters
@@ -27,7 +27,7 @@ export const useBagStore = defineStore('bag', () => {
     markets: markets.value,
     settlements: settlements.value,
     farms: farms.value,
-    startingBag: startingBag.value
+    startingBag: startingBag.value,
   }))
 
   const debugBagStats = computed(() => ({
@@ -35,11 +35,11 @@ export const useBagStore = defineStore('bag', () => {
     temples: temples.value,
     markets: markets.value,
     settlements: settlements.value,
-    farms: farms.value
+    farms: farms.value,
   }))
 
-  const bagSpaceRemaining = computed(
-    () => Math.round((bag.value.length / startingBag.value.length) * 100)
+  const bagSpaceRemaining = computed(() =>
+    Math.round((bag.value.length / startingBag.value.length) * 100)
   )
 
   // Actions
@@ -101,14 +101,16 @@ export const useBagStore = defineStore('bag', () => {
     startingBag.value = [...bag.value]
   }
 
-  function setState(newState: Partial<{
-    bag: number[]
-    temples: number
-    markets: number
-    settlements: number
-    farms: number
-    startingBag: number[]
-  }>) {
+  function setState(
+    newState: Partial<{
+      bag: number[]
+      temples: number
+      markets: number
+      settlements: number
+      farms: number
+      startingBag: number[]
+    }>
+  ) {
     if (newState.bag !== undefined) bag.value = newState.bag
     if (newState.temples !== undefined) temples.value = newState.temples
     if (newState.markets !== undefined) markets.value = newState.markets
@@ -133,6 +135,6 @@ export const useBagStore = defineStore('bag', () => {
     shuffleBag,
     removeTiles,
     setStartingBag,
-    setState
+    setState,
   }
 })

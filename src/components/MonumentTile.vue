@@ -1,10 +1,23 @@
 <template>
-    <div>
-        <b-iconstack class="tile-monument" :style="monumentStyle" :class="monumentClass">
-            <b-icon stacked icon="octagon-fill" :class="primaryTileClass"></b-icon>
-            <b-icon stacked icon="octagon-fill" scale="0.4" :class="secondaryTileClass"></b-icon>
-        </b-iconstack>
-    </div>
+  <div>
+    <b-iconstack
+      class="tile-monument"
+      :style="monumentStyle"
+      :class="monumentClass"
+    >
+      <b-icon
+        stacked
+        icon="octagon-fill"
+        :class="primaryTileClass"
+      />
+      <b-icon
+        stacked
+        icon="octagon-fill"
+        scale="0.4"
+        :class="secondaryTileClass"
+      />
+    </b-iconstack>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -28,12 +41,12 @@ const primaryTileType = ref<number>(tileTypes.empty)
 const secondaryTileType = ref<number>(tileTypes.empty)
 
 // Computed properties
-const primaryTileClass = computed(() => 
-  `${helpers.getTileNameByType(primaryTileType.value)}-monument`
+const primaryTileClass = computed(
+  () => `${helpers.getTileNameByType(primaryTileType.value)}-monument`
 )
 
-const secondaryTileClass = computed(() => 
-  `${helpers.getTileNameByType(secondaryTileType.value)}-monument`
+const secondaryTileClass = computed(
+  () => `${helpers.getTileNameByType(secondaryTileType.value)}-monument`
 )
 
 const monumentStyle = computed(() => {
@@ -82,24 +95,26 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-    .selected {
-        border-radius: 4px;
-        box-shadow: 0 0 0 2px white, 0 0 0 5px red;
-    }
-    .tile-monument {
-        height: 100%;
-        width: 100%;
-    }
-    .temple-monument {
-        color: $color-temple;
-    }
-    .market-monument {
-        color: $color-market;
-    }
-    .settlement-monument {
-        color: $color-settlement;
-    }
-    .farm-monument {
-        color: $color-farm;
-    }
+.selected {
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px white,
+    0 0 0 5px red;
+}
+.tile-monument {
+  height: 100%;
+  width: 100%;
+}
+.temple-monument {
+  color: $color-temple;
+}
+.market-monument {
+  color: $color-market;
+}
+.settlement-monument {
+  color: $color-settlement;
+}
+.farm-monument {
+  color: $color-farm;
+}
 </style>

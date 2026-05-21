@@ -26,7 +26,7 @@ export const useLogStore = defineStore('log', () => {
       timestamp: new Date().toLocaleString('en-US'),
       messageType: messageTypes.action,
       text: messageInfo.text,
-      playerId: messageInfo.playerId
+      playerId: messageInfo.playerId,
     })
   }
 
@@ -34,7 +34,7 @@ export const useLogStore = defineStore('log', () => {
     messages.value.unshift({
       timestamp: new Date().toLocaleString('en-US'),
       messageType: messageTypes.system,
-      text: messageText
+      text: messageText,
     })
   }
 
@@ -48,6 +48,6 @@ export const useLogStore = defineStore('log', () => {
     init,
     logActionMessage,
     logSystemMessage,
-    setMessages
+    setMessages,
   }
 })

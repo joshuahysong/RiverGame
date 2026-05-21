@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { actionTypes, conflictTypes, messageTypes, monumentTypes, tileTypes } from '@/common/constants'
+import {
+  actionTypes,
+  conflictTypes,
+  messageTypes,
+  monumentTypes,
+  tileTypes,
+} from '@/common/constants'
 import { usePlayersStore } from './usePlayersStore'
 import { useBoardStore } from './useBoardStore'
 import { useBagStore } from './useBagStore'
@@ -38,7 +44,7 @@ export const useGameStore = defineStore('game', () => {
     monumentTypes.greenRed,
     monumentTypes.blackRed,
     monumentTypes.blackGreen,
-    monumentTypes.blackBlue
+    monumentTypes.blackBlue,
   ])
   const selectedMonumentType = ref<number>(0)
   const snapshot = ref<ConflictSnapshot | null>(null)
@@ -80,7 +86,7 @@ export const useGameStore = defineStore('game', () => {
       monumentTypes.greenRed,
       monumentTypes.blackRed,
       monumentTypes.blackGreen,
-      monumentTypes.blackBlue
+      monumentTypes.blackBlue,
     ]
     selectedMonumentType.value = 0
     snapshot.value = null
@@ -117,7 +123,7 @@ export const useGameStore = defineStore('game', () => {
       conflictWinnerPlayerId: conflictWinnerPlayerId.value,
       remainingMonuments: remainingMonuments.value,
       selectedMonumentType: selectedMonumentType.value,
-      snapshot: snapshot.value
+      snapshot: snapshot.value,
     }
     localStorage.gameState = JSON.stringify(gameState)
   }
@@ -128,7 +134,7 @@ export const useGameStore = defineStore('game', () => {
     if (localStorage.gameState) {
       gameState.value = JSON.parse(localStorage.gameState)
       if (!gameState.value) return
-      
+
       const playersStore = usePlayersStore()
       const boardStore = useBoardStore()
       const bagStore = useBagStore()
@@ -156,7 +162,7 @@ export const useGameStore = defineStore('game', () => {
       log: [],
       tiles: [],
       bag: bagStore.all,
-      game: {}
+      game: {},
     }
 
     const players = playersStore.all
@@ -176,7 +182,7 @@ export const useGameStore = defineStore('game', () => {
       conflictAttackerTiles: [...conflictAttackerTiles.value],
       conflictDefenderTiles: [...conflictDefenderTiles.value],
       remainingMonuments: [...remainingMonuments.value],
-      selectedMonumentType: 0
+      selectedMonumentType: 0,
     }
     snapshot.value = { ...newSnapshot }
   }
@@ -209,8 +215,10 @@ export const useGameStore = defineStore('game', () => {
     let loserStrength = 0
     let loserTiles = []
 
-    const attackerStrength = conflictAttackerBoardTiles.value.length + conflictAttackerTiles.value.length
-    const defenderStrength = conflictDefenderBoardTiles.value.length + conflictDefenderTiles.value.length
+    const attackerStrength =
+      conflictAttackerBoardTiles.value.length + conflictAttackerTiles.value.length
+    const defenderStrength =
+      conflictDefenderBoardTiles.value.length + conflictDefenderTiles.value.length
 
     if (attackerStrength > defenderStrength) {
       winnerStrength = attackerStrength
@@ -229,7 +237,7 @@ export const useGameStore = defineStore('game', () => {
     if (conflictType.value === conflictTypes.revolt) {
       playersStore.incrementScore({
         playerId: winner.playerId,
-        scoreName: helpers.getTileNameByType(tileTypes.temple)
+        scoreName: helpers.getTileNameByType(tileTypes.temple),
       })
     } else {
       let scoreCount = 0
@@ -243,7 +251,7 @@ export const useGameStore = defineStore('game', () => {
       playersStore.incrementScore({
         playerId: winner.playerId,
         scoreName: helpers.getTileNameByType(conflictTileType.value),
-        scoreCount: scoreCount
+        scoreCount: scoreCount,
       })
     }
 
@@ -257,7 +265,7 @@ export const useGameStore = defineStore('game', () => {
     logStore.logActionMessage({
       text: `${helpers.getLogToken(winner)} (${winnerStrength})
         wins the ${conflictType.value === conflictTypes.revolt ? 'Revolt' : 'War'}
-        against ${helpers.getLogToken(loser)} (${loserStrength})`
+        against ${helpers.getLogToken(loser)} (${loserStrength})`,
     })
   }
 
@@ -282,43 +290,55 @@ export const useGameStore = defineStore('game', () => {
     currentActionType.value = actionType
   }
 
-  function setState(newState: Partial<{
-    turnPlayerId: number
-    actionPlayerId: number
-    visiblePlayerId: number
-    numberOfPlayers: number
-    remainingActions: number
-    currentActionType: number
-    conflictType: number
-    conflictAttackerLeader: any
-    conflictDefenderLeader: any
-    conflictAttackerTiles: any[]
-    conflictDefenderTiles: any[]
-    conflictAttackerBoardTiles: any[]
-    conflictDefenderBoardTiles: any[]
-    conflictTileType: number
-    conflictWinnerPlayerId: number
-    remainingMonuments: number[]
-    selectedMonumentType: number
-    snapshot: ConflictSnapshot | null
-  }>) {
+  function setState(
+    newState: Partial<{
+      turnPlayerId: number
+      actionPlayerId: number
+      visiblePlayerId: number
+      numberOfPlayers: number
+      remainingActions: number
+      currentActionType: number
+      conflictType: number
+      conflictAttackerLeader: any
+      conflictDefenderLeader: any
+      conflictAttackerTiles: any[]
+      conflictDefenderTiles: any[]
+      conflictAttackerBoardTiles: any[]
+      conflictDefenderBoardTiles: any[]
+      conflictTileType: number
+      conflictWinnerPlayerId: number
+      remainingMonuments: number[]
+      selectedMonumentType: number
+      snapshot: ConflictSnapshot | null
+    }>
+  ) {
     if (newState.turnPlayerId !== undefined) turnPlayerId.value = newState.turnPlayerId
     if (newState.actionPlayerId !== undefined) actionPlayerId.value = newState.actionPlayerId
     if (newState.visiblePlayerId !== undefined) visiblePlayerId.value = newState.visiblePlayerId
     if (newState.numberOfPlayers !== undefined) numberOfPlayers.value = newState.numberOfPlayers
     if (newState.remainingActions !== undefined) remainingActions.value = newState.remainingActions
-    if (newState.currentActionType !== undefined) currentActionType.value = newState.currentActionType
+    if (newState.currentActionType !== undefined)
+      currentActionType.value = newState.currentActionType
     if (newState.conflictType !== undefined) conflictType.value = newState.conflictType
-    if (newState.conflictAttackerLeader !== undefined) conflictAttackerLeader.value = newState.conflictAttackerLeader
-    if (newState.conflictDefenderLeader !== undefined) conflictDefenderLeader.value = newState.conflictDefenderLeader
-    if (newState.conflictAttackerTiles !== undefined) conflictAttackerTiles.value = newState.conflictAttackerTiles
-    if (newState.conflictDefenderTiles !== undefined) conflictDefenderTiles.value = newState.conflictDefenderTiles
-    if (newState.conflictAttackerBoardTiles !== undefined) conflictAttackerBoardTiles.value = newState.conflictAttackerBoardTiles
-    if (newState.conflictDefenderBoardTiles !== undefined) conflictDefenderBoardTiles.value = newState.conflictDefenderBoardTiles
+    if (newState.conflictAttackerLeader !== undefined)
+      conflictAttackerLeader.value = newState.conflictAttackerLeader
+    if (newState.conflictDefenderLeader !== undefined)
+      conflictDefenderLeader.value = newState.conflictDefenderLeader
+    if (newState.conflictAttackerTiles !== undefined)
+      conflictAttackerTiles.value = newState.conflictAttackerTiles
+    if (newState.conflictDefenderTiles !== undefined)
+      conflictDefenderTiles.value = newState.conflictDefenderTiles
+    if (newState.conflictAttackerBoardTiles !== undefined)
+      conflictAttackerBoardTiles.value = newState.conflictAttackerBoardTiles
+    if (newState.conflictDefenderBoardTiles !== undefined)
+      conflictDefenderBoardTiles.value = newState.conflictDefenderBoardTiles
     if (newState.conflictTileType !== undefined) conflictTileType.value = newState.conflictTileType
-    if (newState.conflictWinnerPlayerId !== undefined) conflictWinnerPlayerId.value = newState.conflictWinnerPlayerId
-    if (newState.remainingMonuments !== undefined) remainingMonuments.value = newState.remainingMonuments
-    if (newState.selectedMonumentType !== undefined) selectedMonumentType.value = newState.selectedMonumentType
+    if (newState.conflictWinnerPlayerId !== undefined)
+      conflictWinnerPlayerId.value = newState.conflictWinnerPlayerId
+    if (newState.remainingMonuments !== undefined)
+      remainingMonuments.value = newState.remainingMonuments
+    if (newState.selectedMonumentType !== undefined)
+      selectedMonumentType.value = newState.selectedMonumentType
     if (newState.snapshot !== undefined) snapshot.value = newState.snapshot
   }
 
@@ -451,6 +471,6 @@ export const useGameStore = defineStore('game', () => {
     setSnapshot,
     clearSnapshot,
     setConflictType,
-    setConflictWinnerPlayerId
+    setConflictWinnerPlayerId,
   }
 })

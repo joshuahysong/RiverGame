@@ -64,9 +64,9 @@ export const usePlayersStore = defineStore('players', () => {
         market: 0,
         farm: 0,
         settlement: 0,
-        treasure: 0
+        treasure: 0,
       },
-      isHuman: payload.isHuman
+      isHuman: payload.isHuman,
     }
     addNewPlayer(newPlayer)
     const gameStore = useGameStore()
@@ -103,7 +103,7 @@ export const usePlayersStore = defineStore('players', () => {
       player.selectedTiles.push({
         index: tile.index,
         tileType: tile.tileType,
-        isLeaderTile: tile.isLeaderTile
+        isLeaderTile: tile.isLeaderTile,
       })
     }
   }
@@ -234,6 +234,6 @@ export const usePlayersStore = defineStore('players', () => {
     removeCatastropheFromHand,
     addTilesToPlayerHand,
     addLeaderToPlayer,
-    incrementScore
+    incrementScore,
   }
 })

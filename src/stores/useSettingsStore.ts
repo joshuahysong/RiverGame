@@ -15,7 +15,7 @@ export const useSettingsStore = defineStore('settings', () => {
     showIndexes: showIndexes.value,
     showKingdoms: showKingdoms.value,
     showLogTimestamps: showLogTimestamps.value,
-    showLeaderStrength: showLeaderStrength.value
+    showLeaderStrength: showLeaderStrength.value,
   }))
 
   // Actions
@@ -30,18 +30,22 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  function setState(newState: Partial<{
-    showCoordinates: boolean
-    showIndexes: boolean
-    showKingdoms: boolean
-    showLogTimestamps: boolean
-    showLeaderStrength: boolean
-  }>) {
+  function setState(
+    newState: Partial<{
+      showCoordinates: boolean
+      showIndexes: boolean
+      showKingdoms: boolean
+      showLogTimestamps: boolean
+      showLeaderStrength: boolean
+    }>
+  ) {
     if (newState.showCoordinates !== undefined) showCoordinates.value = newState.showCoordinates
     if (newState.showIndexes !== undefined) showIndexes.value = newState.showIndexes
     if (newState.showKingdoms !== undefined) showKingdoms.value = newState.showKingdoms
-    if (newState.showLogTimestamps !== undefined) showLogTimestamps.value = newState.showLogTimestamps
-    if (newState.showLeaderStrength !== undefined) showLeaderStrength.value = newState.showLeaderStrength
+    if (newState.showLogTimestamps !== undefined)
+      showLogTimestamps.value = newState.showLogTimestamps
+    if (newState.showLeaderStrength !== undefined)
+      showLeaderStrength.value = newState.showLeaderStrength
   }
 
   function setShowCoordinates(payload: boolean) {
@@ -78,6 +82,6 @@ export const useSettingsStore = defineStore('settings', () => {
     setShowIndexes,
     setShowKingdoms,
     setShowLogTimestamps,
-    setShowLeaderStrength
+    setShowLeaderStrength,
   }
 })
