@@ -4,9 +4,10 @@
     :class="tileClass"
     :style="tileStyle"
   >
-    <b-icon
+    <component
+      v-if="icon"
+      :is="icon"
       class="h-100 w-100"
-      :icon="icon"
       :class="iconClass"
     />
     <div
@@ -19,10 +20,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { useBoardStore } from '@/stores/useBoardStore'
 import helpers from '@/common/helpers'
 import type { Player } from '@/stores/usePlayersStore'
+import BiSuitDiamondFill from '~icons/bi/suit-diamond-fill'
+import BiStarFill from '~icons/bi/star-fill'
+import BiSuitHeartFill from '~icons/bi/suit-heart-fill'
+import BiEggFill from '~icons/bi/egg-fill'
 
 // Props
 interface Props {
@@ -70,7 +75,16 @@ const iconClass = computed(() => {
   return leaderClass
 })
 
-const icon = computed(() => (props.player ? helpers.getPlayerIconNameById(props.player.id) : ''))
+const icon = computed<Component | null>(() => {
+  if (!props.player) return null
+  const iconMap: Record<number, Component> = {
+    1: BiSuitDiamondFill,
+    2: BiStarFill,
+    3: BiSuitHeartFill,
+    4: BiEggFill,
+  }
+  return iconMap[props.player.id] || null
+})
 
 const boardStrength = computed(() => {
   if (props.mapIndex !== undefined && props.mapIndex >= 0 && props.tileType) {

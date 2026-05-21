@@ -11,16 +11,18 @@
           class="log"
           :class="getClass(message)"
         >
-          <span v-if="showLogTimestamps">{{ message.timestamp }}: </span><b-icon
-            v-if="message.playerId >= 0"
-            :icon="getLeaderIcon(message)"
+          <span v-if="showLogTimestamps">{{ message.timestamp }}: </span><component
+            v-if="message.playerId !== undefined && message.playerId >= 0 && getLeaderIcon(message)"
+            :is="getLeaderIcon(message)"
             class="me-1"
           />
           <span
             v-for="(word, index) in message.text.split(' ')"
             :key="index"
           >
-            <span v-if="word[0] === '{'"><b-icon v-bind="getMessageIcon(word)" />&nbsp;</span>
+            <template v-if="word.startsWith('{')">
+              <component v-if="getMessageIcon(word).component" :is="getMessageIcon(word).component" :class="getMessageIcon(word).class" />&nbsp;
+            </template>
             <span v-else-if="word">{{ word }} </span>
           </span>
         </div>
@@ -30,11 +32,19 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { useLogStore } from '@/stores/useLogStore'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import helpers from '@/common/helpers'
-import { leaderTileTypes } from '@/common/constants'
+import { leaderTileTypes, tileTypes } from '@/common/constants'
+import BiSuitDiamondFill from '~icons/bi/suit-diamond-fill'
+import BiStarFill from '~icons/bi/star-fill'
+import BiSuitHeartFill from '~icons/bi/suit-heart-fill'
+import BiEggFill from '~icons/bi/egg-fill'
+import BiCircleFill from '~icons/bi/circle-fill'
+import BiSquareFill from '~icons/bi/square-fill'
+import BiTriangleFill from '~icons/bi/triangle-fill'
+import BiOctagonFill from '~icons/bi/octagon-fill'
 
 // Get stores
 const logStore = useLogStore()
@@ -49,29 +59,55 @@ function getTimestamp(message: any): string {
   return message.timestamp.toLocaleString('en-US')
 }
 
-function getLeaderIcon(message: any): string {
-  return helpers.getPlayerIconNameById(message.playerId)
+function getLeaderIcon(message: any): Component | null {
+  const iconMap: Record<number, Component> = {
+    1: BiSuitDiamondFill,
+    2: BiStarFill,
+    3: BiSuitHeartFill,
+    4: BiEggFill,
+  }
+  return iconMap[message.playerId] || null
 }
 
-function getMessageIcon(word: string): { icon: string; class: string } {
-  const properties = { icon: '', class: '' }
+function getMessageIcon(word: string): { component: Component | null; class: string } {
   word = word.replace(/\r?\n|\r/g, '')
   const wordParts = word.substring(1, word.length - 1).split('|')
 
+  let iconComponent: Component | null = null
+  let cssClass = ''
+
+  const playerIconMap: Record<number, Component> = {
+    1: BiSuitDiamondFill,
+    2: BiStarFill,
+    3: BiSuitHeartFill,
+    4: BiEggFill,
+  }
+
+  const tileIconMap: Record<number, Component> = {
+    [tileTypes.temple]: BiCircleFill,
+    [tileTypes.market]: BiSquareFill,
+    [tileTypes.settlement]: BiTriangleFill,
+    [tileTypes.farm]: BiOctagonFill,
+  }
+
   if (wordParts[0] === 'treasure') {
-    properties.icon = 'circle-fill'
-    properties.class = 'treasure'
+    iconComponent = BiCircleFill // treasure is represented by circle
+    cssClass = 'treasure'
   } else {
-    properties.icon = helpers.getPlayerIconNameById(wordParts[0] * 1)
+    const playerId = parseInt(wordParts[0], 10)
+    iconComponent = playerIconMap[playerId] || null
   }
 
   if (wordParts.length === 2) {
-    const isLeader = leaderTileTypes.includes(wordParts[1] * 1)
-    if (!isLeader) properties.icon = 'square-fill'
-    properties.class = helpers.getTileNameByType(wordParts[1] * 1)
+    const tileType = parseInt(wordParts[1], 10)
+    const isLeader = leaderTileTypes.includes(tileType)
+    if (!isLeader) {
+      iconComponent = tileIconMap[tileType] || iconComponent
+    }
+    cssClass = helpers.getTileNameByType(tileType)
   }
 
-  return properties
+  return { component: iconComponent, class: cssClass }
 }
 
 function getClass(message: any): string {

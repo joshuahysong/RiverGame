@@ -14,8 +14,9 @@
         <div class="col">
           <div class="row g-0 justify-content-center align-items-center">
             <div class="col-auto col-xl-12">
-              <b-icon
-                :icon="leaderIcon"
+              <component
+                v-if="leaderIcon"
+                :is="leaderIcon"
                 class="me-2"
               />{{ player.name }}'s Turn
             </div>
@@ -124,7 +125,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, type Component } from 'vue'
 import { useGameStore } from '@/stores/useGameStore'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { usePlayersStore } from '@/stores/usePlayersStore'
@@ -134,6 +135,10 @@ import LeaderTile from './LeaderTile.vue'
 import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '@/common/constants'
 import helpers from '@/common/helpers'
 import type { Player } from '@/stores/usePlayersStore'
+import BiSuitDiamondFill from '~icons/bi/suit-diamond-fill'
+import BiStarFill from '~icons/bi/star-fill'
+import BiSuitHeartFill from '~icons/bi/suit-heart-fill'
+import BiEggFill from '~icons/bi/egg-fill'
 
 // Props
 interface Props {
@@ -161,9 +166,16 @@ const currentActionType = computed(() => gameStore.currentActionType)
 const conflictTileType = computed(() => gameStore.conflictTileType)
 
 // Component computed properties
-const leaderIcon = computed(() =>
-  props.player ? helpers.getPlayerIconNameById(props.player.id) : ''
-)
+const leaderIcon = computed<Component | null>(() => {
+  if (!props.player) return null
+  const iconMap: Record<number, Component> = {
+    1: BiSuitDiamondFill,
+    2: BiStarFill,
+    3: BiSuitHeartFill,
+    4: BiEggFill,
+  }
+  return iconMap[props.player.id] || null
+})
 
 const playerTiles1 = computed(() => {
   if (!props.player) return []

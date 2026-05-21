@@ -30,6 +30,21 @@ const helpers = {
     return playerIcons[id - 1] || ''
   },
 
+  getPlayerIconComponentName(id: number): string {
+    const iconNames = ['i-bi-suit-diamond-fill', 'i-bi-star-fill', 'i-bi-suit-heart-fill', 'i-bi-egg-fill']
+    return iconNames[id - 1] || ''
+  },
+
+  getTileIconComponentName(tileType: number): string {
+    const iconMap: Record<number, string> = {
+      [tileTypes.temple]: 'i-bi-circle-fill',
+      [tileTypes.market]: 'i-bi-square-fill',
+      [tileTypes.settlement]: 'i-bi-triangle-fill',
+      [tileTypes.farm]: 'i-bi-octagon-fill',
+    }
+    return iconMap[tileType] || ''
+  },
+
   getActionNameByType(actionTypeId: number): string | undefined {
     return Object.keys(actionTypes).find(
       (key) => actionTypes[key as keyof typeof actionTypes] === actionTypeId

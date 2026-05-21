@@ -1,22 +1,19 @@
 <template>
   <div>
-    <b-iconstack
-      class="tile-monument"
+    <div
+      class="tile-monument icon-stack"
       :style="monumentStyle"
       :class="monumentClass"
     >
-      <b-icon
-        stacked
-        icon="octagon-fill"
+      <i-bi-octagon-fill
+        class="icon-stack-base"
         :class="primaryTileClass"
       />
-      <b-icon
-        stacked
-        icon="octagon-fill"
-        scale="0.4"
+      <i-bi-octagon-fill
+        class="icon-stack-overlay"
         :class="secondaryTileClass"
       />
-    </b-iconstack>
+    </div>
   </div>
 </template>
 
@@ -106,6 +103,27 @@ onMounted(() => {
 .tile-monument {
   height: 100%;
   width: 100%;
+}
+.icon-stack {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+.icon-stack-base,
+.icon-stack-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.icon-stack-overlay {
+  width: 40%;
+  height: 40%;
+  left: 30%;
+  top: 30%;
 }
 .temple-monument {
   color: vars.$color-temple;

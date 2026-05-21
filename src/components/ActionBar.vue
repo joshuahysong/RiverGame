@@ -3,8 +3,9 @@
     class="row g-0 justify-content-center align-items-center bg-light w-100 py-2 border-bottom action-bar"
   >
     <div class="col-12 col-sm-auto m-0 me-sm-2">
-      <b-icon
-        :icon="leaderIcon"
+      <component
+        v-if="leaderIcon"
+        :is="leaderIcon"
         class="me-2"
       />
       <div
@@ -41,8 +42,7 @@
         v-if="showWarMessage"
         class="d-inline-block"
       >
-        {{ playerName }}: Select<b-icon
-          icon="square-fill"
+        {{ playerName }}: Select<i-bi-square-fill
           :class="warTileType"
           class="mx-2"
         />to
@@ -148,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, getCurrentInstance, h } from 'vue'
+import { computed, getCurrentInstance, h, type Component } from 'vue'
 import { useGameStore } from '@/stores/useGameStore'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { usePlayersStore } from '@/stores/usePlayersStore'
@@ -156,6 +156,10 @@ import { useLogStore } from '@/stores/useLogStore'
 import helpers from '@/common/helpers'
 import { actionTypes, conflictTypes } from '@/common/constants'
 import type { Player } from '@/stores/usePlayersStore'
+import BiSuitDiamondFill from '~icons/bi/suit-diamond-fill'
+import BiStarFill from '~icons/bi/star-fill'
+import BiSuitHeartFill from '~icons/bi/suit-heart-fill'
+import BiEggFill from '~icons/bi/egg-fill'
 
 // Get stores
 const gameStore = useGameStore()
@@ -183,7 +187,15 @@ const conflictTile = computed(() => boardStore.conflictTile)
 const remainingTreasures = computed(() => boardStore.remainingTreasures)
 
 // Component computed properties
-const leaderIcon = computed(() => helpers.getPlayerIconNameById(actionPlayerId.value))
+const leaderIcon = computed<Component | null>(() => {
+  const iconMap: Record<number, Component> = {
+    1: BiSuitDiamondFill,
+    2: BiStarFill,
+    3: BiSuitHeartFill,
+    4: BiEggFill,
+  }
+  return iconMap[actionPlayerId.value] || null
+})
 
 const player = computed<Player | null>(() => playersStore.getPlayer(actionPlayerId.value))
 

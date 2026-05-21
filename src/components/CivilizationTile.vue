@@ -13,8 +13,7 @@
       v-if="isConflictTile"
       class="conflict-tile text-dark bg-warning"
     >
-      <b-icon
-        icon="x-square"
+      <i-bi-x-square
         class="w-100 h-100 light"
       />
     </div>
