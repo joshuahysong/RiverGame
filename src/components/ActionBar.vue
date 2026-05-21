@@ -386,23 +386,26 @@ function commitTilesToConflict() {
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .action-bar {
   min-height: 50px;
 }
 
 .temple {
-  color: $color-temple;
+  color: vars.$color-temple;
 }
 
 .market {
-  color: $color-market;
+  color: vars.$color-market;
 }
 
 .settlement {
-  color: $color-settlement;
+  color: vars.$color-settlement;
 }
 
 .farm {
-  color: $color-farm;
+  color: vars.$color-farm;
 }
 </style>
+

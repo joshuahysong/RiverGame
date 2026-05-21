@@ -98,6 +98,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .tile {
   height: 90%;
   width: 90%;
@@ -114,23 +116,23 @@ onUnmounted(() => {
 }
 
 .temple {
-  background: $color-temple;
+  background: vars.$color-temple;
 }
 
 .market {
-  background: $color-market;
+  background: vars.$color-market;
 }
 
 .settlement {
-  background: $color-settlement;
+  background: vars.$color-settlement;
 }
 
 .farm {
-  background: $color-farm;
+  background: vars.$color-farm;
 }
 
 .generic {
-  background: $color-generic;
+  background: vars.$color-generic;
 }
 
 .treasure-icon {
@@ -149,18 +151,19 @@ onUnmounted(() => {
 }
 
 .monument-top-left {
-  background-color: $color-generic;
+  background-color: vars.$color-generic;
 }
 
 .monument-top-right {
-  background-color: $color-generic;
+  background-color: vars.$color-generic;
 }
 
 .monument-bottom-left {
-  background-color: $color-generic;
+  background-color: vars.$color-generic;
 }
 
 .monument-bottom-right {
-  background-color: $color-generic;
+  background-color: vars.$color-generic;
 }
 </style>
+

@@ -80,6 +80,8 @@ function getClass(message: any): string {
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .scroll {
   overflow: auto;
   max-height: 200px;
@@ -96,25 +98,26 @@ function getClass(message: any): string {
 
 .temple,
 .priest {
-  color: $color-temple;
+  color: vars.$color-temple;
 }
 
 .market,
 .trader {
-  color: $color-market;
+  color: vars.$color-market;
 }
 
 .settlement,
 .king {
-  color: $color-settlement;
+  color: vars.$color-settlement;
 }
 
 .farm,
 .farmer {
-  color: $color-farm;
+  color: vars.$color-farm;
 }
 
 .treasure {
-  color: $color-treasure;
+  color: vars.$color-treasure;
 }
 </style>
+

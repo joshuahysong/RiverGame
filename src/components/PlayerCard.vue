@@ -145,19 +145,22 @@ const debug = computed(() => gameStore.debug)
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .temple-score {
-  background-color: $color-temple;
+  background-color: vars.$color-temple;
 }
 .market-score {
-  background-color: $color-market;
+  background-color: vars.$color-market;
 }
 .settlement-score {
-  background-color: $color-settlement;
+  background-color: vars.$color-settlement;
 }
 .farm-score {
-  background-color: $color-farm;
+  background-color: vars.$color-farm;
 }
 .treasure-score {
-  background-color: $color-treasure;
+  background-color: vars.$color-treasure;
 }
 </style>
+

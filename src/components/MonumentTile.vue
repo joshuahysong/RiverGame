@@ -95,6 +95,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .selected {
   border-radius: 4px;
   box-shadow:
@@ -106,15 +108,16 @@ onMounted(() => {
   width: 100%;
 }
 .temple-monument {
-  color: $color-temple;
+  color: vars.$color-temple;
 }
 .market-monument {
-  color: $color-market;
+  color: vars.$color-market;
 }
 .settlement-monument {
-  color: $color-settlement;
+  color: vars.$color-settlement;
 }
 .farm-monument {
-  color: $color-farm;
+  color: vars.$color-farm;
 }
 </style>
+

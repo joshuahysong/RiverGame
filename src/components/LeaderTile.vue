@@ -83,6 +83,8 @@ const boardStrength = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/variables.scss' as vars;
+
 .tile {
   height: 90%;
   width: 90%;
@@ -98,23 +100,23 @@ const boardStrength = computed(() => {
   box-shadow: 0 0 4px 4px yellow;
 }
 .king {
-  color: $color-settlement;
-  stroke: $color-settlement;
+  color: vars.$color-settlement;
+  stroke: vars.$color-settlement;
   stroke-width: 0;
 }
 .priest {
-  color: $color-temple;
-  stroke: $color-temple;
+  color: vars.$color-temple;
+  stroke: vars.$color-temple;
   stroke-width: 0;
 }
 .farmer {
-  color: $color-farm;
-  stroke: $color-farm;
+  color: vars.$color-farm;
+  stroke: vars.$color-farm;
   stroke-width: 0;
 }
 .trader {
-  color: $color-market;
-  stroke: $color-market;
+  color: vars.$color-market;
+  stroke: vars.$color-market;
   stroke-width: 0;
 }
 .empty {
@@ -143,3 +145,4 @@ const boardStrength = computed(() => {
   }
 }
 </style>
+
