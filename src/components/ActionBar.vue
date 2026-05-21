@@ -1,11 +1,11 @@
 <template>
   <div
-    class="row no-gutters justify-content-center align-items-center bg-light w-100 py-2 border-bottom action-bar"
+    class="row g-0 justify-content-center align-items-center bg-light w-100 py-2 border-bottom action-bar"
   >
-    <div class="col-12 col-sm-auto m-0 mr-sm-2">
+    <div class="col-12 col-sm-auto m-0 me-sm-2">
       <b-icon
         :icon="leaderIcon"
-        class="mr-2"
+        class="me-2"
       />
       <div
         v-if="showCurrentPlayerMessage"
@@ -64,7 +64,7 @@
           variant="primary"
           size="sm"
           :disabled="areActionsDepleted"
-          class="mr-2"
+          class="me-2"
           @click="beginSwapTiles"
         >
           Swap Tiles
@@ -73,7 +73,7 @@
           variant="warning"
           size="sm"
           :disabled="!hasSnapshot"
-          class="mr-2"
+          class="me-2"
           @click="undoLastAction"
         >
           Undo
@@ -82,7 +82,7 @@
           variant="danger"
           size="sm"
           :hidden="areActionsDepleted"
-          class="mr-2"
+          class="me-2"
           @click="showPassTurnMessageBox"
         >
           Pass
@@ -109,7 +109,7 @@
         <b-button
           variant="warning"
           size="sm"
-          class="mr-2"
+          class="me-2"
           @click="stopSwapTiles"
         >
           Cancel
@@ -130,7 +130,7 @@
           variant="warning"
           size="sm"
           :disabled="!hasSnapshot"
-          class="mr-2"
+          class="me-2"
           @click="undoLastAction"
         >
           Undo

@@ -12,7 +12,7 @@
       >
         New Game
       </b-button>
-      <b-navbar-nav class="ml-auto">
+      <b-navbar-nav class="ms-auto">
         <b-nav-item-dropdown right>
           <template #button-content>
             <i-bi-gear-fill />
@@ -73,7 +73,7 @@
       v-model="showDebugSidebar"
       placement="end"
       shadow
-      class="text-left"
+      class="text-start"
     >
       <template #title>Debug Info</template>
       <div class="px-3 py-2">

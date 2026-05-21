@@ -4,7 +4,7 @@
       <strong>Progress</strong>
     </div>
     <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-      <div class="row no-gutters">
+      <div class="row g-0">
         <div class="col-12 col-sm-4 small">
           Bag
         </div>
@@ -30,7 +30,7 @@
           </b-progress>
         </div>
       </div>
-      <div class="row no-gutters mt-2">
+      <div class="row g-0 mt-2">
         <div class="col-12 col-sm-4 small">
           Treasures
         </div>

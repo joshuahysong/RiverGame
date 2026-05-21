@@ -4,7 +4,7 @@
       <strong>Log</strong>
     </div>
     <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-      <div class="scroll border text-left p-2 small">
+      <div class="scroll border text-start p-2 small">
         <div
           v-for="(message, index) in messages"
           :key="index"
@@ -14,7 +14,7 @@
           <span v-if="showLogTimestamps">{{ message.timestamp }}: </span><b-icon
             v-if="message.playerId >= 0"
             :icon="getLeaderIcon(message)"
-            class="mr-1"
+            class="me-1"
           />
           <span
             v-for="(word, index) in message.text.split(' ')"

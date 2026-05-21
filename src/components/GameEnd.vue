@@ -9,7 +9,7 @@
       <strong>Game Over</strong>
     </div>
     <div class="card-body pt-0 pb-2 px-2">
-      <div class="row no-gutters align-items-center pb-2">
+      <div class="row g-0 align-items-center pb-2">
         <div class="col">
           {{ getWinnerName(winningPlayerId) }} is the Winner!
         </div>
@@ -17,7 +17,7 @@
       <div
         v-for="(playerScore, index) in playerScores"
         :key="index"
-        class="row no-gutters align-items-center justify-content-center small"
+        class="row g-0 align-items-center justify-content-center small"
       >
         <div class="col-auto">
           #{{ index + 1 }}: {{ playerScore.player.name }} ({{ playerScore.score[0] }} points)

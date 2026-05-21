@@ -9,19 +9,19 @@
     <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
       <div
         v-if="visiblePlayerId !== player.id"
-        class="row no-gutters"
+        class="row g-0"
       >
         <div class="col">
-          <div class="row no-gutters justify-content-center align-items-center">
+          <div class="row g-0 justify-content-center align-items-center">
             <div class="col-auto col-xl-12">
               <b-icon
                 :icon="leaderIcon"
-                class="mr-2"
+                class="me-2"
               />{{ player.name }}'s Turn
             </div>
             <div
               v-if="player.isHuman"
-              class="col-auto col-xl-12 pl-2 pl-xl-0"
+              class="col-auto col-xl-12 ps-2 ps-xl-0"
             >
               <b-button
                 variant="success"
@@ -37,18 +37,18 @@
       </div>
       <div
         v-else
-        class="row no-gutters"
+        class="row g-0"
       >
         <div class="col-auto col-xl-12 align-self-center justify-content-center">
-          <div class="row no-gutters">
-            <div class="col-auto col-xl-12 text-right text-xl-center">
+          <div class="row g-0">
+            <div class="col-auto col-xl-12 text-end text-xl-center">
               <leader-tile
                 v-for="(tileType, index) in leaderTileTypes.slice(0, 2)"
                 :key="index"
                 :size="size"
                 :tile-type="tileType"
                 :player="player"
-                :class="index !== 3 ? 'mr-1 mr-md-2' : ''"
+                :class="index !== 3 ? 'me-1 me-md-2' : ''"
                 :selected="isSelectedTile(index, tileType)"
                 :highlight="isHighlightedLeader(tileType)"
                 :disabled="isDisabled(tileType)"
@@ -57,14 +57,14 @@
                 @click="selectTile(index, tileType)"
               />
             </div>
-            <div class="col-auto col-xl-12 text-left text-xl-center">
+            <div class="col-auto col-xl-12 text-start text-xl-center">
               <leader-tile
                 v-for="(tileType, index) in leaderTileTypes.slice(2, 4)"
                 :key="index"
                 :size="size"
                 :tile-type="tileType"
                 :player="player"
-                :class="index !== 3 ? 'mr-1 mr-md-2' : ''"
+                :class="index !== 3 ? 'me-1 me-md-2' : ''"
                 :selected="isSelectedTile(index + 2, tileType)"
                 :highlight="isHighlightedLeader(tileType)"
                 :disabled="isDisabled(tileType)"
@@ -76,8 +76,8 @@
           </div>
         </div>
         <div class="col col-xl-12 align-self-center justify-content-center pt-xl-4">
-          <div class="row no-gutters">
-            <div class="col col-xl-12 text-right text-xl-center">
+          <div class="row g-0">
+            <div class="col col-xl-12 text-end text-xl-center">
               <civilization-tile
                 v-for="(tileType, index) in playerTiles1"
                 :key="index"
@@ -85,12 +85,12 @@
                 :tile-type="tileType"
                 :selected="isSelectedTile(index, tileType)"
                 :disabled="isDisabled(tileType)"
-                class="d-inline-block mr-2"
+                class="d-inline-block me-2"
                 show-pointer
                 @click="selectTile(index, tileType)"
               />
             </div>
-            <div class="col col-xl-12 text-left text-xl-center">
+            <div class="col col-xl-12 text-start text-xl-center">
               <civilization-tile
                 v-for="(tileType, index) in playerTiles2"
                 :key="index"
@@ -98,7 +98,7 @@
                 :tile-type="tileType"
                 :selected="isSelectedTile(index + 3, tileType)"
                 :disabled="isDisabled(tileType)"
-                class="d-inline-block mr-2"
+                class="d-inline-block me-2"
                 show-pointer
                 @click="selectTile(index + 3, tileType)"
               />
@@ -113,7 +113,7 @@
             :tile-type="tileTypes.catastrophe"
             :selected="isSelectedTile(index, tileTypes.catastrophe)"
             :disabled="isDisabled(tileTypes.catastrophe)"
-            class="d-inline-block mr-2"
+            class="d-inline-block me-2"
             show-pointer
             @click="selectTile(index, tileTypes.catastrophe)"
           />

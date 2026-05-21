@@ -7,7 +7,7 @@
       <action-bar v-if="!showGameEnd" />
       <div
         v-if="showGameEnd"
-        class="row no-gutters mt-1"
+        class="row g-0 mt-1"
       >
         <div class="col-12 col-xl-10 offset-xl-1">
           <game-end class="m-1" />
@@ -15,13 +15,13 @@
       </div>
       <div
         v-if="showWarBoard"
-        class="row no-gutters mt-2"
+        class="row g-0 mt-2"
       >
         <div class="col-12 col-xl-10 offset-xl-1">
           <war-board class="m-1" />
         </div>
       </div>
-      <div class="row no-gutters mt-2">
+      <div class="row g-0 mt-2">
         <!-- board column -->
         <div class="col-12 col-lg-9 col-xl-7 order-2 order-xl-1">
           <div class="map-container">
@@ -39,27 +39,27 @@
         </div>
         <!-- player hand column -->
         <div class="col-12 col-xl-2 order-1 order-xl-2 mb-2 m-xl-0">
-          <div class="row no-gutters justify-content-center align-items-center">
+          <div class="row g-0 justify-content-center align-items-center">
             <div
               v-if="showMonumentsAboveHand"
               class="col-12 col-md-6 mb-2 px-1 d-block d-lg-none"
             >
               <monument-card />
             </div>
-            <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pr-xl-3">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-12 px-1 px-xl-0 pe-xl-3">
               <player-hand
                 :player="getPlayer(actionPlayerId)"
                 selectable
               />
             </div>
-            <div class="col-12 mt-3 pr-3 d-none d-xl-block">
+            <div class="col-12 mt-3 pe-3 d-none d-xl-block">
               <monument-card />
             </div>
           </div>
         </div>
         <!-- player card column -->
         <div class="col-12 col-lg-3 order-3">
-          <div class="row no-gutters">
+          <div class="row g-0">
             <div
               v-for="(player, index) in allPlayers"
               :key="index"

@@ -59,8 +59,9 @@ const tileClass = computed(() => {
   return cssClass
 })
 
-const tileStyle = computed(() =>
-  props.size ? `height: ${props.size}px; width: ${props.size}px;` : ''
+const tileStyle = computed(() =>{
+    return props.size ? `height: ${props.size}px; width: ${props.size}px;` : ''
+}
 )
 
 const iconClass = computed(() => {

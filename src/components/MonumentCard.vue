@@ -4,8 +4,8 @@
       <strong>Monuments</strong>
     </div>
     <div class="card-body px-2 pb-1 pb-md-2 pt-0 pt-md-1">
-      <div class="row no-gutters align-items-center">
-        <div class="col-6 col-lg-12 text-right text-lg-center">
+      <div class="row g-0 align-items-center">
+        <div class="col-6 col-lg-12 text-end text-lg-center">
           <monument-tile
             v-for="monumentType in monumentTypes1"
             :key="monumentType"
@@ -13,12 +13,12 @@
             :monument-type="monumentType"
             :selected="isSelectedMonument(monumentType)"
             :disabled="!isAvailableMonument(monumentType)"
-            class="d-inline-block mr-2 mb-1"
+            class="d-inline-block me-2 mb-1"
             :show-pointer="isBuildingMonument"
             @click="selectMonument(monumentType)"
           />
         </div>
-        <div class="col-6 col-lg-12 text-left text-lg-center">
+        <div class="col-6 col-lg-12 text-start text-lg-center">
           <monument-tile
             v-for="monumentType in monumentTypes2"
             :key="monumentType"
@@ -26,7 +26,7 @@
             :monument-type="monumentType"
             :selected="isSelectedMonument(monumentType)"
             :disabled="!isAvailableMonument(monumentType)"
-            class="d-inline-block mr-2 mb-1"
+            class="d-inline-block me-2 mb-1"
             :show-pointer="isBuildingMonument"
             @click="selectMonument(monumentType)"
           />
