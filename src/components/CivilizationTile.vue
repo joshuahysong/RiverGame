@@ -5,81 +5,84 @@
     </div>
 </template>
 
-<script>
-import { tileTypes, breakpoints } from '../common/constants'
-import helpers from '../common/helpers'
+<script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { tileTypes, breakpoints } from '@/common/constants'
+import helpers from '@/common/helpers'
 
-export default {
-    name: 'CivilizationTile',
-    props: {
-        tileType: Number,
-        selected: Boolean,
-        highlight: Boolean,
-        disabled: Boolean,
-        hasTreasure: Boolean,
-        showPointer: Boolean,
-        isConflictTile: Boolean,
-        size: Number
-    },
-    data() {
-        return {
-            calculatedSize: 0
-        }
-    },
-    mounted() {
-        window.addEventListener("resize", this.onWindowResize);
-        this.onWindowResize()
-    },
-    unmounted() {
-        window.removeEventListener("resize", this.onWindowResize);
-    },
-    computed: {
-        tileClass() {
-            let cssClass = helpers.getTileNameByType(this.tileType)
-            cssClass += this.selected ? ' selected' : ''
-            cssClass += this.highlight ? ' highlight' : ''
-            cssClass += this.showPointer || this.highlight ? ' pointer' : ''
-            cssClass += this.disabled ? ' disabled' : ''
-            return cssClass
-        },
-        tileStyle() {
-            let style = ''
-            let size = this.size ? this.size : this.calculatedSize
-            if (this.size) style += `height: ${size}px; width: ${size}px;`
-            if (this.tileType === tileTypes.catastrophe) {
-                style += `background: repeating-linear-gradient(`
-                style += `135deg,`
-                style += `#eed202,`
-                style += `#eed202 ${size/4}px,`
-                style += `black ${size/4}px,`
-                style += `black ${size/2}px);`
-            }
-            return style
-        },
-        treasureStyle() {
-            let style = 'top: 32.5%; left: 32.5%;'
-            if (this.tileType === tileTypes.monumentBottomLeft)
-                style = 'top: 40%; left: 20%;'
-            if (this.tileType === tileTypes.monumentBottomRight)
-                style = 'top: 40%; left: 40%;'
-            if (this.tileType === tileTypes.monumentTopLeft)
-                style = 'top: 20%; left: 20%;'
-            if (this.tileType === tileTypes.monumentTopRight)
-                style = 'top: 20%; left: 40%;'
-
-            return style;
-        }
-    },
-    methods: {
-        onWindowResize() {
-            var windowWidth = window.innerWidth;
-            this.calculatedSize = 50
-            if (windowWidth <= breakpoints.large) this.calculatedSize = 40
-            if (windowWidth <= breakpoints.medium) this.calculatedSize = 30
-            if (windowWidth <= breakpoints.small) this.calculatedSize = 20
-        }
-    }
+// Props
+interface Props {
+  tileType?: number
+  selected?: boolean
+  highlight?: boolean
+  disabled?: boolean
+  hasTreasure?: boolean
+  showPointer?: boolean
+  isConflictTile?: boolean
+  size?: number
 }
+
+const props = defineProps<Props>()
+
+// Reactive state
+const calculatedSize = ref<number>(0)
+
+// Computed properties
+const tileClass = computed(() => {
+  let cssClass = helpers.getTileNameByType(props.tileType || 0)
+  cssClass += props.selected ? ' selected' : ''
+  cssClass += props.highlight ? ' highlight' : ''
+  cssClass += props.showPointer || props.highlight ? ' pointer' : ''
+  cssClass += props.disabled ? ' disabled' : ''
+  return cssClass
+})
+
+const tileStyle = computed(() => {
+  let style = ''
+  const size = props.size ? props.size : calculatedSize.value
+  if (props.size) style += `height: ${size}px; width: ${size}px;`
+  if (props.tileType === tileTypes.catastrophe) {
+    style += `background: repeating-linear-gradient(`
+    style += `135deg,`
+    style += `#eed202,`
+    style += `#eed202 ${size/4}px,`
+    style += `black ${size/4}px,`
+    style += `black ${size/2}px);`
+  }
+  return style
+})
+
+const treasureStyle = computed(() => {
+  let style = 'top: 32.5%; left: 32.5%;'
+  if (props.tileType === tileTypes.monumentBottomLeft)
+    style = 'top: 40%; left: 20%;'
+  if (props.tileType === tileTypes.monumentBottomRight)
+    style = 'top: 40%; left: 40%;'
+  if (props.tileType === tileTypes.monumentTopLeft)
+    style = 'top: 20%; left: 20%;'
+  if (props.tileType === tileTypes.monumentTopRight)
+    style = 'top: 20%; left: 40%;'
+  return style
+})
+
+// Methods
+function onWindowResize() {
+  const windowWidth = window.innerWidth
+  calculatedSize.value = 50
+  if (windowWidth <= breakpoints.large) calculatedSize.value = 40
+  if (windowWidth <= breakpoints.medium) calculatedSize.value = 30
+  if (windowWidth <= breakpoints.small) calculatedSize.value = 20
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('resize', onWindowResize)
+  onWindowResize()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onWindowResize)
+})
 </script>
 
 <style lang="scss" scoped>

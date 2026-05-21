@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const useSettingsStore = defineStore('settings', () => {
   // State
@@ -10,17 +10,17 @@ export const useSettingsStore = defineStore('settings', () => {
   const showLeaderStrength = ref(true)
 
   // Getters
-  const all = () => ({
+  const all = computed(() => ({
     showCoordinates: showCoordinates.value,
     showIndexes: showIndexes.value,
     showKingdoms: showKingdoms.value,
     showLogTimestamps: showLogTimestamps.value,
     showLeaderStrength: showLeaderStrength.value
-  })
+  }))
 
   // Actions
   function save() {
-    localStorage.gameSettings = JSON.stringify(all())
+    localStorage.gameSettings = JSON.stringify(all.value)
   }
 
   function load() {

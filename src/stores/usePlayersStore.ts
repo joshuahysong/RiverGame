@@ -4,7 +4,7 @@ import { actionTypes, tileTypes } from '@/common/constants'
 import { useBagStore } from './useBagStore'
 import { useGameStore } from './useGameStore'
 
-interface PlayerScore {
+export interface PlayerScore {
   temple: number
   market: number
   farm: number
@@ -12,7 +12,7 @@ interface PlayerScore {
   treasure: number
 }
 
-interface Player {
+export interface Player {
   id: number
   name: string
   hand: number[]
@@ -46,7 +46,7 @@ export const usePlayersStore = defineStore('players', () => {
     return matching.length > 0 ? matching[0] : null
   }
 
-  const all = () => players.value
+  const all = computed(() => players.value)
 
   // Actions
   async function createNewPlayer(payload: { name: string; isHuman: boolean }) {

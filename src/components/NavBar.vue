@@ -44,77 +44,66 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-import helpers from '../common/helpers'
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useBagStore } from '@/stores/useBagStore'
+import { useGameStore } from '@/stores/useGameStore'
+import { useSettingsStore } from '@/stores/useSettingsStore'
+import helpers from '@/common/helpers'
 
-export default {
-    name: 'NavBar',
-    computed: {
-        ...mapGetters('bag', [
-            'debugBagStats'
-        ]),
-        ...mapGetters('game', [
-            'debug',
-            'isSaveValid',
-            'numberOfPlayers',
-            'turnPlayerId',
-            'visiblePlayerId',
-            'currentActionType',
-            'actionPlayerId',
-            'conflictType'
-        ]),
-        showCoordinates: {
-            get () {
-                return this.$store.getters['settings/showCoordinates']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowCoordinates', value)
-            }
-        },
-        showIndexes: {
-            get () {
-                return this.$store.getters['settings/showIndexes']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowIndexes', value)
-            }
-        },
-        showKingdoms: {
-            get () {
-                return this.$store.getters['settings/showKingdoms']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowKingdoms', value)
-            }
-        },
-        showLogTimestamps: {
-            get () {
-                return this.$store.getters['settings/showLogTimestamps']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowLogTimestamps', value)
-            }
-        },
-        showLeaderStrength: {
-            get () {
-                return this.$store.getters['settings/showLeaderStrength']
-            },
-            set (value) {
-                this.$store.commit('settings/setShowLeaderStrength', value)
-            }
-        },
-        actionTypeName() {
-            return helpers.getActionNameByType(this.currentActionType)
-        },
-    },
-    methods: {
-        onNewGameClicked() {
-            this.$emit('new-game')
-        },
-        saveSettings() {
-            this.$store.dispatch('settings/save')
-        }
-    }
+// Emits
+const emit = defineEmits<{
+  'new-game': []
+}>()
+
+// Get stores
+const bagStore = useBagStore()
+const gameStore = useGameStore()
+const settingsStore = useSettingsStore()
+
+// Computed properties from stores
+const debugBagStats = computed(() => bagStore.debugBagStats)
+const debug = computed(() => gameStore.debug)
+const isSaveValid = computed(() => gameStore.isSaveValid)
+const numberOfPlayers = computed(() => gameStore.numberOfPlayers)
+const turnPlayerId = computed(() => gameStore.turnPlayerId)
+const visiblePlayerId = computed(() => gameStore.visiblePlayerId)
+const currentActionType = computed(() => gameStore.currentActionType)
+const actionPlayerId = computed(() => gameStore.actionPlayerId)
+const conflictType = computed(() => gameStore.conflictType)
+
+// Computed properties with getter/setter for v-model
+const showCoordinates = computed({
+  get: () => settingsStore.showCoordinates,
+  set: (value: boolean) => settingsStore.setShowCoordinates(value)
+})
+
+const showIndexes = computed({
+  get: () => settingsStore.showIndexes,
+  set: (value: boolean) => settingsStore.setShowIndexes(value)
+})
+
+const showKingdoms = computed({
+  get: () => settingsStore.showKingdoms,
+  set: (value: boolean) => settingsStore.setShowKingdoms(value)
+})
+
+const showLogTimestamps = computed({
+  get: () => settingsStore.showLogTimestamps,
+  set: (value: boolean) => settingsStore.setShowLogTimestamps(value)
+})
+
+const showLeaderStrength = computed({
+  get: () => settingsStore.showLeaderStrength,
+  set: (value: boolean) => settingsStore.setShowLeaderStrength(value)
+})
+
+const actionTypeName = computed(() => 
+  helpers.getActionNameByType(currentActionType.value)
+)
+
+// Methods
+function saveSettings() {
+  settingsStore.save()
 }
 </script>

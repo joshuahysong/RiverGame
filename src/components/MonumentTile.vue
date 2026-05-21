@@ -7,77 +7,78 @@
     </div>
 </template>
 
-<script>
-import helpers from '../common/helpers'
-import { tileTypes, monumentTypes } from '../common/constants'
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue'
+import helpers from '@/common/helpers'
+import { tileTypes, monumentTypes } from '@/common/constants'
 
-export default {
-    name: 'MonumentTile',
-    props: {
-        size: Number,
-        selected: Boolean,
-        disabled: Boolean,
-        showPointer: Boolean,
-        monumentType: {
-            type: Number,
-            required: true
-        }
-    },
-    data() {
-        return {
-            primaryTileType: tileTypes.empty,
-            secondaryTileType: tileTypes.empty
-        }
-    },
-    mounted() {
-        switch (this.monumentType) {
-            case monumentTypes.redBlue:
-                this.primaryTileType = tileTypes.temple
-                this.secondaryTileType = tileTypes.farm
-                break;
-            case monumentTypes.blueGreen:
-                this.primaryTileType = tileTypes.farm
-                this.secondaryTileType = tileTypes.market
-                break;
-            case monumentTypes.greenRed:
-                this.primaryTileType = tileTypes.market
-                this.secondaryTileType = tileTypes.temple
-                break;
-            case monumentTypes.blackRed:
-                this.primaryTileType = tileTypes.settlement
-                this.secondaryTileType = tileTypes.temple
-                break;
-            case monumentTypes.blackGreen:
-                this.primaryTileType = tileTypes.settlement
-                this.secondaryTileType = tileTypes.market
-                break;
-            case monumentTypes.blackBlue:
-                this.primaryTileType = tileTypes.settlement
-                this.secondaryTileType = tileTypes.farm
-                break;
-        }
-    },
-    computed: {
-        primaryTileClass() {
-            return `${helpers.getTileNameByType(this.primaryTileType)}-monument`
-        },
-        secondaryTileClass() {
-            return `${helpers.getTileNameByType(this.secondaryTileType)}-monument`
-        },
-        monumentStyle() {
-            let style = ''
-            if (this.size) style += `height: ${this.size}px; width: ${this.size}px;`
-            return style
-        },
-        monumentClass() {
-            let monumentClass = ''
-            monumentClass += this.selected ? ' selected' : ''
-            monumentClass += this.disabled ? ' disabled' : ''
-            monumentClass += this.showPointer && !this.disabled ? ' pointer' : ''
-            return monumentClass
-        }
-    }
+// Props
+interface Props {
+  size?: number
+  selected?: boolean
+  disabled?: boolean
+  showPointer?: boolean
+  monumentType: number
 }
+
+const props = defineProps<Props>()
+
+// Reactive state
+const primaryTileType = ref<number>(tileTypes.empty)
+const secondaryTileType = ref<number>(tileTypes.empty)
+
+// Computed properties
+const primaryTileClass = computed(() => 
+  `${helpers.getTileNameByType(primaryTileType.value)}-monument`
+)
+
+const secondaryTileClass = computed(() => 
+  `${helpers.getTileNameByType(secondaryTileType.value)}-monument`
+)
+
+const monumentStyle = computed(() => {
+  let style = ''
+  if (props.size) style += `height: ${props.size}px; width: ${props.size}px;`
+  return style
+})
+
+const monumentClass = computed(() => {
+  let monumentClass = ''
+  monumentClass += props.selected ? ' selected' : ''
+  monumentClass += props.disabled ? ' disabled' : ''
+  monumentClass += props.showPointer && !props.disabled ? ' pointer' : ''
+  return monumentClass
+})
+
+// Lifecycle hooks
+onMounted(() => {
+  switch (props.monumentType) {
+    case monumentTypes.redBlue:
+      primaryTileType.value = tileTypes.temple
+      secondaryTileType.value = tileTypes.farm
+      break
+    case monumentTypes.blueGreen:
+      primaryTileType.value = tileTypes.farm
+      secondaryTileType.value = tileTypes.market
+      break
+    case monumentTypes.greenRed:
+      primaryTileType.value = tileTypes.market
+      secondaryTileType.value = tileTypes.temple
+      break
+    case monumentTypes.blackRed:
+      primaryTileType.value = tileTypes.settlement
+      secondaryTileType.value = tileTypes.temple
+      break
+    case monumentTypes.blackGreen:
+      primaryTileType.value = tileTypes.settlement
+      secondaryTileType.value = tileTypes.market
+      break
+    case monumentTypes.blackBlue:
+      primaryTileType.value = tileTypes.settlement
+      secondaryTileType.value = tileTypes.farm
+      break
+  }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -15,49 +15,53 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-import helpers from '../common/helpers'
-import { leaderTileTypes } from '@/common/constants';
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useLogStore } from '@/stores/useLogStore'
+import { useSettingsStore } from '@/stores/useSettingsStore'
+import helpers from '@/common/helpers'
+import { leaderTileTypes } from '@/common/constants'
 
-export default {
-    name: 'GameLog',
-    computed: {
-        ...mapGetters('log', [
-            'messages'
-        ]),
-        ...mapGetters('settings', [
-            'showLogTimestamps'
-        ]),
-    },
-    methods: {
-        getTimestamp(message) {
-            return message.timestamp.toLocaleString("en-US")
-        },
-        getLeaderIcon(message) {
-            return helpers.getPlayerIconNameById(message.playerId)
-        },
-        getMessageIcon(word) {
-            const properties = { icon: '', class: '' };
-            word = word.replace(/\r?\n|\r/g, '')
-            const wordParts = word.substring(1, word.length - 1).split('|')
-            if (wordParts[0] === 'treasure') {
-                properties.icon = 'circle-fill'
-                properties.class = 'treasure'
-            } else {
-                properties.icon = helpers.getPlayerIconNameById(wordParts[0] * 1)
-            }
-            if (wordParts.length === 2) {
-                const isLeader = leaderTileTypes.includes(wordParts[1] * 1)
-                if (!isLeader) properties.icon = 'square-fill'
-                properties.class = helpers.getTileNameByType(wordParts[1] * 1)
-            }
-            return properties
-        },
-        getClass(message) {
-            return helpers.getMessageNameByType(message.messageType)
-        }
-    }
+// Get stores
+const logStore = useLogStore()
+const settingsStore = useSettingsStore()
+
+// Computed properties from stores
+const messages = computed(() => logStore.messages)
+const showLogTimestamps = computed(() => settingsStore.showLogTimestamps)
+
+// Methods
+function getTimestamp(message: any): string {
+  return message.timestamp.toLocaleString('en-US')
+}
+
+function getLeaderIcon(message: any): string {
+  return helpers.getPlayerIconNameById(message.playerId)
+}
+
+function getMessageIcon(word: string): { icon: string; class: string } {
+  const properties = { icon: '', class: '' }
+  word = word.replace(/\r?\n|\r/g, '')
+  const wordParts = word.substring(1, word.length - 1).split('|')
+  
+  if (wordParts[0] === 'treasure') {
+    properties.icon = 'circle-fill'
+    properties.class = 'treasure'
+  } else {
+    properties.icon = helpers.getPlayerIconNameById(wordParts[0] * 1)
+  }
+  
+  if (wordParts.length === 2) {
+    const isLeader = leaderTileTypes.includes(wordParts[1] * 1)
+    if (!isLeader) properties.icon = 'square-fill'
+    properties.class = helpers.getTileNameByType(wordParts[1] * 1)
+  }
+  
+  return properties
+}
+
+function getClass(message: any): string {
+  return helpers.getMessageNameByType(message.messageType)
 }
 </script>
 

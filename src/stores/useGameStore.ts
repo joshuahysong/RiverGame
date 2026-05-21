@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { actionTypes, conflictTypes, messageTypes, monumentTypes, tileTypes } from '@/common/constants'
 import { usePlayersStore } from './usePlayersStore'
 import { useBoardStore } from './useBoardStore'
@@ -46,16 +46,16 @@ export const useGameStore = defineStore('game', () => {
   const DEBUG = false
 
   // Getters
-  const debug = () => DEBUG
-  const isSaveValid = () => {
+  const debug = computed(() => DEBUG)
+  const isSaveValid = computed(() => {
     if (localStorage.gameState) {
       const gameState = JSON.parse(localStorage.gameState)
       return gameState.version === import.meta.env.VITE_APP_VERSION
     }
     return false
-  }
+  })
 
-  const hasSnapshot = () => !!snapshot.value
+  const hasSnapshot = computed(() => !!snapshot.value)
 
   // Actions
   function init() {
@@ -94,9 +94,9 @@ export const useGameStore = defineStore('game', () => {
     const bagStore = useBagStore()
     const logStore = useLogStore()
 
-    gameState.players = playersStore.all()
+    gameState.players = playersStore.all
     gameState.tiles = boardStore.tiles
-    gameState.bag = bagStore.all()
+    gameState.bag = bagStore.all
     const messages = logStore.getMessages()
     gameState.log = messages.filter((x) => x.messageType !== messageTypes.system)
     gameState.game = {
@@ -155,12 +155,12 @@ export const useGameStore = defineStore('game', () => {
       players: [],
       log: [],
       tiles: [],
-      bag: bagStore.all(),
+      bag: bagStore.all,
       game: {}
     }
 
-    const players = playersStore.all()
-    players.forEach((player) => {
+    const players = playersStore.all
+    players.forEach((player: any) => {
       newSnapshot.players.push(JSON.parse(JSON.stringify({ ...player, selectedTiles: [] })))
     })
     newSnapshot.log = JSON.parse(JSON.stringify(logStore.getMessages()))
@@ -182,7 +182,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function restoreSnapshot() {
-    if (hasSnapshot()) {
+    if (hasSnapshot.value) {
       const playersStore = usePlayersStore()
       const boardStore = useBoardStore()
       const bagStore = useBagStore()

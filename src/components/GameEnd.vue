@@ -19,77 +19,91 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue'
+import { useGameStore } from '@/stores/useGameStore'
+import { usePlayersStore } from '@/stores/usePlayersStore'
+import { useLogStore } from '@/stores/useLogStore'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'GameEnd',
-    data() {
-        return {
-            confettiInstances: [],
-            playerScores: [],
-            winningPlayerId: 0
-        }
-    },
-    mounted() {
-        this.confettiInstances = [...Array(150).keys()],
-        this.playerScores =  this.getScores()
-        this.winningPlayerId = this.playerScores[0].player.id
-        this.$store.commit('log/logActionMessage', {
-            playerId: this.winningPlayerId,
-            text: `wins the game with 0 points`
-        })
-    },
-    computed: {
-        ...mapGetters('game', [
-            'currentActionType'
-        ]),
-        ...mapGetters('players', {
-            allPlayers: 'all'
-        }),
-    },
-    methods: {
-        getWinnerName(playerId) {
-            const player = this.$store.getters['players/getPlayer'](playerId)
-            return player ? player.name : ''
-        },
-        getScores() {
-            let playerScores = []
-            for (const player of this.allPlayers) {
-                let treasureScore = player.score.treasure
-                let scored = [
-                    player.score.temple,
-                    player.score.farm,
-                    player.score.settlement,
-                    player.score.market
-                ]
-                for (let i = 0; i < treasureScore; i++) {
-                    let minimumScore = Math.min(...scored)
-                    let index = scored.indexOf(minimumScore)
-                    scored.splice(index, 1)
-                    scored.push(++minimumScore)
-                }
-                scored.sort((a,b) => a - b)
-                playerScores.push({
-                    player: { ...player },
-                    score:[...scored]
-                })
-            }
-            // sort taking into account tie breaker
-            playerScores.sort((a, b) => {
-                let firstScore = b.score[0] - a.score[0]
-                if (firstScore) return firstScore
-                let secondScore = b.score[1] - a.score[1]
-                if (secondScore) return secondScore
-                let thirdScore = b.score[2] - a.score[2]
-                if (thirdScore) return thirdScore
-                let fourthScore = b.score[3] - a.score[3]
-                if (fourthScore) return fourthScore
-            })
-            return playerScores
-        }
-    }
+interface PlayerScore {
+  player: Player
+  score: number[]
 }
+
+// Get stores
+const gameStore = useGameStore()
+const playersStore = usePlayersStore()
+const logStore = useLogStore()
+
+// Reactive state
+const confettiInstances = ref<number[]>([])
+const playerScores = ref<PlayerScore[]>([])
+const winningPlayerId = ref<number>(0)
+
+// Computed properties from stores
+const currentActionType = computed(() => gameStore.currentActionType)
+const allPlayers = computed(() => playersStore.all)
+
+// Methods
+function getWinnerName(playerId: number): string {
+  const player = playersStore.getPlayer(playerId)
+  return player ? player.name : ''
+}
+
+function getScores(): PlayerScore[] {
+  const scores: PlayerScore[] = []
+  
+  for (const player of allPlayers.value) {
+    const treasureScore = player.score.treasure
+    let scored = [
+      player.score.temple,
+      player.score.farm,
+      player.score.settlement,
+      player.score.market
+    ]
+    
+    for (let i = 0; i < treasureScore; i++) {
+      const minimumScore = Math.min(...scored)
+      const index = scored.indexOf(minimumScore)
+      scored.splice(index, 1)
+      scored.push(minimumScore + 1)
+    }
+    
+    scored.sort((a, b) => a - b)
+    scores.push({
+      player: { ...player },
+      score: [...scored]
+    })
+  }
+  
+  // Sort taking into account tie breaker
+  scores.sort((a, b) => {
+    const firstScore = b.score[0] - a.score[0]
+    if (firstScore) return firstScore
+    const secondScore = b.score[1] - a.score[1]
+    if (secondScore) return secondScore
+    const thirdScore = b.score[2] - a.score[2]
+    if (thirdScore) return thirdScore
+    const fourthScore = b.score[3] - a.score[3]
+    if (fourthScore) return fourthScore
+    return 0
+  })
+  
+  return scores
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  confettiInstances.value = [...Array(150).keys()]
+  playerScores.value = getScores()
+  winningPlayerId.value = playerScores.value[0].player.id
+  
+  logStore.logActionMessage({
+    playerId: winningPlayerId.value,
+    text: 'wins the game with 0 points'
+  })
+})
 </script>
 
 <style lang="scss" scoped>

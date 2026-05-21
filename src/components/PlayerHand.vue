@@ -85,7 +85,7 @@
                 </div>
                 <div class="col-auto col-xl-12 align-self-center justify-content-center pt-xl-4">
                     <civilization-tile
-                        v-for="(n, index) in player.catastropheTiles"
+                        v-for="index in player.catastropheTiles"
                         :key="index"
                         :size="size"
                         :tile-type="tileTypes.catastrophe"
@@ -100,136 +100,163 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useGameStore } from '@/stores/useGameStore'
+import { useBoardStore } from '@/stores/useBoardStore'
+import { usePlayersStore } from '@/stores/usePlayersStore'
+import { useLogStore } from '@/stores/useLogStore'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '../common/constants'
-import helpers from '../common/helpers'
+import { tileTypes, leaderTileTypes, actionTypes, breakpoints } from '@/common/constants'
+import helpers from '@/common/helpers'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'PlayerHand',
-    components: {
-        CivilizationTile,
-        LeaderTile
-    },
-    props: {
-        player: Object,
-        selectable: {
-            type: Boolean,
-            default: false
-        }
-    },
-    data() {
-        return {
-            size: 0
-        }
-    },
-    mounted() {
-        window.addEventListener("resize", this.onWindowResize);
-        this.onWindowResize()
-    },
-    unmounted() {
-        window.removeEventListener("resize", this.onWindowResize);
-    },
-    computed: {
-        ...mapGetters('game', [
-            'visiblePlayerId',
-            'remainingActions',
-            'currentActionType',
-            'conflictTileType'
-        ]),
-        ...mapGetters('board', [
-            'tiles',
-        ]),
-        leaderIcon() {
-            return helpers.getPlayerIconNameById(this.player.id)
-        },
-        tileTypes() {
-            return tileTypes
-        },
-        leaderTileTypes() {
-            return leaderTileTypes
-        },
-        playerTiles1() {
-            var max = this.player.hand.length < 3 ? this.player.hand.length : 3
-            return this.player.hand.slice(0, max)
-        },
-        playerTiles2() {
-            if (this.player.hand.length < 4) return []
-            var max = this.player.hand.length < 6 ? this.player.hand.length : 6
-            return this.player.hand.slice(3, max)
-        },
-        isInConflict() {
-            return this.currentActionType === actionTypes.conflictAttack ||
-                this.currentActionType === actionTypes.conflictDefend
-        }
-    },
-    methods:{
-        setPlayerVisible() {
-            this.$store.commit('game/setVisiblePlayerId', this.player.id)
-        },
-        isSelectedTile(index, tileType) {
-            return this.selectable && this.player.selectedTiles.some(x => x.index === index && x.tileType === tileType)
-        },
-        isHighlightedLeader(tileType) {
-            let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
-            return this.currentActionType === actionTypes.playTile &&
-                selectedBoardLeader &&
-                selectedBoardLeader.tileType === tileType
-        },
-        isDisabled(tileType) {
-            return (this.isInConflict && this.conflictTileType !== tileType) ||
-                this.remainingActions === 0
-        },
-        selectTile(index, tileType) {
-            if (!this.selectable) return
-
-            let isLeaderTile = leaderTileTypes.includes(tileType)
-            let allowTileSelection = false
-            if (this.remainingActions > 0 &&
-                this.currentActionType === actionTypes.playTile &&
-                (!isLeaderTile || (isLeaderTile && this.player.leaders.includes(tileType)))) allowTileSelection = true
-            if (this.isInConflict && !isLeaderTile && this.player.hand[index] === this.conflictTileType) allowTileSelection = true
-            if (this.currentActionType === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) allowTileSelection = true
-
-            // Selecting a tile in hand
-            if (allowTileSelection) {
-                if (this.isSelectedTile(index, tileType)) {
-                    this.$store.dispatch('players/removeTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
-                } else {
-                    if (!this.isInConflict) this.$store.commit('board/resetBoardTileHighlights')
-                    this.$store.dispatch('players/addTileSelection', { playerId: this.player.id, index: index, tileType: tileType, isLeaderTile: isLeaderTile })
-                }
-            // Moving a leader from board to hand
-            } else {
-                let selectedBoardLeader = this.$store.getters['board/selectedBoardLeader'](this.player.id)
-                if (selectedBoardLeader &&
-                    selectedBoardLeader.tileType === tileType &&
-                    this.currentActionType === actionTypes.playTile
-                ) {
-                    this.$store.dispatch('game/saveSnapshot')
-                    this.$store.commit('players/addLeaderToPlayer', selectedBoardLeader)
-                    this.$store.commit('board/removeTile', { index: selectedBoardLeader.index })
-                    this.$store.dispatch('board/setRegions')
-                    this.$store.commit('board/resetAvailableTileLocations')
-                    this.$store.commit('game/actionCompleted')
-                    this.$store.commit('log/logActionMessage', {
-                        playerId: this.player.id,
-                        text: `moved ${helpers.getLogToken(selectedBoardLeader)}
-                            from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} back to hand`
-                    })
-                }
-            }
-        },
-        onWindowResize() {
-            var windowWidth = window.innerWidth;
-            this.size = 40
-            if (windowWidth <= breakpoints.medium) this.size = 30
-            if (windowWidth <= breakpoints.small) this.size = 20
-        }
-    }
+// Props
+interface Props {
+  player?: Player
+  selectable?: boolean
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  selectable: false
+})
+
+// Get stores
+const gameStore = useGameStore()
+const boardStore = useBoardStore()
+const playersStore = usePlayersStore()
+const logStore = useLogStore()
+
+// Reactive state
+const size = ref<number>(0)
+
+// Computed properties from stores
+const visiblePlayerId = computed(() => gameStore.visiblePlayerId)
+const remainingActions = computed(() => gameStore.remainingActions)
+const currentActionType = computed(() => gameStore.currentActionType)
+const conflictTileType = computed(() => gameStore.conflictTileType)
+
+// Component computed properties
+const leaderIcon = computed(() => 
+  props.player ? helpers.getPlayerIconNameById(props.player.id) : ''
+)
+
+const playerTiles1 = computed(() => {
+  if (!props.player) return []
+  const max = props.player.hand.length < 3 ? props.player.hand.length : 3
+  return props.player.hand.slice(0, max)
+})
+
+const playerTiles2 = computed(() => {
+  if (!props.player) return []
+  if (props.player.hand.length < 4) return []
+  const max = props.player.hand.length < 6 ? props.player.hand.length : 6
+  return props.player.hand.slice(3, max)
+})
+
+const isInConflict = computed(() =>
+  currentActionType.value === actionTypes.conflictAttack ||
+  currentActionType.value === actionTypes.conflictDefend
+)
+
+// Methods
+function setPlayerVisible() {
+  if (!props.player) return
+  gameStore.setVisiblePlayerId(props.player.id)
+}
+
+function isSelectedTile(index: number, tileType: number): boolean {
+  if (!props.player) return false
+  return props.selectable && props.player.selectedTiles.some(
+    (x: any) => x.index === index && x.tileType === tileType
+  )
+}
+
+function isHighlightedLeader(tileType: number): boolean {
+  if (!props.player) return false
+  const selectedBoardLeader = boardStore.getSelectedBoardLeader(props.player.id)
+  return currentActionType.value === actionTypes.playTile &&
+    !!selectedBoardLeader &&
+    selectedBoardLeader.tileType === tileType
+}
+
+function isDisabled(tileType: number): boolean {
+  return (isInConflict.value && conflictTileType.value !== tileType) ||
+    remainingActions.value === 0
+}
+
+function selectTile(index: number, tileType: number) {
+  if (!props.selectable || !props.player) return
+
+  const isLeaderTile = leaderTileTypes.includes(tileType)
+  let allowTileSelection = false
+  
+  if (remainingActions.value > 0 &&
+    currentActionType.value === actionTypes.playTile &&
+    (!isLeaderTile || (isLeaderTile && props.player.leaders.includes(tileType)))) {
+    allowTileSelection = true
+  }
+  if (isInConflict.value && !isLeaderTile && props.player.hand[index] === conflictTileType.value) {
+    allowTileSelection = true
+  }
+  if (currentActionType.value === actionTypes.swapTiles && !isLeaderTile && tileType !== tileTypes.catastrophe) {
+    allowTileSelection = true
+  }
+
+  // Selecting a tile in hand
+  if (allowTileSelection) {
+    if (isSelectedTile(index, tileType)) {
+      playersStore.removeTileSelection({ 
+        index: index, 
+        tileType: tileType, 
+        isLeaderTile: isLeaderTile 
+      })
+    } else {
+      if (!isInConflict.value) boardStore.resetBoardTileHighlights()
+      playersStore.addTileSelection({ 
+        index: index, 
+        tileType: tileType, 
+        isLeaderTile: isLeaderTile 
+      })
+    }
+  // Moving a leader from board to hand
+  } else {
+    const selectedBoardLeader = boardStore.getSelectedBoardLeader(props.player.id)
+    if (selectedBoardLeader &&
+      selectedBoardLeader.tileType === tileType &&
+      currentActionType.value === actionTypes.playTile
+    ) {
+      gameStore.saveSnapshot()
+      playersStore.addLeaderToPlayer(selectedBoardLeader)
+      boardStore.removeTile({ index: selectedBoardLeader.index })
+      boardStore.setRegions()
+      boardStore.resetAvailableTileLocations()
+      gameStore.actionCompleted()
+      logStore.logActionMessage({
+        playerId: props.player.id,
+        text: `moved ${helpers.getLogToken(selectedBoardLeader)} from ${helpers.getCoordinatesByIndex(selectedBoardLeader.index)} back to hand`
+      })
+    }
+  }
+}
+
+function onWindowResize() {
+  const windowWidth = window.innerWidth
+  size.value = 40
+  if (windowWidth <= breakpoints.medium) size.value = 30
+  if (windowWidth <= breakpoints.small) size.value = 20
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('resize', onWindowResize)
+  onWindowResize()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onWindowResize)
+})
 </script>
 
 <style scoped>

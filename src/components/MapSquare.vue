@@ -35,145 +35,146 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue'
+import { useGameStore } from '@/stores/useGameStore'
+import { useBoardStore } from '@/stores/useBoardStore'
+import { usePlayersStore } from '@/stores/usePlayersStore'
+import { useSettingsStore } from '@/stores/useSettingsStore'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
 import MonumentTile from './MonumentTile.vue'
-import helpers from '../common/helpers'
-import { mapTypes, tileTypes, actionTypes } from '../common/constants'
+import helpers from '@/common/helpers'
+import { mapTypes, tileTypes, actionTypes } from '@/common/constants'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'MapSquare',
-    components: {
-        CivilizationTile,
-        LeaderTile,
-        MonumentTile
-    },
-    props: {
-        mapSquareType: Number,
-        index: Number,
-        tile: Object
-    },
-    data() {
-        return {
-            isPriorityTreasureSquare: false,
-            isRiverTile: false,
-            riverPath: null
-        }
-    },
-    mounted() {
-        this.isRiverTile = this.mapSquareType === mapTypes.river
-        this.isPriorityTreasureSquare = this.mapSquareType === mapTypes.priorityTreasure
-        if (this.isRiverTile) {
-            this.riverPath = this.$store.getters['board/getRiverPath'](this.index)
-        }
-    },
-    computed: {
-        ...mapGetters('settings', [
-            'showKingdoms',
-            'showCoordinates',
-            'showIndexes',
-            'showLeaderStrength'
-        ]),
-        ...mapGetters('players', [
-            'currentPlayer'
-        ]),
-        ...mapGetters('game', [
-            'debug',
-            'currentActionType',
-            'actionPlayerId',
-            'visiblePlayerId'
-        ]),
-        ...mapGetters('board', [
-            'conflictTile'
-        ]),
-        coordinates() {
-            return helpers.getCoordinatesByIndex(this.index)
-        },
-        hasTile() {
-            return this.tile && this.tile.tileType !== tileTypes.empty
-        },
-        showRiverHorizontalLeft() {
-            return this.riverPath === '╗' || this.riverPath  === '╝'
-        },
-        showRiverHorizontalRight() {
-            return this.riverPath === '╔' || this.riverPath  === '╚'
-        },
-        showRiverVerticalBottom() {
-            return this.riverPath === '╔' || this.riverPath  === '╗'
-        },
-        showRiverVerticalTop() {
-            return this.riverPath === '╚' || this.riverPath  === '╝'
-        },
-        kingdomStyle() {
-            var blankCss = 'background-color: transparent;'
-            if (!this.hasTile) return blankCss
-            const kingdomIndex = this.$store.getters['board/getKingdomIndex'](this.index)
-            const colors = [
-                'FF0000',
-                'FFFF00',
-                '00EAFF',
-                'AA00FF',
-                'FF7F00',
-                'BFFF00',
-                '0095FF',
-                'FF00AA',
-                'FFD400',
-                '6AFF00',
-                '0040FF',
-                'EDB9B9',
-                'B9D7ED',
-                'E7E9B9',
-                'DCB9ED',
-                'B9EDE0',
-                '8F2323',
-                '23628F',
-                '8F6A23',
-                '6B238F',
-                '4F8F23',
-                '000000',
-                '737373',
-                'CCCCCC'
-            ]
-            return kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
-        },
-        showMonument() {
-            return this.tile &&
-                this.tile.monumentType &&
-                this.tile.tileType === tileTypes.monumentBottomRight
-        },
-        tileTypes() {
-            return tileTypes
-        },
-        showLeaderPointer() {
-            return this.currentPlayer && this.tile &&
-                this.currentPlayer.id === this.tile.playerId &&
-                this.currentActionType === actionTypes.playTile
-        },
-        isConflictTile() {
-            return this.conflictTile && this.conflictTile.index === this.index
-        }
-    }, 
-    methods: {
-        getMapSquareClass() {
-            var mapClass = ''
-            let availableTileLocations = this.$store.getters['board/getAvailableTileLocations']
-            if (availableTileLocations && availableTileLocations.includes(this.index))
-                mapClass += ' valid-location'
-            if (this.isPriorityTreasureSquare && this.tile && this.tile.hasTreasure)
-                mapClass += ' priority-treasure'
-            return mapClass;
-        },
-        doMapSquareClick() {
-            if (this.actionPlayerId === this.visiblePlayerId)
-                this.$store.dispatch('board/handleBoardClick', this.tile)
-        },
-        getPlayer() {
-            return this.$store.getters['players/getPlayer'](this.tile.playerId)
-        },
-    }
+// Props
+interface Props {
+  mapSquareType?: number
+  index?: number
+  tile?: any
 }
+
+const props = defineProps<Props>()
+
+// Get stores
+const gameStore = useGameStore()
+const boardStore = useBoardStore()
+const playersStore = usePlayersStore()
+const settingsStore = useSettingsStore()
+
+// Reactive state
+const isPriorityTreasureSquare = ref<boolean>(false)
+const isRiverTile = ref<boolean>(false)
+const riverPath = ref<string | null>(null)
+
+// Computed properties from stores
+const showKingdoms = computed(() => settingsStore.showKingdoms)
+const showCoordinates = computed(() => settingsStore.showCoordinates)
+const showIndexes = computed(() => settingsStore.showIndexes)
+const showLeaderStrength = computed(() => settingsStore.showLeaderStrength)
+const currentPlayer = computed(() => playersStore.currentPlayer)
+const debug = computed(() => gameStore.debug)
+const currentActionType = computed(() => gameStore.currentActionType)
+const actionPlayerId = computed(() => gameStore.actionPlayerId)
+const visiblePlayerId = computed(() => gameStore.visiblePlayerId)
+const conflictTile = computed(() => boardStore.conflictTile)
+
+// Component computed properties
+const coordinates = computed(() => 
+  props.index !== undefined ? helpers.getCoordinatesByIndex(props.index) : ''
+)
+
+const hasTile = computed(() => 
+  props.tile && props.tile.tileType !== tileTypes.empty
+)
+
+const showRiverHorizontalLeft = computed(() => 
+  riverPath.value === '╗' || riverPath.value === '╝'
+)
+
+const showRiverHorizontalRight = computed(() => 
+  riverPath.value === '╔' || riverPath.value === '╚'
+)
+
+const showRiverVerticalBottom = computed(() => 
+  riverPath.value === '╔' || riverPath.value === '╗'
+)
+
+const showRiverVerticalTop = computed(() => 
+  riverPath.value === '╚' || riverPath.value === '╝'
+)
+
+const kingdomStyle = computed(() => {
+  const blankCss = 'background-color: transparent;'
+  if (!hasTile.value || props.index === undefined) return blankCss
+  
+  const kingdomIndex = boardStore.getKingdomIndex(props.index)
+  const colors = [
+    'FF0000', 'FFFF00', '00EAFF', 'AA00FF', 'FF7F00', 'BFFF00',
+    '0095FF', 'FF00AA', 'FFD400', '6AFF00', '0040FF', 'EDB9B9',
+    'B9D7ED', 'E7E9B9', 'DCB9ED', 'B9EDE0', '8F2323', '23628F',
+    '8F6A23', '6B238F', '4F8F23', '000000', '737373', 'CCCCCC'
+  ]
+  
+  return kingdomIndex !== null && kingdomIndex >= 0 ? `background-color: #${colors[kingdomIndex]};` : blankCss
+})
+
+const showMonument = computed(() =>
+  props.tile &&
+  props.tile.monumentType &&
+  props.tile.tileType === tileTypes.monumentBottomRight
+)
+
+const showLeaderPointer = computed(() =>
+  currentPlayer.value && props.tile &&
+  currentPlayer.value.id === props.tile.playerId &&
+  currentActionType.value === actionTypes.playTile
+)
+
+const isConflictTile = computed(() =>
+  !!(conflictTile.value && props.index !== undefined && 
+  conflictTile.value.index === props.index)
+)
+
+// Methods
+function getMapSquareClass(): string {
+  let mapClass = ''
+  const availableTileLocations = boardStore.getAvailableTileLocations
+  
+  if (Array.isArray(availableTileLocations) && props.index !== undefined && 
+      availableTileLocations.includes(props.index)) {
+    mapClass += ' valid-location'
+  }
+  
+  if (isPriorityTreasureSquare.value && props.tile && props.tile.hasTreasure) {
+    mapClass += ' priority-treasure'
+  }
+  
+  return mapClass
+}
+
+function doMapSquareClick() {
+  if (actionPlayerId.value === visiblePlayerId.value) {
+    boardStore.handleBoardClick(props.tile)
+  }
+}
+
+function getPlayer(): Player | undefined {
+  if (!props.tile?.playerId) return undefined
+  const player = playersStore.getPlayer(props.tile.playerId)
+  return player === null ? undefined : player
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  isRiverTile.value = props.mapSquareType === mapTypes.river
+  isPriorityTreasureSquare.value = props.mapSquareType === mapTypes.priorityTreasure
+  
+  if (isRiverTile.value && props.index !== undefined) {
+    riverPath.value = boardStore.getRiverPath(props.index)
+  }
+})
 </script>
 
 <style scoped>

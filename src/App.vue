@@ -77,8 +77,8 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { computed, onMounted } from 'vue'
 import ActionBar from './components/ActionBar.vue'
 import GameEnd from './components/GameEnd.vue'
 import GameLog from './components/GameLog.vue'
@@ -90,139 +90,134 @@ import PlayerCard from './components/PlayerCard.vue'
 import ProgressCard from './components/ProgressCard.vue'
 import WarBoard from './components/WarBoard.vue'
 import { actionTypes, conflictTypes } from './common/constants'
+import { useBoardStore } from './stores/useBoardStore'
+import { usePlayersStore } from './stores/usePlayersStore'
+import { useGameStore } from './stores/useGameStore'
+import { useBagStore } from './stores/useBagStore'
+import { useLogStore } from './stores/useLogStore'
+import { useSettingsStore } from './stores/useSettingsStore'
+import type { Player } from './stores/usePlayersStore'
 
-export default {
-    name: 'App',
-    components: {
-        ActionBar,
-        GameEnd,
-        GameLog,
-        MapSquare,
-        MonumentCard,
-        NavBar,
-        PlayerHand,
-        PlayerCard,
-        ProgressCard,
-        WarBoard
-    },
-    async mounted() {
-        if (this.isSaveValid) {
-            this.$store.dispatch('game/load')
-        } else {
-            await this.startNewGame()
-        }
-        this.$store.dispatch('settings/load')
-    },
-    computed: {
-        ...mapGetters('board', [
-            'map',
-            'tiles'
-        ]),
-        ...mapGetters('players', {
-            allPlayers: 'all'
-        }),
-        ...mapGetters('game', [
-            'isSaveValid',
-            'visiblePlayerId',
-            'currentActionType',
-            'actionPlayerId',
-            'conflictType'
-        ]),
-        appVersion() {
-            return process.env.VUE_APP_VERSION
-        },
-        showMonumentsAboveHand() {
-            return this.currentActionType === actionTypes.buildMonument ||
-                this.currentActionType === actionTypes.buildMonumentMultiple
-        },
-        showWarBoard() {
-            return this.conflictType !== conflictTypes.none
-        },
-        showGameEnd() {
-            return this.currentActionType === actionTypes.gameOver
-        }
-    },
-    methods: {
-        getTile(index) {
-            return this.tiles[index];
-        },
-        getPlayer(id) {
-            let matchingPlayers = this.allPlayers.filter(x => x.id == id)
-            if (matchingPlayers && matchingPlayers.length > 0) {
-                return matchingPlayers[0]
-            }
-            return null
-        },
-        async startNewGame() {
-            localStorage.removeItem('gameState')
-            this.$store.commit('log/init')
-            this.$store.dispatch('game/init')
-            this.$store.dispatch('board/init')
-            this.$store.dispatch('bag/init')
-            this.$store.commit('players/clearPlayers')
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 1', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 2', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 3', isHuman: true })
-            await this.$store.dispatch('players/createNewPlayer', { name: 'Test Player 4', isHuman: true })
-            this.$store.commit('bag/setStartingBag')
-            this.$store.dispatch('game/save')
-            this.$store.commit('log/logSystemMessage', 'New Game Started')
-        }
-    }
+// Initialize stores
+const boardStore = useBoardStore()
+const playersStore = usePlayersStore()
+const gameStore = useGameStore()
+const bagStore = useBagStore()
+const logStore = useLogStore()
+const settingsStore = useSettingsStore()
+
+// Computed properties from stores
+const map = computed(() => boardStore.map)
+const tiles = computed(() => boardStore.tiles)
+const allPlayers = computed(() => playersStore.all)
+const isSaveValid = computed(() => gameStore.isSaveValid)
+const visiblePlayerId = computed(() => gameStore.visiblePlayerId)
+const currentActionType = computed(() => gameStore.currentActionType)
+const actionPlayerId = computed(() => gameStore.actionPlayerId)
+const conflictType = computed(() => gameStore.conflictType)
+
+// Computed properties
+const appVersion = computed(() => import.meta.env.VITE_APP_VERSION)
+
+const showMonumentsAboveHand = computed(() => {
+    return currentActionType.value === actionTypes.buildMonument ||
+        currentActionType.value === actionTypes.buildMonumentMultiple
+})
+
+const showWarBoard = computed(() => {
+    return conflictType.value !== conflictTypes.none
+})
+
+const showGameEnd = computed(() => {
+    return currentActionType.value === actionTypes.gameOver
+})
+
+// Methods
+function getTile(index: number) {
+    return tiles.value[index]
 }
+
+function getPlayer(id: number): Player | null {
+    const matchingPlayers = allPlayers.value.filter(x => x.id === id)
+    if (matchingPlayers && matchingPlayers.length > 0) {
+        return matchingPlayers[0]
+    }
+    return null
+}
+
+async function startNewGame() {
+    localStorage.removeItem('gameState')
+    logStore.init()
+    gameStore.init()
+    boardStore.init()
+    bagStore.init()
+    playersStore.clearPlayers()
+    await playersStore.createNewPlayer({ name: 'Test Player 1', isHuman: true })
+    await playersStore.createNewPlayer({ name: 'Test Player 2', isHuman: true })
+    await playersStore.createNewPlayer({ name: 'Test Player 3', isHuman: true })
+    await playersStore.createNewPlayer({ name: 'Test Player 4', isHuman: true })
+    bagStore.setStartingBag()
+    gameStore.save()
+    logStore.logSystemMessage('New Game Started')
+}
+
+// Lifecycle hooks
+onMounted(async () => {
+    if (isSaveValid.value) {
+        gameStore.load()
+    } else {
+        await startNewGame()
+    }
+    settingsStore.load()
+})
 </script>
 
-<style scoped>
-    .main-app {
-        font-family: Avenir, Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+<style scoped lang="scss">
+.main-app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-    .map-container {
-        background: black;
-        display: inline-block;
-        border: 5px solid black;
-    }
+.map-container {
+    background: black;
+    display: inline-block;
+    border: 5px solid black;
+}
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(16, calc(50vw / 16));
-        grid-template-rows: repeat(11, calc(50vw / 16));
+.grid {
+    display: grid;
+    grid-template-columns: repeat(16, calc(50vw / 16));
+    grid-template-rows: repeat(11, calc(50vw / 16));
+    grid-gap: 2px;
+
+    @media (max-width: 1199.98px) {
+        grid-template-columns: repeat(16, calc(70vw / 16));
+        grid-template-rows: repeat(11, calc(70vw / 16));
         grid-gap: 2px;
     }
 
-    @media (max-width: 1199.98px) {
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(16, calc(70vw / 16));
-            grid-template-rows: repeat(11, calc(70vw / 16));
-            grid-gap: 2px;
-        }
-    }
-
     @media (max-width: 767.98px) {
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(16, calc(90vw / 16));
-            grid-template-rows: repeat(11, calc(90vw / 16));
-            grid-gap: 1px;
-        }
+        grid-template-columns: repeat(16, calc(90vw / 16));
+        grid-template-rows: repeat(11, calc(90vw / 16));
+        grid-gap: 1px;
     }
+}
 
-    .cell {
-        justify-content: center;
-        align-items: center;
-        display: flex;
-    }
+.cell {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
 </style>
 
-<style>
-    .pointer {
-        cursor: pointer !important;
-    }
-    .disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
+<style lang="scss">
+.pointer {
+    cursor: pointer !important;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
 </style>

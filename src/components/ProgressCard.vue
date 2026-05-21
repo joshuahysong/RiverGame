@@ -32,21 +32,19 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useBagStore } from '@/stores/useBagStore'
+import { useBoardStore } from '@/stores/useBoardStore'
 
-export default {
-    name: 'ProgressCard',
-    computed: {
-        ...mapGetters('bag', [
-            'bagSpaceRemaining'
-        ]),
-        ...mapGetters('board', [
-            'initialTreasures',
-            'remainingTreasures'
-        ])
-    }
-}
+// Get stores
+const bagStore = useBagStore()
+const boardStore = useBoardStore()
+
+// Computed properties from stores
+const bagSpaceRemaining = computed(() => bagStore.bagSpaceRemaining)
+const initialTreasures = computed(() => boardStore.initialTreasures)
+const remainingTreasures = computed(() => boardStore.remainingTreasures)
 </script>
 
 <style scoped>

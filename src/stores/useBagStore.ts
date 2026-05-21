@@ -21,22 +21,22 @@ export const useBagStore = defineStore('bag', () => {
   }
 
   // Getters
-  const all = () => ({
+  const all = computed(() => ({
     bag: bag.value,
     temples: temples.value,
     markets: markets.value,
     settlements: settlements.value,
     farms: farms.value,
     startingBag: startingBag.value
-  })
+  }))
 
-  const debugBagStats = () => ({
+  const debugBagStats = computed(() => ({
     bagCount: bag.value.length,
     temples: temples.value,
     markets: markets.value,
     settlements: settlements.value,
     farms: farms.value
-  })
+  }))
 
   const bagSpaceRemaining = computed(
     () => Math.round((bag.value.length / startingBag.value.length) * 100)

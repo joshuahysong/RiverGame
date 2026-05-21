@@ -61,42 +61,32 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts" setup>
+import { ref, computed } from 'vue'
+import { useGameStore } from '@/stores/useGameStore'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
-import { tileTypes, leaderTileTypes } from '../common/constants'
+import { tileTypes, leaderTileTypes } from '@/common/constants'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'PlayerHand',
-    components: {
-        CivilizationTile,
-        LeaderTile
-    },
-    props: {
-        player: Object,
-        showScore: {
-            type: Boolean,
-            default: false
-        }
-    },
-    data() {
-        return {
-            size: 25
-        }
-    },
-    computed: {
-        ...mapGetters('game', [
-            'debug'
-        ]),
-        tileTypes() {
-            return tileTypes
-        },
-        leaderTileTypes() {
-            return leaderTileTypes
-        }
-    }
+// Props
+interface Props {
+  player?: Player
+  showScore?: boolean
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  showScore: false
+})
+
+// Get store
+const gameStore = useGameStore()
+
+// Reactive state
+const size = ref<number>(25)
+
+// Computed properties
+const debug = computed(() => gameStore.debug)
 </script>
 
 <style lang="scss" scoped>

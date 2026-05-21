@@ -124,66 +124,64 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-import { breakpoints, conflictTypes } from '../common/constants'
+<script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useGameStore } from '@/stores/useGameStore'
+import { usePlayersStore } from '@/stores/usePlayersStore'
+import { breakpoints, conflictTypes } from '@/common/constants'
 import CivilizationTile from './CivilizationTile.vue'
 import LeaderTile from './LeaderTile.vue'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'WarBoard',
-    components: {
-        CivilizationTile,
-        LeaderTile
-    },
-    data() {
-        return {
-            size: 0
-        }
-    },
-    mounted() {
-        window.addEventListener("resize", this.onWindowResize);
-        this.onWindowResize()
-    },
-    unmounted() {
-        window.removeEventListener("resize", this.onWindowResize);
-    },
-    computed: {
-        ...mapGetters('game', [
-            'conflictAttackerLeader',
-            'conflictDefenderLeader',
-            'conflictAttackerTiles',
-            'conflictDefenderTiles',
-            'conflictAttackerBoardTiles',
-            'conflictDefenderBoardTiles',
-            'conflictType',
-            'conflictWinnerPlayerId'
-        ]),
-        ...mapGetters('game', [
-            'currentActionType',
-        ])
-    },
-    methods:{
-        onWindowResize() {
-            var windowWidth = window.innerWidth;
-            this.size = 30
-            if (windowWidth <= breakpoints.medium) this.size = 25
-            if (windowWidth <= breakpoints.small) this.size = 20
-        },
-        getPlayer(playerId) {
-            return this.$store.getters['players/getPlayer'](playerId)
-        },
-        closeWarBoard() {
-            this.$store.commit('game/resetConflictData')
-            this.$store.commit('game/setConflictType', conflictTypes.none)
-        },
-        getResultClass(leader) {
-            if (!this.conflictWinnerPlayerId) return ''
-            if (leader.playerId === this.conflictWinnerPlayerId) return 'winner'
-            return 'loser'
-        }
-    }
+// Get stores
+const gameStore = useGameStore()
+const playersStore = usePlayersStore()
+
+// Reactive state
+const size = ref<number>(0)
+
+// Computed properties from stores
+const conflictAttackerLeader = computed(() => gameStore.conflictAttackerLeader)
+const conflictDefenderLeader = computed(() => gameStore.conflictDefenderLeader)
+const conflictAttackerTiles = computed(() => gameStore.conflictAttackerTiles)
+const conflictDefenderTiles = computed(() => gameStore.conflictDefenderTiles)
+const conflictAttackerBoardTiles = computed(() => gameStore.conflictAttackerBoardTiles)
+const conflictDefenderBoardTiles = computed(() => gameStore.conflictDefenderBoardTiles)
+const conflictWinnerPlayerId = computed(() => gameStore.conflictWinnerPlayerId)
+
+// Methods
+function onWindowResize() {
+  const windowWidth = window.innerWidth
+  size.value = 30
+  if (windowWidth <= breakpoints.medium) size.value = 25
+  if (windowWidth <= breakpoints.small) size.value = 20
 }
+
+function getPlayer(playerId: number): Player | undefined {
+  const player = playersStore.getPlayer(playerId)
+  return player === null ? undefined : player
+}
+
+function closeWarBoard() {
+  gameStore.resetConflictData()
+  gameStore.setConflictType(conflictTypes.none)
+}
+
+function getResultClass(leader: any): string {
+  if (!conflictWinnerPlayerId.value) return ''
+  if (leader.playerId === conflictWinnerPlayerId.value) return 'winner'
+  return 'loser'
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('resize', onWindowResize)
+  onWindowResize()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onWindowResize)
+})
 </script>
 
 <style scoped>

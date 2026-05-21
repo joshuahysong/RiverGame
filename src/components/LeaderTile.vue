@@ -5,53 +5,69 @@
     </div>
 </template>
 
-<script>
-import helpers from '../common/helpers'
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useBoardStore } from '@/stores/useBoardStore'
+import helpers from '@/common/helpers'
+import type { Player } from '@/stores/usePlayersStore'
 
-export default {
-    name: 'LeaderTile',
-    props: {
-        tileType: Number,
-        player: Object,
-        mapIndex: Number,
-        selected: Boolean,
-        highlight: Boolean,
-        disabled: Boolean,
-        showPointer: Boolean,
-        size: Number,
-        showStrength: Boolean,
-        showEmpty: Boolean,
-    },
-    computed: {
-        tileClass() {
-            let cssClass = this.selected ? 'selected' : ''
-            cssClass += this.highlight ? ' highlight' : ''
-            cssClass += this.showPointer && !this.isEmpty || (this.isEmpty && this.highlight) ? ' pointer' : ''
-            cssClass += this.disabled ? ' disabled' : ''
-            return cssClass
-        },
-        tileStyle() {
-            return this.size ? `height: ${this.size}px; width: ${this.size}px;` : ''
-        },
-        iconClass() {
-            var leaderClass = helpers.getTileNameByType(this.tileType)
-            if (this.isEmpty) leaderClass += ' empty'
-            return leaderClass
-        },
-        icon() {
-            return helpers.getPlayerIconNameById(this.player.id)
-        },
-        isEmpty() {
-            return !this.player.leaders.includes(this.tileType) && this.showEmpty
-        },
-        boardStrength() {
-            if (this.mapIndex >= 0) {
-                return this.$store.getters['board/getWarBoardStrength']({ tileType: this.tileType, index: this.mapIndex }).length
-            }
-            return null
-        }
-    }
+// Props
+interface Props {
+  tileType?: number
+  player?: Player
+  mapIndex?: number
+  selected?: boolean
+  highlight?: boolean
+  disabled?: boolean
+  showPointer?: boolean
+  size?: number
+  showStrength?: boolean
+  showEmpty?: boolean
 }
+
+const props = defineProps<Props>()
+
+// Get store
+const boardStore = useBoardStore()
+
+// Computed properties
+const isEmpty = computed(() => 
+  props.player && props.tileType ? 
+    !props.player.leaders.includes(props.tileType) && props.showEmpty :
+    false
+)
+
+const tileClass = computed(() => {
+  let cssClass = props.selected ? 'selected' : ''
+  cssClass += props.highlight ? ' highlight' : ''
+  cssClass += props.showPointer && !isEmpty.value || (isEmpty.value && props.highlight) ? ' pointer' : ''
+  cssClass += props.disabled ? ' disabled' : ''
+  return cssClass
+})
+
+const tileStyle = computed(() => 
+  props.size ? `height: ${props.size}px; width: ${props.size}px;` : ''
+)
+
+const iconClass = computed(() => {
+  let leaderClass = helpers.getTileNameByType(props.tileType || 0)
+  if (isEmpty.value) leaderClass += ' empty'
+  return leaderClass
+})
+
+const icon = computed(() => 
+  props.player ? helpers.getPlayerIconNameById(props.player.id) : ''
+)
+
+const boardStrength = computed(() => {
+  if (props.mapIndex !== undefined && props.mapIndex >= 0 && props.tileType) {
+    return boardStore.getWarBoardStrength({ 
+      tileType: props.tileType, 
+      index: props.mapIndex 
+    }).length
+  }
+  return null
+})
 </script>
 
 <style lang="scss" scoped>
